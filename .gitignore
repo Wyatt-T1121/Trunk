@@ -1,0 +1,21 @@
+# Build outputs
+build/
+iso/
+
+# QEMU artifacts
+*.log
+disk.img
+
+# Compiler generated
+*.o
+*.d
+*.elf
+*.bin
+*.iso
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
