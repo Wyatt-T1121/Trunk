@@ -27,7 +27,7 @@
 
 #pragma once
 
-#include <trunk/Types.h>
+#include <Types.h>
 
 namespace trunk
 {

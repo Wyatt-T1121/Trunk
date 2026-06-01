@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <trunk/Types.h>
+#include <Types.h>
 #include <trunk/asi/Io.h>
 
 namespace trunk

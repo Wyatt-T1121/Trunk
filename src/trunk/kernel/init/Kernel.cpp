@@ -44,11 +44,18 @@ namespace trunk
     {
         (void)info;
 
-        gdt_init();
         serial_init();
 
-        serial_puts("Trunk booting...");
+        serial_puts("Entered kmain()...\n");
+        serial_puts("BootInfo voided...\n");
 
+        serial_puts("Initializing GDT...\n");
+
+        gdt_init();
+
+        serial_puts("GDT initialized.\n");
+
+        serial_puts("Kernel halting.\n");
         for (;;)
         {
             asm volatile("hlt");
