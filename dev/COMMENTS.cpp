@@ -1,4 +1,4 @@
-#error COMMENTS.cpp included in source tree
+#error This file is a template for writing comments. It should not be compiled or included in the source tree.
 
 // This is the  TOP_LEVEL_COMMENT for all files.
 

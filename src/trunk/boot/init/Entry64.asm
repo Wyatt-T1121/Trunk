@@ -39,7 +39,10 @@ extern __stack_top          ; linker script symbol
 extern __init_array_start   ; linker script symbol
 extern __init_array_end     ; linker script symbol
 
-global Entry64
+extern mb2_magic_store      ; Entry32.asm — MB2 magic value
+extern mb2_info_store       ; Entry32.asm — MB2 info pointer
+
+global entry64
 
 section .text
 
@@ -51,7 +54,12 @@ section .text
 ; *            runtime expects, then calls boot_entry. Must not return.         *
 ; *******************************************************************************
 
-Entry64:
+entry64:
+    ; ── LOAD MB2 VALUES FROM BOOT MEMORY ───────────────────────────────────
+    ; These were stored in Entry32.asm before the mode switch
+    ; They're in the .boot.text section at physical addresses
+    mov r12d, dword [mb2_magic_store]    ; load MB2 magic from memory
+    mov r13d, dword [mb2_info_store]     ; load MB2 info ptr from memory
 
     ; ── 1. Load 64-bit data segment into all data registers ──────────────────
     ; The far jump updated CS; now update the rest.
@@ -101,10 +109,9 @@ Entry64:
 
     ; ── 5. Call boot_entry(mb2_magic, mb2_phys) ──────────────────────────────
     ; System V AMD64 ABI: first arg = rdi, second arg = rsi.
-    ; edi and esi were set by Entry32.asm and survived the mode switch.
-    ; Zero-extend to full 64-bit registers to be clean.
-    mov edi, edi                    ; zero-extend edi -> rdi  (MB2 magic)
-    mov esi, esi                    ; zero-extend esi -> rsi  (MB2 phys ptr)
+    ; Restore MB2 values from r12d/r13d (callee-saved across BSS zero and ctors)
+    mov edi, r12d                   ; restore MB2 magic to rdi (32-bit load zero-extends)
+    mov esi, r13d                   ; restore MB2 phys ptr to rsi (32-bit load zero-extends)
     call boot_entry                 ; [[noreturn]] — should never come back
 
     ; ── Safety net ────────────────────────────────────────────────────────────

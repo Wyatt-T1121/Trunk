@@ -55,7 +55,7 @@ PTE_HUGE_FLAGS  equ PTE_PRESENT | PTE_WRITABLE | PTE_HUGE
 
 HH_PDPT_INDEX   equ 510
 
-section .text
+section .boot.text
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *

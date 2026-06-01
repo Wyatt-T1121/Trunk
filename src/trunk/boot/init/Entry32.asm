@@ -45,8 +45,13 @@ global _start
 ; *******************************************************************************
 _start:
     cli
-    mov edi, eax            ; save MB2 magic
-    mov esi, ebx            ; save MB2 info ptr (physical)
+    
+    ; Store MB2 values to memory in boot section so they survive mode switch
+    mov dword [mb2_magic_store], eax      ; save MB2 magic
+    mov dword [mb2_info_store], ebx       ; save MB2 info ptr
+    
+    mov edi, eax            ; also keep in registers for now
+    mov esi, ebx
     mov esp, 0x7C00         ; temp stack
 
     call setup_page_tables
@@ -75,7 +80,7 @@ _start:
 ; *******************************************************************************
 bits 64
 trampoline64:
-    mov rax, Entry64_vaddr  ; 64-bit immediate — no truncation issue
+    mov rax, [entry64_vaddr]  ; 64-bit immediate — no truncation issue
     jmp rax
 
 .hang:
@@ -101,7 +106,19 @@ gdt64_ptr:
 ; We store it as a 64-bit immediate in .boot.text so the linker emits a
 ; full 64-bit relocation (R_X86_64_64) which is fine, rather than a
 ; truncated 32-bit one.
-extern Entry64
+extern entry64
 align 8
-Entry64_vaddr:
-    dq Entry64
+entry64_vaddr:
+    dq entry64
+
+; ── MB2 Values Storage ───────────────────────────────────────────────────────
+; Stored in boot section to survive the mode switch
+align 8
+global mb2_magic_store
+global mb2_info_store
+
+mb2_magic_store:
+    dd 0
+
+mb2_info_store:
+    dd 0

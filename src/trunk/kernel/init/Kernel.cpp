@@ -28,6 +28,8 @@
 #include <trunk/kernel/Kernel.h>
 #include <trunk/gdt/Gdt.h>
 
+#include <trunk/drivers/serial/Serial.h>
+
 namespace trunk
 {
 
@@ -43,6 +45,9 @@ namespace trunk
         (void)info;
 
         gdt_init();
+        serial_init();
+
+        serial_puts("Trunk booting...");
 
         for (;;)
         {
