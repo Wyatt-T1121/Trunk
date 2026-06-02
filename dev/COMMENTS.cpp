@@ -1,4 +1,7 @@
-#error This file is a template for writing comments. It should not be compiled or included in the source tree.
+#error This file is not supposed to be included ANYWHERE.
+#error It is simply a template for developers
+#error Including it is pointless
+#error Remove the include, then rebuild
 
 // This is the  TOP_LEVEL_COMMENT for all files.
 
@@ -32,6 +35,15 @@
 /* *******************************************************************************
  *  AUTHOR  :                                                                    *
  *  FUNC    :                                                                    *
+ *  DATE    :                                                                    *
+ *  PURPOSE :                                                                    *
+ ********************************************************************************/
+
+// This is the section comment for all sections
+
+/* *******************************************************************************
+ *  AUTHOR  :                                                                    *
+ *  SECTION :                                                                    *
  *  DATE    :                                                                    *
  *  PURPOSE :                                                                    *
  ********************************************************************************/

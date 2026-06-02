@@ -58,7 +58,9 @@ namespace trunk
         serial_puts("Kernel halting.\n");
         for (;;)
         {
+            serial_puts("Kernel halted. Press ALT F4 to exit.\n");
             asm volatile("hlt");
+            serial_puts("Kernel resumed after halt. This should never happen.\n");
         }
     }
 
