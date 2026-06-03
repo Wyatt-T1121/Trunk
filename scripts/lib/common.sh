@@ -22,13 +22,6 @@ step() { printf "  ${BLUE}[....]${RESET}  %s\n" "$1"; }
 check_dep()  { command -v "$1" &>/dev/null || fail "Missing: $1"; }
 check_deps() { for d in "$@"; do check_dep "$d"; done; ok "Dependencies OK"; }
 
-# --- Root directory ----------------------------------------------------------
-# Usage: ROOT_DIR=$(get_root)
-get_root() {
-    git -C "$(dirname "${BASH_SOURCE[1]}")" rev-parse --show-toplevel 2>/dev/null \
-        || realpath "$(dirname "${BASH_SOURCE[1]}")/../.."
-}
-
 # --- Boot flag resolver ------------------------------------------------------
 # Usage: BOOT_FLAGS=$(get_boot_flags [auto|iso|disk])
 # Requires QEMU_DISK and QEMU_ISO to be set (from qemu.cfg)
