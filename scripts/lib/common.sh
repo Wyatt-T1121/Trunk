@@ -30,20 +30,20 @@ get_boot_flags() {
     case "$mode" in
         disk)
             [[ -f "$QEMU_DISK" ]] || fail "Disk image not found: $QEMU_DISK"
-            info "Boot target: disk ($QEMU_DISK)"
+            info "Boot target: disk ($QEMU_DISK)" >&2
             echo "-drive file=$QEMU_DISK,format=raw,if=ide -boot order=c"
             ;;
         iso)
             [[ -f "$QEMU_ISO" ]] || fail "ISO not found: $QEMU_ISO"
-            info "Boot target: ISO ($QEMU_ISO)"
+            info "Boot target: ISO ($QEMU_ISO)" >&2
             echo "-cdrom $QEMU_ISO -boot order=d"
             ;;
         auto)
             if [[ -f "$QEMU_DISK" ]]; then
-                info "Boot target: disk (auto)"
+                info "Boot target: disk (auto)" >&2
                 echo "-drive file=$QEMU_DISK,format=raw,if=ide -boot order=c"
             elif [[ -f "$QEMU_ISO" ]]; then
-                info "Boot target: ISO (auto fallback)"
+                info "Boot target: ISO (auto fallback)" >&2
                 echo "-cdrom $QEMU_ISO -boot order=d"
             else
                 fail "No boot target found. Run 'make' or 'make disk' first."
@@ -74,10 +74,10 @@ get_uefi_flags() {
     local ovmf
     ovmf=$(find_ovmf)
     if [[ -n "$ovmf" ]]; then
-        info "UEFI firmware: $ovmf"
+        info "UEFI firmware: $ovmf" >&2
         echo "-bios $ovmf"
     else
-        warn "OVMF not found — falling back to BIOS (install: sudo apt install ovmf)"
+        warn "OVMF not found — falling back to BIOS (install: sudo apt install ovmf)" >&2
         echo ""
     fi
 }
