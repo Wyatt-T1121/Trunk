@@ -14,6 +14,7 @@ MAGENTA='\033[0;35m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
+# --- Varibles (sourced from build.cfg) ---------------------------------------
 VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
 
 OBJ_DIR="${BUILD_DIR}/obj"

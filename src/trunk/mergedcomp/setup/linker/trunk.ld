@@ -40,10 +40,6 @@ KERNEL_LMA  = 0x0000000000100000;
 
 SECTIONS
 {
-    /* =========================================================================
-       BOOT REGION — linked at physical address, safe for 32-bit code
-       ========================================================================= */
-
     . = KERNEL_LMA;
 
     .multiboot2 : {
@@ -63,9 +59,6 @@ SECTIONS
     . = ALIGN(0x1000);
     BOOT_END_LMA = .;
 
-    /* =========================================================================
-       KERNEL REGION — higher-half virtual, loaded at physical via AT()
-       ========================================================================= */
 
     . = KERNEL_VMA + BOOT_END_LMA;
 
