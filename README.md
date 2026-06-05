@@ -35,16 +35,19 @@ Usually you are on Linux if you are compiling an operating system anyway.
 1. Run 'make check-deps' this launches a python script that checks if you have the required dependencies.
    If you do not have all of them, look up a command to install each one that you are missing.
 
-2. Booting
-   - If you want to boot via HDD with .img (recommended):
-     make MODE=DEBUG
-     make disk
-     make install
-     make run-kvm, or run-gdb, or run-headless.
+2. Booting. There is 2 options, DVD/CD with .iso, or HDD with .img
 
-   - If you want to boot via DVD/CD with a .iso:
-     make MODE=DEBUG
-     make run-iso
+If you wish to boot via HDD with .img (recommended) this is the standard command order:
+
+make MODE=DEBUG
+make disk
+make install
+make run-kvm, or run-gdb, or run-headless.
+
+If you want to boot via DVD/CD with a .iso:
+
+make MODE=DEBUG
+make run-iso
 
 Here is the Makefile list of commands.
 Feel free to use any of them, debug as you wish.
