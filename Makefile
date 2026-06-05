@@ -1,31 +1,45 @@
 # Trunk — Root Makefile
 #
-# Usage:
-#   make                 Build kernel + ISO (release)
-#   make MODE=DEBUG      Build kernel + ISO (debug)
-#   make kernel          Build ELF only
-#   make iso             Build ISO only
-#   make disk            Create GPT disk image
-#   make install         Install GRUB + kernel to disk image
-#   make run             Launch QEMU (auto boot target)
-#   make run-kvm         Launch QEMU with KVM
-#   make run-gdb         Launch QEMU with GDB server on :1234
-#   make run-headless    Launch QEMU headless (serial to stdout)
-#   make run-iso         Force boot from ISO
-#   make run-disk        Force boot from disk image
-#   make clean           Remove build artifacts (keep disk images)
-#   make mrproper        Remove everything including disk images
-#   make check-deps      Verify toolchain and system dependencies
-#   make info            Show build configuration
-#   make list-srcs       List all discovered source files
-#   make disasm          Disassemble kernel to build/logs/build/disasm.txt
-#   make sym             Dump symbol table to build/logs/build/symbols.txt
-#   make headers         Show ELF headers and section layout
+# Build chain:
+#
+#   ISO (DVD/CD boot):
+#     make MODE=DEBUG
+#     make run-iso
+#
+#   Disk (HDD boot):
+#     make MODE=DEBUG
+#     make disk
+#     make install
+#     make run-disk       (or run-kvm, run-gdb, run-headless)
+#
+# All targets:
+#   make / make MODE=DEBUG   Build kernel + ISO
+#   make kernel              Build ELF only
+#   make iso                 Build ISO only
+#   make disk                Create GPT disk image
+#   make install             Install GRUB + kernel onto disk image
+#   make run-iso             Boot ISO in QEMU (DVD/CD)
+#   make run-disk            Boot disk image in QEMU (HDD)
+#   make run-kvm             Boot disk image in QEMU (KVM)
+#   make run-gdb             Boot disk image in QEMU (GDB :1234)
+#   make run-headless        Boot disk image in QEMU (headless)
+#   make clean               Remove build/ entirely
+#   make mrproper            Remove build/ + disk images
+#   make check-deps          Verify toolchain + system dependencies
+#   make info                Show build configuration
+#   make list-srcs           List all discovered source files
+#   make disasm              Disassemble kernel
+#   make sym                 Dump symbol table
+#   make headers             Show ELF headers
 
 # --- Configuration -----------------------------------------------------------
 
 include config/build.cfg
 include config/toolchain.cfg
+
+# --- Mode default ------------------------------------------------------------
+
+MODE ?= DEBUG
 
 # --- ANSI colors -------------------------------------------------------------
 
@@ -35,23 +49,22 @@ _Y  := \033[0;33m
 _B  := \033[0;34m
 _M  := \033[0;35m
 _C  := \033[0;36m
-_W  := \033[0;37m
 _BD := \033[1m
 _RS := \033[0m
 
 # --- Step helpers ------------------------------------------------------------
 
 _ok    = @printf "  $(_G)[ OK ]$(_RS)  %s\n" "$1"
-_info  = @printf "  $(_C)[INFO]$(_RS)  %s\n" "$1"
-_warn  = @printf "  $(_Y)[WARN]$(_RS)  %s\n" "$1"
-_step  = @printf "  $(_B)[....]$(_RS)  %s\n" "$1"
-_cxx   = @printf "  $(_M)[ CXX]$(_RS)  %s\n" "$1"
-_asm   = @printf "  $(_C)[ ASM]$(_RS)  %s\n" "$1"
-_nasm  = @printf "  $(_C)[NASM]$(_RS)  %s\n" "$1"
-_ld    = @printf "  $(_Y)[  LD]$(_RS)  %s\n" "$1"
-_iso   = @printf "  $(_B)[ ISO]$(_RS)  %s\n" "$1"
-_disk  = @printf "  $(_B)[DISK]$(_RS)  %s\n" "$1"
-_clean = @printf "  $(_R)[CLN ]$(_RS)  %s\n" "$1"
+_info  = @printf "  $(_C)[ INFO ]$(_RS)  %s\n" "$1"
+_warn  = @printf "  $(_Y)[ WARN ]$(_RS)  %s\n" "$1"
+_step  = @printf "  $(_B)[ .... ]$(_RS)  %s\n" "$1"
+_cxx   = @printf "  $(_M)[ CXX ]$(_RS)  %s\n" "$1"
+_asm   = @printf "  $(_C)[ ASM ]$(_RS)  %s\n" "$1"
+_nasm  = @printf "  $(_C)[ NASM ]$(_RS)  %s\n" "$1"
+_ld    = @printf "  $(_Y)[ LD ]$(_RS)  %s\n" "$1"
+_iso   = @printf "  $(_B)[ ISO ]$(_RS)  %s\n" "$1"
+_disk  = @printf "  $(_B)[ DISK ]$(_RS)  %s\n" "$1"
+_clean = @printf "  $(_R)[ CLEAN ]$(_RS)  %s\n" "$1"
 
 # --- Directories -------------------------------------------------------------
 
@@ -59,7 +72,6 @@ SRC_DIR      := src
 INCLUDE_DIR  := include
 SETUP_DIR    := setup
 SCRIPTS_DIR  := scripts
-CONFIG_DIR   := config
 
 BUILD_DIR    := build
 OBJ_DIR      := $(BUILD_DIR)/obj
@@ -87,10 +99,12 @@ ifeq ($(MODE),DEBUG)
     BUILD_MODE := DEBUG
     OPT_FLAGS  := -O0 -g -ggdb
     MODE_DEFS  := -DTRUNK_DEBUG
-else
+else ifeq ($(MODE),RELEASE)
     BUILD_MODE := RELEASE
     OPT_FLAGS  := -O2
     MODE_DEFS  := -DTRUNK_RELEASE
+else
+    $(error Unknown MODE: $(MODE). Use MODE=DEBUG or MODE=RELEASE)
 endif
 
 MODE_DEFS += -DTRUNK_VERSION=\"$(VERSION)\" -DTRUNK_ARCH=\"$(ARCH)\"
@@ -145,9 +159,6 @@ ifeq ($(MODE),DEBUG)
 endif
 
 # --- Source discovery --------------------------------------------------------
-#
-# Kbuild-style: each sub-Makefile appends to SRCS.
-# tklib uses rwildcard directly — no sub-Makefiles needed.
 
 rwildcard = $(foreach d,$(wildcard $(1:=/*)),$(call rwildcard,$d,$2) \
                 $(filter $(subst *,%,$2),$d))
@@ -178,22 +189,18 @@ ALL_OBJS  := $(OBJS_CXX) $(OBJS_ASM) $(OBJS_NASM)
 all: _dirs $(ISO_IMAGE)
 	@printf "\n"
 	@printf "  $(_BD)$(_G)Trunk v$(VERSION) — build complete$(_RS)\n"
-	@printf "  $(_C)Mode    :$(_RS) $(BUILD_MODE)\n"
-	@printf "  $(_C)Arch    :$(_RS) $(ARCH)\n"
-	@printf "  $(_C)ELF     :$(_RS) $(KERNEL_ELF)\n"
-	@printf "  $(_C)ISO     :$(_RS) $(ISO_IMAGE)\n"
+	@printf "  $(_C)  Mode :$(_RS) $(BUILD_MODE)\n"
+	@printf "  $(_C)  Arch :$(_RS) $(ARCH)\n"
+	@printf "  $(_C)  ELF  :$(_RS) $(KERNEL_ELF)\n"
+	@printf "  $(_C)  ISO  :$(_RS) $(ISO_IMAGE)\n"
 	@printf "\n"
 
 # --- Directory creation ------------------------------------------------------
 
 .PHONY: _dirs
 _dirs:
-	@mkdir -p $(OBJ_DIR)
-	@mkdir -p $(ELF_DIR)
-	@mkdir -p $(ISO_DIR)/boot/grub
-	@mkdir -p $(IMG_DIR)
-	@mkdir -p $(LOG_BUILD)
-	@mkdir -p $(LOG_QEMU)
+	@mkdir -p $(OBJ_DIR) $(ELF_DIR) $(ISO_DIR)/boot/grub \
+	          $(IMG_DIR) $(LOG_BUILD) $(LOG_QEMU)
 
 # --- Compilation -------------------------------------------------------------
 
@@ -220,11 +227,11 @@ $(KERNEL_ELF): $(ALL_OBJS) $(LINKER_SCRIPT)
 	@$(LD) $(LDFLAGS) $(ALL_OBJS) -o $@ 2>> $(LOG_BUILD)/link.log
 	$(call _ok,Kernel linked → $(KERNEL_ELF))
 	@$(READELF) -h $@ | grep "Entry point" | \
-		awk '{printf "  \033[0;36m[INFO]\033[0m  Entry  : %s\n", $$4}'
+		awk '{printf "  \033[0;36m[ INFO ]\033[0m  Entry   : %s\n", $$4}'
 	@$(NM) $@ | wc -l | \
-		awk '{printf "  \033[0;36m[INFO]\033[0m  Symbols: %s\n", $$1}'
+		awk '{printf "  \033[0;36m[ INFO ]\033[0m  Symbols : %s\n", $$1}'
 	@ls -lh $@ | \
-		awk '{printf "  \033[0;36m[INFO]\033[0m  Size   : %s\n", $$5}'
+		awk '{printf "  \033[0;36m[ INFO ]\033[0m  Size    : %s\n", $$5}'
 
 $(KERNEL_BIN): $(KERNEL_ELF)
 	$(call _step,Generating binary...)
@@ -239,53 +246,24 @@ $(ISO_IMAGE): $(KERNEL_ELF)
 	@cp $(GRUB_DIR)/grub.cfg $(ISO_DIR)/boot/grub/grub.cfg
 	@$(GRUB_MKRESCUE) -o $@ $(ISO_DIR) 2>$(LOG_BUILD)/grub.log
 	$(call _ok,ISO ready → $(ISO_IMAGE))
-	@ls -lh $@ | awk '{printf "  \033[0;36m[INFO]\033[0m  Size: %s\n", $$5}'
+	@ls -lh $@ | \
+		awk '{printf "  \033[0;36m[ INFO ]\033[0m  Size    : %s\n", $$5}'
 
 # --- Disk image --------------------------------------------------------------
 
 .PHONY: disk
-disk:
+disk: _dirs
 	$(call _disk,Creating GPT disk image...)
-	@sudo bash $(SCRIPTS_DIR)/create/create_disk.sh
+	@bash $(SCRIPTS_DIR)/create/create_disk.sh
 	$(call _ok,Disk image ready → $(DISK_IMAGE))
 
 .PHONY: install
 install: $(KERNEL_ELF)
+	@test -f $(DISK_IMAGE) || \
+		(printf "  $(_R)[ FAIL ]$(_RS)  Disk not found. Run: make disk\n" && exit 1)
 	$(call _step,Installing GRUB + kernel to disk...)
 	@sudo bash $(SCRIPTS_DIR)/installer/installer.sh
 	$(call _ok,Installation complete)
-
-# --- Run targets -------------------------------------------------------------
-
-.PHONY: run
-run: all disk install
-	$(call _info,Launching QEMU...)
-	@sudo bash $(SCRIPTS_DIR)/run/qemu_basic.sh
-
-.PHONY: run-kvm
-run-kvm: all disk install
-	$(call _info,Launching QEMU \(KVM\)...)
-	@sudo bash $(SCRIPTS_DIR)/run/qemu_kvm.sh
-
-.PHONY: run-gdb
-run-gdb: all disk install
-	$(call _info,Launching QEMU \(GDB :1234\)...)
-	@sudo bash $(SCRIPTS_DIR)/run/qemu_gdb.sh
-
-.PHONY: run-headless
-run-headless: all disk install
-	$(call _info,Launching QEMU \(headless\)...)
-	@sudo bash $(SCRIPTS_DIR)/run/qemu_headless.sh
-
-.PHONY: run-iso
-run-iso: $(ISO_IMAGE)
-	$(call _info,Booting from ISO...)
-	@sudo bash $(SCRIPTS_DIR)/run/qemu_basic.sh --iso
-
-.PHONY: run-disk
-run-disk: all disk install
-	$(call _info,Booting from disk image...)
-	@sudo bash $(SCRIPTS_DIR)/run/qemu_basic.sh --disk
 
 # --- Convenience targets -----------------------------------------------------
 
@@ -295,7 +273,48 @@ kernel: _dirs $(KERNEL_ELF)
 .PHONY: iso
 iso: _dirs $(ISO_IMAGE)
 
-# --- Analysis targets --------------------------------------------------------
+# --- Run targets  ------------------------------------
+
+.PHONY: run-iso
+run-iso:
+	@test -f $(ISO_IMAGE) || \
+		(printf "  $(_R)[ FAIL ]$(_RS)  ISO not found. Run: make\n" && exit 1)
+	$(call _info,Booting from ISO \(DVD/CD\)...)
+	@bash $(SCRIPTS_DIR)/run/qemu_basic.sh --iso
+
+.PHONY: run-disk
+run-disk:
+	@test -f $(DISK_IMAGE) || \
+		(printf "  $(_R)[ FAIL ]$(_RS)  Disk not found. Run: make disk && make install\n" \
+		 && exit 1)
+	$(call _info,Booting from disk image \(HDD\)...)
+	@bash $(SCRIPTS_DIR)/run/qemu_basic.sh --disk
+
+.PHONY: run-kvm
+run-kvm:
+	@test -f $(DISK_IMAGE) || \
+		(printf "  $(_R)[ FAIL ]$(_RS)  Disk not found. Run: make disk && make install\n" \
+		 && exit 1)
+	$(call _info,Booting from disk image \(KVM\)...)
+	@bash $(SCRIPTS_DIR)/run/qemu_kvm.sh --disk
+
+.PHONY: run-gdb
+run-gdb:
+	@test -f $(DISK_IMAGE) || \
+		(printf "  $(_R)[ FAIL ]$(_RS)  Disk not found. Run: make disk && make install\n" \
+		 && exit 1)
+	$(call _info,Booting from disk image \(GDB :1234\)...)
+	@bash $(SCRIPTS_DIR)/run/qemu_gdb.sh --disk
+
+.PHONY: run-headless
+run-headless:
+	@test -f $(DISK_IMAGE) || \
+		(printf "  $(_R)[ FAIL ]$(_RS)  Disk not found. Run: make disk && make install\n" \
+		 && exit 1)
+	$(call _info,Booting from disk image \(headless\)...)
+	@bash $(SCRIPTS_DIR)/run/qemu_headless.sh --disk
+
+# --- Analysis ----------------------------------------------------------------
 
 .PHONY: disasm
 disasm: $(KERNEL_ELF)
@@ -326,17 +345,12 @@ check-deps:
 
 .PHONY: clean
 clean:
+	$(call _clean,Removing build/...)
 	@rm -rf $(BUILD_DIR)
 	$(call _ok,Clean complete)
 
-.PHONY: clean-disk
-clean-disk:
-	$(call _clean,disk images...)
-	@rm -rf $(IMG_DIR)
-	$(call _ok,Disk images removed)
-
 .PHONY: mrproper
-mrproper: clean clean-disk
+mrproper: clean
 	$(call _ok,Full wipe complete)
 
 # --- Info --------------------------------------------------------------------
@@ -345,17 +359,17 @@ mrproper: clean clean-disk
 info:
 	@printf "\n"
 	@printf "  $(_BD)Trunk — Build Info$(_RS)\n"
-	@printf "  $(_C)Kernel     :$(_RS) $(KERNEL_NAME) v$(VERSION)\n"
-	@printf "  $(_C)Mode       :$(_RS) $(BUILD_MODE)\n"
-	@printf "  $(_C)Arch       :$(_RS) $(ARCH)\n"
-	@printf "  $(_C)Toolchain  :$(_RS) $(CXX)\n"
-	@printf "  $(_C)C++ std    :$(_RS) C++20\n"
-	@printf "  $(_C)C++ sources:$(_RS) $(words $(SRCS_CXX))\n"
-	@printf "  $(_C)ASM sources:$(_RS) $(words $(SRCS_ASM)) GAS + $(words $(SRCS_NASM)) NASM\n"
-	@printf "  $(_C)Objects    :$(_RS) $(words $(ALL_OBJS))\n"
-	@printf "  $(_C)ELF        :$(_RS) $(KERNEL_ELF)\n"
-	@printf "  $(_C)ISO        :$(_RS) $(ISO_IMAGE)\n"
-	@printf "  $(_C)Disk       :$(_RS) $(DISK_IMAGE)\n"
+	@printf "  $(_C)  Kernel  :$(_RS) $(KERNEL_NAME) v$(VERSION)\n"
+	@printf "  $(_C)  Mode    :$(_RS) $(BUILD_MODE)\n"
+	@printf "  $(_C)  Arch    :$(_RS) $(ARCH)\n"
+	@printf "  $(_C)  Chain   :$(_RS) $(CXX)\n"
+	@printf "  $(_C)  C++ std :$(_RS) C++20\n"
+	@printf "  $(_C)  C++ src :$(_RS) $(words $(SRCS_CXX))\n"
+	@printf "  $(_C)  ASM src :$(_RS) $(words $(SRCS_ASM)) GAS + $(words $(SRCS_NASM)) NASM\n"
+	@printf "  $(_C)  Objects :$(_RS) $(words $(ALL_OBJS))\n"
+	@printf "  $(_C)  ELF     :$(_RS) $(KERNEL_ELF)\n"
+	@printf "  $(_C)  ISO     :$(_RS) $(ISO_IMAGE)\n"
+	@printf "  $(_C)  Disk    :$(_RS) $(DISK_IMAGE)\n"
 	@printf "\n"
 
 .PHONY: list-srcs

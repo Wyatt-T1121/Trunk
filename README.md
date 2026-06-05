@@ -3,13 +3,15 @@
 Trunk is a hobby x86 64-bit Operating System programmed In C++.
 I created it purely for fun and as a side project, it's not meant to be an every-day operating system.
 
-## DESIGN
+## Design
 
-I am currently developing Trunk to be just like MS-DOS, but more modern.
-It's as simple as MS-DOS, no graphics, just VGA.
-However, It has very modern features compared to MS-DOS.
+I am currently designing trunk to be a hybrid between Windows and Linux.
+It follows an MS-DOS style look.
+But under the hood, i merged linux style systems with Windows.
 
-I also aim to use modern C++ (23+) style.
+Like the linux driver module is merged with the Windows Object manager.
+
+Of course, it will support much more modern features then the likes of MS-DOS.
 
 ## Modern features (that MS-DOS lacks):
 
@@ -22,5 +24,4 @@ I also aim to use modern C++ (23+) style.
 - Much better memory management
 - And much more...
 
-However, Trunk also take's inspiration from Linux.
-Sometimes when I am designing a feature, I will use Linux as a reference
+Credits goes to Linux and Windows both for their amazing design patterns that I can follow.

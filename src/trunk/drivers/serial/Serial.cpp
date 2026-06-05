@@ -101,7 +101,11 @@ namespace trunk::drivers::serial
         {
         }
 
+#ifdef TRUNK_DEBUG
         asi::outb(SERIAL_REG_DATA, static_cast<u8>(c));
+#else
+        (void)c; // Suppress unused parameter warning in release builds
+#endif
     }
 
     /* ******************************************************************************

@@ -12,11 +12,11 @@ BOLD='\033[1m'
 RESET='\033[0m'
 
 # --- Output ------------------------------------------------------------------
-ok()   { printf "  ${GREEN}[ OK ]${RESET}  %s\n" "$1"; }
-info() { printf "  ${CYAN}[INFO]${RESET}  %s\n" "$1"; }
-warn() { printf "  ${YELLOW}[WARN]${RESET}  %s\n" "$1"; }
-fail() { printf "  ${RED}[FAIL]${RESET}  %s\n" "$1"; exit 1; }
-step() { printf "  ${BLUE}[....]${RESET}  %s\n" "$1"; }
+ok()   { printf "  ${GREEN}[ OK ]${RESET}    %s\n" "$1"; }
+info() { printf "  ${CYAN}[ INFO ]${RESET}   %s\n" "$1"; }
+warn() { printf "  ${YELLOW}[ WARN ]${RESET} %s\n" "$1"; }
+fail() { printf "  ${RED}[ FAIL ]${RESET}    %s\n" "$1"; exit 1; }
+step() { printf "  ${BLUE}[....]${RESET}     %s\n" "$1"; }
 
 # --- Dependency checker ------------------------------------------------------
 check_dep()  { command -v "$1" &>/dev/null || fail "Missing: $1"; }

@@ -6,7 +6,6 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 source "$ROOT_DIR/scripts/lib/common.sh"
 source "$ROOT_DIR/config/disk.cfg"
 
-require_root
 check_deps parted mkfs.fat mkfs.ext2 fallocate losetup
 
 mkdir -p "$(dirname "$DISK_IMAGE")"
@@ -33,19 +32,19 @@ ok "GPT partitions created"
 
 # --- Loop device -------------------------------------------------------------
 step "Setting up loop device..."
-LOOP=$(losetup --find --show --partscan "$DISK_IMAGE")
+LOOP=$(sudo losetup --find --show --partscan "$DISK_IMAGE")
 ok "Loop device: $LOOP"
 
-cleanup() { losetup -d "$LOOP" 2>/dev/null || true; }
+cleanup() { sudo losetup -d "$LOOP" 2>/dev/null || true; }
 trap cleanup EXIT
 
 # --- Format ------------------------------------------------------------------
 step "Formatting ESP (FAT32)..."
-mkfs.fat -F32 -n "$BOOT_PART_NAME" "${LOOP}p1"
+sudo mkfs.fat -F32 -n "$BOOT_PART_NAME" "${LOOP}p1"
 ok "ESP formatted"
 
 step "Formatting root (ext2)..."
-mkfs.ext2 -L "$ROOT_PART_NAME" "${LOOP}p2"
+sudo mkfs.ext2 -L "$ROOT_PART_NAME" "${LOOP}p2"
 ok "Root formatted"
 
 ok "Disk image ready: $DISK_IMAGE"

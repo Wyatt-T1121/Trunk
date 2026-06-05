@@ -8,6 +8,8 @@ disk.img
 
 # Tracking
 .CL_B_F_N_T
+.CL_B_F_N_TOM
+.CL_B_F_N_TOME
 
 # Compiler generated
 *.o

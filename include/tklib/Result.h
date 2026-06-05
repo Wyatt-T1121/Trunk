@@ -19,8 +19,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  FILE    : Result.h                                                           *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Rust style Result<> for error handling.                            *
- *            Safer, better, and actually usuable compared to c++ exceptions     *
+ *  PURPOSE : Rust style Result<> for better error handling.                     *
  *                                                                               *
  ********************************************************************************/
 #pragma once
