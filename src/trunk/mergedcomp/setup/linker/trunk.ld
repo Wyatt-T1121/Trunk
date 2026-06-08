@@ -1,33 +1,13 @@
 OUTPUT_FORMAT(elf64-x86-64)
 OUTPUT_ARCH(i386:x86-64)
-ENTRY(kmain)
+ENTRY(_start_kern)
 
-KERNEL_VMA  = 0xFFFFFFFF80000000;
-KERNEL_LMA  = 0x0000000000100000;
+KERNEL_VMA = 0xFFFFFFFF80000000;
+KERNEL_LMA = 0x0000000000200000;
 
 SECTIONS
 {
-    . = KERNEL_LMA;
-
-    .multiboot2 : {
-        KEEP(*(.multiboot2))
-    }
-
-    .boot.text : {
-        *(.boot.text)
-        *(.boot.text.*)
-    }
-
-    .boot.rodata : {
-        *(.boot.rodata)
-        *(.boot.rodata.*)
-    }
-
-    . = ALIGN(0x1000);
-    BOOT_END_LMA = .;
-
-
-    . = KERNEL_VMA + BOOT_END_LMA;
+    . = KERNEL_VMA + KERNEL_LMA;
 
     .text ALIGN(0x1000) : AT(ADDR(.text) - KERNEL_VMA) {
         *(.text)

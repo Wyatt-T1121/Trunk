@@ -27,12 +27,15 @@
 
 #include <trunk/boot/boot.h>
 
-/* *******************************************************************************
- *  AUTHOR  : Trollycat                                                          *
- *  FUNC    : kmain                                                              *
- *  DATE    : 2026                                                               *
- *  PURPOSE : Kernel entry point. Called once by boot_entry() after the machine  *
- *            is in a known-good 64-bit state. Never returns.                    *
- ********************************************************************************/
-extern "C" [[noreturn]]
-void kmain(const trunk::boot::BootInfo &info) noexcept;
+namespace trunk::kernel
+{
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : kmain                                                              *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Kernel entry point. Called once by boot_entry() after the machine  *
+     *            is in a known-good 64-bit state. Never returns.                    *
+     ********************************************************************************/
+    extern "C" [[noreturn]]
+    void kmain(const boot::BootInfo &info) noexcept;
+} // namespace trunk::kernel
