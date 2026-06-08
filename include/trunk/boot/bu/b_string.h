@@ -17,7 +17,7 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : BString.h                                                         *
+ *  MODULE  : Bootstrapping                                                     *
  *  DATE    : 2026                                                              *
  *  PURPOSE : Freestanding memory utilities for the boot stage.                 *
  *            trboot.elf is statically isolated from tklib — it cannot link     *

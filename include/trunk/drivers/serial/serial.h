@@ -17,7 +17,7 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : Serial.h                                                          *
+ *  MODULE  : Serial communication driver                                       *
  *  DATE    : 2026                                                              *
  *  PURPOSE : COM1 serial port driver declarations.                             *
  *            Talks to hardware via port I/O. No dependencies beyond Io.h.      *

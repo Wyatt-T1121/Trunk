@@ -17,7 +17,7 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  FILE    : Result.h                                                           *
+ *  MODULE  : Standard library utility                                           *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Rust style Result<> for better error handling.                     *
  *                                                                               *

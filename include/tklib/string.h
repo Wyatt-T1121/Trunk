@@ -17,7 +17,7 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : String.h                                                          *
+ *  MODULE  : Standard library utility                                          *
  *  DATE    : 2026                                                              *
  *  PURPOSE : Freestanding string and memory utility functions.                 *
  *            No heap allocation. No formatting. Pure manipulation.             *

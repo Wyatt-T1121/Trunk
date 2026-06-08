@@ -17,7 +17,7 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : ELoader.h                                                         *
+ *  MODULE  : Bootstrapping                                                     *
  *  DATE    : 2026                                                              *
  *  PURPOSE : ELF64 loader for the boot stage.                                  *
  *            Parses troskern.elf from its physical RAM location, copies each   *

@@ -17,7 +17,7 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  FILE    : Io.h                                                               *
+ *  MODULE  : Hardware abstraction layer                                         *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Raw x86 port I/O primitives. Every device driver and subsystem     *
  *            that needs to talk to hardware goes through these functions.       *

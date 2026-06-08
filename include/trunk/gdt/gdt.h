@@ -17,7 +17,7 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  FILE    : Gdt.h                                                              *
+ *  MODULE  : Architecture Initialization                                        *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Defines and initalizes the permanent 64-bit                        *
  *            Global Descriptor Table.                                           *
