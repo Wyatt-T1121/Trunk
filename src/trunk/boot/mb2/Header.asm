@@ -24,18 +24,28 @@
 ; *            guarantee placement with KEEP(*(.multiboot2)) and nothing        *
 ; *            else can accidentally push it out of range.                      *
 ; *                                                                             *
+; *            Tags present:                                                    *
+; *              - Framebuffer  (type 5, optional) — request text mode          *
+; *              - Module align (type 6, optional) — 4KB-align module loads     *
+; *              - End          (type 0, required) — terminates tag list        *
+; *                                                                             *
+; *            GRUB is told to load troskern.elf as a module via grub.cfg       *
+; *            (multiboot2 module /boot/troskern.elf). The module align tag     *
+; *            ensures GRUB places it on a 4KB boundary so elf_load() can       *
+; *            safely walk its program headers without alignment faults.        *
+; *                                                                             *
 ; *******************************************************************************
 
 bits 32
 
-; ── Multiboot2 constants ──────────────────────────────────────────────────────
+; Multiboot2 constants
 
 MB2_MAGIC       equ 0xE85250D6
 MB2_ARCH        equ 0                           ; i386 protected mode
 HEADER_LEN      equ (mb2_end - mb2_start)
 MB2_CHECKSUM    equ -(MB2_MAGIC + MB2_ARCH + HEADER_LEN)
 
-; ── Header ────────────────────────────────────────────────────────────────────
+; Header
 
 section .multiboot2
 align 8
@@ -46,18 +56,30 @@ mb2_start:
     dd HEADER_LEN
     dd MB2_CHECKSUM
 
-    ; ── Tag: framebuffer (optional — request text mode 80x25) ─────────────────
+    ; Tag: framebuffer (type 5, optional)
+    ; Request text mode. flags=1 means optional — GRUB will not fail if the
+    ; firmware cannot satisfy it. width/height/depth = 0 = no preference.
     align 8
-    dw 5            ; type  = framebuffer
-    dw 1            ; flags = optional (do not fail if unavailable)
-    dd 20           ; size  = 20 bytes
-    dd 0            ; width  — 0 means no preference
-    dd 0            ; height — 0 means no preference
-    dd 0            ; depth  — 0 means no preference
+    dw 5            ; type   = framebuffer
+    dw 1            ; flags  = optional
+    dd 20           ; size   = 20 bytes
+    dd 0            ; width  — no preference
+    dd 0            ; height — no preference
+    dd 0            ; depth  — no preference
 
-    ; ── Tag: end ──────────────────────────────────────────────────────────────
+    ; Tag: module alignment (type 6, optional)
+    ; Instructs GRUB to load all modules on page-aligned (4KB) boundaries.
+    ; This is required for elf_load() — it copies PT_LOAD segments via p_paddr
+    ; and walks headers with pointer arithmetic that assumes natural alignment.
+    ; Without this, GRUB may place the module at an arbitrary address.
     align 8
-    dw 0            ; type = end
+    dw 6            ; type  = module alignment
+    dw 0            ; flags = required (0 = must honour)
+    dd 8            ; size  = 8 bytes (no payload beyond the fixed fields)
+
+    ; Tag: end (type 0, required)
+    align 8
+    dw 0            ; type  = end
     dw 0            ; flags
     dd 8            ; size
 mb2_end:

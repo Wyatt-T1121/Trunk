@@ -1,3 +1,7 @@
-SRCS += $(wildcard src/trunk//tros/kern/init/*.cpp)
-SRCS += $(wildcard src/trunk/tros/kern/init/*.S)
-SRCS += $(wildcard src/trunk/tros/kern/init/*.asm)
+TROS_KERN_INIT_DIR := $(SRC_DIR)/trunk/tros/kern/init
+
+TROS_KERN_INIT_SRCS_CXX := $(wildcard $(TROS_KERN_INIT_DIR)/*.cpp)
+
+TROS_KERN_INIT_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(TROS_KERN_INIT_SRCS_CXX))
+
+KERN_OBJS += $(TROS_KERN_INIT_OBJS)
