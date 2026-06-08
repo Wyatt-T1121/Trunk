@@ -17,7 +17,7 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : ELoader.cpp                                                       *
+ *  MODULE  : Bootstrapping                                                     *
  *  DATE    : 2026                                                              *
  *  PURPOSE : ELF64 loader implementation for the boot stage.                   *
  *            Validates ELF magic/class/arch, walks PT_LOAD program headers,    *

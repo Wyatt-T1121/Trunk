@@ -17,7 +17,7 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : BString.cpp                                                       *
+ *  MODULE  : Bootstrapping                                                     *
  *  DATE    : 2026                                                              *
  *  PURPOSE : Boot-stage memory utility implementations.                        *
  *            Freestanding — no standard library, no tklib dependency.          *

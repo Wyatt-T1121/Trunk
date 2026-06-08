@@ -17,7 +17,7 @@
 ; *******************************************************************************
 ; *                                                                             *
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FILE    : Entry64.asm                                                      *
+; *  MODULE  : Bootstrapping                                                    *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : 64-bit landing pad. Arrived at via far jump from Entry32.asm.    *
 ; *            Responsibilities (in order):                                     *

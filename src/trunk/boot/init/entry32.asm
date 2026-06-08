@@ -17,7 +17,7 @@
 ; *******************************************************************************
 ; *                                                                             *
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FILE    : Entry32.asm                                                      *
+; *  MODULE  : Bootstrapping                                                    *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : 32-bit protected mode entry point (_start). GRUB jumps here.     *
 ; *            Saves MB2 magic + info ptr, builds page tables, enables long     *

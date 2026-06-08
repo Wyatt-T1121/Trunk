@@ -17,7 +17,7 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : Serial.cpp                                                        *
+ *  MODULE  : Serial communication driver                                       *
  *  DATE    : 2026                                                              *
  *  PURPOSE : COM1 serial port driver implementation.                           *
  *            Initialises the UART chip and provides byte-level output.         *

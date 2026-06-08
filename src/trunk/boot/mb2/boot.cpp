@@ -17,7 +17,7 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  FILE    : Boot.cpp                                                           *
+ *  MODULE  : Bootstrapping                                                     *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Multiboot2 bridge and ELF kernel loader.                           *
  *            Validates the bootloader handoff, parses the MB2 info struct       *

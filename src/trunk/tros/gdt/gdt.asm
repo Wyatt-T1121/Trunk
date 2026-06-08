@@ -17,7 +17,7 @@
 ; *********************************************************************************
 ; *                                                                               *
 ; *  AUTHOR  : Trollycat                                                          *
-; *  FILE    : Gdt.asm                                                            *
+; *  MODULE  : Architecture Initialization                                        *
 ; *  DATE    : 2026                                                               *
 ; *  PURPOSE : Assembly code for the Global Descriptor Table.                     *
 ; *            Contains gdt_flush (called by c++)                                 *

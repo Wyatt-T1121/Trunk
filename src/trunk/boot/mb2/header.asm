@@ -17,7 +17,7 @@
 ; *******************************************************************************
 ; *                                                                             *
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FILE    : Header.asm                                                       *
+; *  MODULE  : Bootstrapping                                                    *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Multiboot2 magic header blob. Must be within the first 32KB      *
 ; *            of the final binary. Isolated here so the linker script can      *
