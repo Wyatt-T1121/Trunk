@@ -26,8 +26,8 @@
  *                                                                              *
  * *****************************************************************************/
 
-#include <trunk/boot/bu/ELoader.h>
-#include <trunk/boot/bu/BString.h>
+#include <trunk/boot/bu/e_loader.h>
+#include <trunk/boot/bu/b_string.h>
 
 namespace trunk::boot
 {

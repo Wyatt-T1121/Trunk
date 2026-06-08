@@ -25,10 +25,10 @@
  *                                                                               *
  ********************************************************************************/
 
-#include <trunk/kernel/Kernel.h>
-#include <trunk/gdt/Gdt.h>
+#include <trunk/kernel/kernel.h>
+#include <trunk/gdt/gdt.h>
 
-#include <trunk/drivers/serial/Serial.h>
+#include <trunk/drivers/serial/serial.h>
 
 namespace serial = trunk::drivers::serial;
 
@@ -41,11 +41,10 @@ namespace serial = trunk::drivers::serial;
 extern "C" [[noreturn]]
 void kmain(const trunk::boot::BootInfo &info) noexcept
 {
-    (void)info;
-
     serial::serial_init();
-
     serial::serial_puts("Entered kmain()...\n");
+
+    (void)info;
     serial::serial_puts("BootInfo voided...\n");
 
     serial::serial_puts("Initializing GDT...\n");

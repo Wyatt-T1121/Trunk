@@ -17,19 +17,15 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : BString.h                                                         *
+ *  FILE    : BString.cpp                                                       *
  *  DATE    : 2026                                                              *
- *  PURPOSE : Freestanding memory utilities for the boot stage.                 *
- *            trboot.elf is statically isolated from tklib — it cannot link     *
- *            against tklib.a. These provide the minimal memory primitives      *
- *            Boot.cpp needs to implement the ELF loader.                       *
- *            Same names as tklib — different namespace, no collision.          *
+ *  PURPOSE : Boot-stage memory utility implementations.                        *
+ *            Freestanding — no standard library, no tklib dependency.          *
+ *            These are the only memory functions available during boot.        *
  *                                                                              *
  * *****************************************************************************/
 
-#pragma once
-
-#include <Types.h>
+#include <trunk/boot/bu/b_string.h>
 
 namespace trunk::boot
 {
@@ -40,10 +36,17 @@ namespace trunk::boot
      *  FUNC    : memcpy                                                            *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Copy n bytes from src to dst. Regions must not overlap.           *
-     *            Used by the ELF loader to copy PT_LOAD segments into RAM.         *
+     *            Forward copy — safe when dst < src.                               *
      *                                                                              *
      * *****************************************************************************/
-    void *memcpy(void *dst, const void *src, usize n) noexcept;
+    void *memcpy(void *dst, const void *src, usize n) noexcept
+    {
+        auto *d = static_cast<u8 *>(dst);
+        const auto *s = static_cast<const u8 *>(src);
+        for (usize i = 0; i < n; ++i)
+            d[i] = s[i];
+        return dst;
+    }
 
     /* ******************************************************************************
      *                                                                              *
@@ -51,10 +54,15 @@ namespace trunk::boot
      *  FUNC    : memset                                                            *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Fill n bytes of dst with val.                                     *
-     *            Used by the ELF loader to zero BSS regions of troskern.elf.       *
      *                                                                              *
      * *****************************************************************************/
-    void *memset(void *dst, u8 val, usize n) noexcept;
+    void *memset(void *dst, u8 val, usize n) noexcept
+    {
+        auto *d = static_cast<u8 *>(dst);
+        for (usize i = 0; i < n; ++i)
+            d[i] = val;
+        return dst;
+    }
 
     /* ******************************************************************************
      *                                                                              *
@@ -65,6 +73,14 @@ namespace trunk::boot
      *            Returns 0 if equal, <0 if a < b, >0 if a > b.                     *
      *                                                                              *
      * *****************************************************************************/
-    [[nodiscard]] int memcmp(const void *a, const void *b, usize n) noexcept;
+    int memcmp(const void *a, const void *b, usize n) noexcept
+    {
+        const auto *pa = static_cast<const u8 *>(a);
+        const auto *pb = static_cast<const u8 *>(b);
+        for (usize i = 0; i < n; ++i)
+            if (pa[i] != pb[i])
+                return static_cast<int>(pa[i]) - static_cast<int>(pb[i]);
+        return 0;
+    }
 
 } // namespace trunk::boot

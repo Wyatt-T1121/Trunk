@@ -17,15 +17,19 @@
  ********************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
- *  FILE    : BString.cpp                                                       *
+ *  FILE    : ELoader.h                                                         *
  *  DATE    : 2026                                                              *
- *  PURPOSE : Boot-stage memory utility implementations.                        *
- *            Freestanding — no standard library, no tklib dependency.          *
- *            These are the only memory functions available during boot.        *
+ *  PURPOSE : ELF64 loader for the boot stage.                                  *
+ *            Parses troskern.elf from its physical RAM location, copies each   *
+ *            PT_LOAD segment to its physical load address, zeroes BSS regions, *
+ *            and returns the virtual entry point for the kernel jump.          *
+ *            No tklib dependency — boot stage is fully self-contained.         *
  *                                                                              *
  * *****************************************************************************/
 
-#include <trunk/boot/bu/BString.h>
+#pragma once
+
+#include <types.h>
 
 namespace trunk::boot
 {
@@ -33,54 +37,45 @@ namespace trunk::boot
     /* ******************************************************************************
      *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : memcpy                                                            *
+     *  SECTION : ELF64 result type                                                 *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Copy n bytes from src to dst. Regions must not overlap.           *
-     *            Forward copy — safe when dst < src.                               *
+     *  PURPOSE : Returned by elf_load(). On success contains the virtual entry     *
+     *            point address to jump to. On failure contains an error code.      *
      *                                                                              *
      * *****************************************************************************/
-    void *memcpy(void *dst, const void *src, usize n) noexcept
+    enum class ElfError : u32
     {
-        auto *d = static_cast<u8 *>(dst);
-        const auto *s = static_cast<const u8 *>(src);
-        for (usize i = 0; i < n; ++i)
-            d[i] = s[i];
-        return dst;
-    }
+        None = 0,
+        BadMagic = 1,  // Not an ELF file
+        BadClass = 2,  // Not ELF64
+        BadArch = 3,   // Not x86_64
+        BadType = 4,   // Not ET_EXEC
+        NoLoadSeg = 5, // No PT_LOAD segments found
+    };
+
+    struct ElfResult
+    {
+        ElfError error;
+        u64 entry; // Virtual entry point (e_entry from ELF header)
+
+        [[nodiscard]] constexpr bool ok() const noexcept
+        {
+            return error == ElfError::None;
+        }
+    };
 
     /* ******************************************************************************
      *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : memset                                                            *
+     *  FUNC    : elf_load                                                          *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Fill n bytes of dst with val.                                     *
+     *  PURPOSE : Load an ELF64 executable from a physical RAM address.             *
+     *            Walks PT_LOAD segments, copies file data to p_paddr,              *
+     *            zeroes p_memsz - p_filesz (BSS), returns e_entry.                 *
+     *            Returns ElfResult with error set if validation fails.             *
      *                                                                              *
      * *****************************************************************************/
-    void *memset(void *dst, u8 val, usize n) noexcept
-    {
-        auto *d = static_cast<u8 *>(dst);
-        for (usize i = 0; i < n; ++i)
-            d[i] = val;
-        return dst;
-    }
-
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : memcmp                                                            *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Compare n bytes of a and b.                                       *
-     *            Returns 0 if equal, <0 if a < b, >0 if a > b.                     *
-     *                                                                              *
-     * *****************************************************************************/
-    int memcmp(const void *a, const void *b, usize n) noexcept
-    {
-        const auto *pa = static_cast<const u8 *>(a);
-        const auto *pb = static_cast<const u8 *>(b);
-        for (usize i = 0; i < n; ++i)
-            if (pa[i] != pb[i])
-                return static_cast<int>(pa[i]) - static_cast<int>(pb[i]);
-        return 0;
-    }
+    [[nodiscard]]
+    ElfResult elf_load(uptr elf_phys_addr) noexcept;
 
 } // namespace trunk::boot

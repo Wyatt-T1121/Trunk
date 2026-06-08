@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <trunk/boot/Boot.h>
+#include <trunk/boot/boot.h>
 
 /* *******************************************************************************
  *  AUTHOR  : Trollycat                                                          *

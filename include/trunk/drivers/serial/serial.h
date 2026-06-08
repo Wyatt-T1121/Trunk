@@ -28,8 +28,8 @@
 
 #pragma once
 
-#include <Types.h>
-#include <trunk/asi/Io.h>
+#include <types.h>
+#include <trunk/asi/io.h>
 
 namespace trunk::drivers::serial
 {

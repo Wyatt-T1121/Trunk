@@ -25,7 +25,7 @@
  *                                                                              *
  * *****************************************************************************/
 
-#include <trunk/drivers/serial/Serial.h>
+#include <trunk/drivers/serial/serial.h>
 
 namespace trunk::drivers::serial
 {
