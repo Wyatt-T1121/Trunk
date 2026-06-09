@@ -67,4 +67,13 @@ namespace trunk::boot
      * *****************************************************************************/
     [[nodiscard]] int memcmp(const void *a, const void *b, usize n) noexcept;
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : strlen                                                             *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Freestanding strlen. Returns length of null-terminated string,     *
+     *            capped at max to prevent overrun into unmapped memory.             *
+     ********************************************************************************/
+    usize strlen(const char *s, usize max) noexcept;
+
 } // namespace trunk::boot

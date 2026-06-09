@@ -19,13 +19,14 @@
 ; *  AUTHOR  : Trollycat                                                        *
 ; *  MODULE  : Kernel Landing Pad                                               *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Kernel assembly entry point. ENTRY(_start_kern) in trunk.ld      *
+; *  PURPOSE : Kernel assembly entry point. ENTRY(_start_kern) in trunk.ld.     *
 ; *            points here. Responsibilities in order:                          *
-; *              1. Load 64-bit data segments                                   *
-; *              2. Establish a 16-byte aligned stack per the System V          *
+; *              1. Harden CPU state: cli + cld                                 *
+; *              2. Load 64-bit data segments                                   *
+; *              3. Establish a 16-byte aligned stack per the System V          *
 ; *                 AMD64 ABI, required before any C++ call                     *
-; *              3. Zero RBP to mark the end of the stack frame chain           *
-; *              4. Call kmain, never returns                                   *
+; *              4. Zero RBP to mark the end of the stack frame chain           *
+; *              5. Call kmain, never returns                                   *
 ; *                                                                             *
 ; *            RDI still holds the BootInfo pointer passed by boot_entry        *
 ; *            via the KernelEntry function pointer cast. We preserve it        *
@@ -46,11 +47,18 @@ section .text
 ; *  AUTHOR  : Trollycat                                                        *
 ; *  FUNC    : _start_kern                                                      *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Kernel landing pad. Aligns the stack to 16 bytes per the         *
-; *            System V AMD64 ABI, then calls kmain. Must not return.           *
+; *  PURPOSE : Kernel landing pad. Hardens CPU state, aligns the stack to       *
+; *            16 bytes per the System V AMD64 ABI, then calls kmain.           *
+; *            Must not return.                                                 *
 ; *******************************************************************************
 
 _start_kern:
+
+    ; Harden CPU state immediately on entry.
+    ; cli: disable interrupts — we cannot trust the bootloader left them off.
+    ; cld: clear direction flag — string ops must increment, not decrement.
+    cli
+    cld
 
     ; Load 64-bit data segments.
     ; Selector offset 16 = third GDT entry (null, code, data).
@@ -63,9 +71,10 @@ _start_kern:
     mov ss, ax
 
     ; Establish the kernel stack.
-    ; Point RSP at __stack_top then AND to 16-byte boundary.
-    ; System V AMD64 ABI requires RSP % 16 == 0 before a CALL.
+    ; Point RSP at __stack_top, subtract 8 to create a safe buffer before
+    ; masking, then AND to 16-byte boundary per the System V AMD64 ABI.
     mov rsp, __stack_top
+    sub rsp, 8
     and rsp, ~0xF
 
     ; Zero RBP so stack unwinders see a clean frame chain termination.

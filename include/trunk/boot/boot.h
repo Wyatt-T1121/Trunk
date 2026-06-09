@@ -20,9 +20,9 @@
  *  MODULE  : Bootstrapping                                                      *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Defines BootInfo — the clean interface between the boot layer      *
- *            and the kernel. Boot.cpp fills this from raw Multiboot2 tags.      *
- *            Everything above Boot.cpp uses this type only. Nothing above       *
- *            Boot.cpp ever touches a raw MB2 struct.                            *
+ *            and the kernel. boot.cpp fills this from raw Multiboot2 tags.      *
+ *            Everything above boot.cpp uses this type only. Nothing above       *
+ *            boot.cpp ever touches a raw MB2 struct.                            *
  *                                                                               *
  ********************************************************************************/
 
@@ -54,11 +54,12 @@ namespace trunk::boot
 
     struct BootInfo
     {
+        static constexpr usize BOOTLOADER_NAME_MAX = 64;
         static constexpr usize MAX_MMAP_ENTRIES = 64;
 
-        MemoryRegion mmap[MAX_MMAP_ENTRIES];
+        MemoryRegion mmap[MAX_MMAP_ENTRIES] = {};
         usize mmap_count = 0;
-        const char *bootloader_name = nullptr;
+        char bootloader_name[BOOTLOADER_NAME_MAX] = {};
 
         /* ***************************************************************************
          *  AUTHOR  : Trollycat                                                      *

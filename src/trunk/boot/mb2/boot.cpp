@@ -17,7 +17,7 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Bootstrapping                                                     *
+ *  MODULE  : Bootstrapping                                                      *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Multiboot2 bridge and ELF kernel loader.                           *
  *            Validates the bootloader handoff, parses the MB2 info struct       *
@@ -82,6 +82,11 @@ namespace trunk::boot
         u32 entry_version;
         MB2MmapEntry entries[];
     };
+
+    // Global BootInfo instance — lives in .bss for the lifetime of the OS.
+    // Populated by parse_mb2 before the kernel is entered. The kernel receives
+    // a const reference to this so the data outlives the boot stack frame.
+    static BootInfo g_boot_info{};
 
     // Helpers
 
@@ -165,15 +170,20 @@ namespace trunk::boot
                 break;
 
             case TAG_BOOTLOADER:
-                info.bootloader_name =
-                    reinterpret_cast<const char *>(
-                        reinterpret_cast<uptr>(tag) + 8);
+            {
+                // Copy bootloader name into the fixed buffer — no raw pointer
+                // into MB2 memory. Safe after low memory is unmapped.
+                const char *src = reinterpret_cast<const char *>(
+                    reinterpret_cast<uptr>(tag) + 8);
+                usize len = strlen(src, BootInfo::BOOTLOADER_NAME_MAX - 1);
+                memcpy(info.bootloader_name, src, len);
+                info.bootloader_name[len] = '\0';
                 break;
+            }
 
             case TAG_MODULE:
             {
                 // Only take the first module — that is troskern.elf.
-                // Additional modules are ignored for now.
                 if (kernel_phys == 0)
                 {
                     const auto *mod =
@@ -199,7 +209,7 @@ namespace trunk::boot
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : boot_entry                                                         *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Called from Entry64.asm. Validates MB2 magic, builds BootInfo,     *
+     *  PURPOSE : Called from entry64.asm. Validates MB2 magic, builds BootInfo,     *
      *            locates and loads troskern.elf via elf_load(), then jumps to the   *
      *            kernel virtual entry point. Never returns.                         *
      ********************************************************************************/
@@ -213,9 +223,8 @@ namespace trunk::boot
                 asm volatile("cli; hlt");
             }
 
-        // Parse MB2 info struct — fills BootInfo, returns kernel module address
-        BootInfo info{};
-        uptr kernel_phys = parse_mb2(static_cast<uptr>(mb2_phys), info);
+        // Parse MB2 info struct into the global BootInfo instance
+        uptr kernel_phys = parse_mb2(static_cast<uptr>(mb2_phys), g_boot_info);
 
         // No module found — troskern.elf was not loaded by GRUB
         if (kernel_phys == 0)
@@ -235,13 +244,13 @@ namespace trunk::boot
             }
 
         // Cast the virtual entry point to a function pointer and jump.
-        // The kernel expects a single const BootInfo& argument.
+        // g_boot_info lives in .bss — safe to reference after this stack unwinds.
         // At this point paging is active — the higher-half is mapped.
         using KernelEntry = void (*)(const BootInfo &);
-        auto kmain = reinterpret_cast<KernelEntry>(result.entry);
-        kmain(info);
+        auto kentry = reinterpret_cast<KernelEntry>(result.entry);
+        kentry(g_boot_info);
 
-        // Unreachable — kmain is [[noreturn]]
+        // Unreachable — kernel entry is [[noreturn]]
         for (;;)
         {
             asm volatile("cli; hlt");

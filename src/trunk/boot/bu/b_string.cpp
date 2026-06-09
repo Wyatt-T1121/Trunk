@@ -83,4 +83,19 @@ namespace trunk::boot
         return 0;
     }
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : strlen                                                            *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Freestanding strlen. Returns length of null-terminated string,     *
+     *            capped at max to prevent overrun into unmapped memory.             *
+     ********************************************************************************/
+    usize strlen(const char *s, usize max) noexcept
+    {
+        usize n = 0;
+        while (n < max && s[n] != '\0')
+            ++n;
+        return n;
+    }
+
 } // namespace trunk::boot
