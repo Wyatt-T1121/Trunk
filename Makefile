@@ -15,13 +15,11 @@ LOG_BUILD_DIR   := $(LOG_DIR)/build
 LINKER_DIR      := $(SETUP_DIR)/linker
 GRUB_DIR        := $(SETUP_DIR)/grub
 
-BOOT_ELF        := $(ELF_DIR)/trboot.elf
-KERN_ELF        := $(ELF_DIR)/troskern.elf
+TRUNK_ELF       := $(ELF_DIR)/trunk.elf
 TKLIB_A         := $(LIB_DIR)/tklib.a
 ISO_IMAGE       := $(ISO_DIR)/trunk.iso
 DISK_IMAGE      := $(IMG_DIR)/trunk.img
-BOOT_LD         := $(LINKER_DIR)/boot.ld
-KERN_LD         := $(LINKER_DIR)/trunk.ld
+TRUNK_LD        := $(LINKER_DIR)/trunk.ld
 
 MODE           ?= DEBUG
 
@@ -34,19 +32,18 @@ _C  := \033[0;36m
 _BD := \033[1m
 _RS := \033[0m
 
-_ok    = @printf "  $(_G)[ OK ]$(_RS)  %s\n"   "$1"
-_info  = @printf "  $(_C)[ INFO ]$(_RS)  %s\n" "$1"
-_warn  = @printf "  $(_Y)[ WARN ]$(_RS)  %s\n" "$1"
-_step  = @printf "  $(_B)[ .... ]$(_RS)  %s\n" "$1"
-_cxx   = @printf "  $(_M)[ CXX ]$(_RS)  %s\n"  "$1"
-_asm   = @printf "  $(_C)[ ASM ]$(_RS)  %s\n"  "$1"
-_nasm  = @printf "  $(_C)[ NASM ]$(_RS)  %s\n" "$1"
-_ld    = @printf "  $(_Y)[ LD ]$(_RS)  %s\n"   "$1"
-_ar    = @printf "  $(_Y)[ AR ]$(_RS)  %s\n"   "$1"
-_iso   = @printf "  $(_B)[ ISO ]$(_RS)  %s\n"  "$1"
-_disk  = @printf "  $(_B)[ DISK ]$(_RS)  %s\n" "$1"
-_clean = @printf "  $(_R)[ CLEAN ]$(_RS)  %s\n" "$1"
-
+_ok       = @printf "  $(_G)[ OK ]$(_RS)  %s\n"    "$1"
+_info     = @printf "  $(_C)[ INFO ]$(_RS)  %s\n"  "$1"
+_warn     = @printf "  $(_Y)[ WARN ]$(_RS)  %s\n"  "$1"
+_step     = @printf "  $(_B)[ .... ]$(_RS)  %s\n"  "$1"
+_cxx      = @printf "  $(_M)[ CXX ]$(_RS)  %s\n"   "$1"
+_asm      = @printf "  $(_C)[ ASM ]$(_RS)  %s\n"   "$1"
+_nasm     = @printf "  $(_C)[ NASM ]$(_RS)  %s\n"  "$1"
+_ld       = @printf "  $(_Y)[ LD ]$(_RS)  %s\n"    "$1"
+_ar       = @printf "  $(_Y)[ AR ]$(_RS)  %s\n"    "$1"
+_iso      = @printf "  $(_B)[ ISO ]$(_RS)  %s\n"   "$1"
+_disk     = @printf "  $(_B)[ DISK ]$(_RS)  %s\n"  "$1"
+_clean    = @printf "  $(_R)[ CLEAN ]$(_RS)  %s\n" "$1"
 _info_cmd = @$1 | xargs -I{} printf "  $(_C)[ INFO ]$(_RS)  %-9s: {}\n" "$2"
 
 ifeq ($(MODE),DEBUG)
@@ -98,50 +95,41 @@ ifeq ($(MODE),DEBUG)
     NASMFLAGS += -g -F dwarf
 endif
 
-BOOT_LDFLAGS := \
+LDFLAGS := \
     -nostdlib           \
     -static             \
-    -T $(BOOT_LD)       \
-    -z max-page-size=0x1000
-
-KERN_LDFLAGS := \
-    -nostdlib           \
-    -static             \
-    -T $(KERN_LD)       \
+    -T $(TRUNK_LD)      \
     -z max-page-size=0x1000
 
 ifeq ($(MODE),DEBUG)
-    BOOT_LDFLAGS += --no-gc-sections
-    KERN_LDFLAGS += --no-gc-sections
+    LDFLAGS += --no-gc-sections
 endif
 
-BOOT_OBJS  :=
-KERN_OBJS  :=
+TRUNK_OBJS :=
 TKLIB_OBJS :=
 
 include src/tklib/Makefile
 include src/trunk/Makefile
 
 .PHONY: all
-all: _dirs $(BOOT_ELF) $(KERN_ELF) $(ISO_IMAGE)
+all: _dirs $(TRUNK_ELF) $(ISO_IMAGE)
 	@printf "\n"
 	@printf "  $(_BD)$(_G)Trunk v$(VERSION) — build complete$(_RS)\n"
-	$(call _info,Mode     : $(BUILD_MODE))
-	$(call _info,Arch     : $(ARCH))
-	$(call _info,Boot ELF : $(BOOT_ELF))
-	$(call _info,Kern ELF : $(KERN_ELF))
-	$(call _info,ISO      : $(ISO_IMAGE))
+	$(call _info,Mode  : $(BUILD_MODE))
+	$(call _info,Arch  : $(ARCH))
+	$(call _info,ELF   : $(TRUNK_ELF))
+	$(call _info,ISO   : $(ISO_IMAGE))
 	@printf "\n"
 
 .PHONY: _dirs
 _dirs:
 	@mkdir -p \
-	    $(OBJ_DIR)          \
-	    $(ELF_DIR)          \
-	    $(LIB_DIR)          \
+	    $(OBJ_DIR)           \
+	    $(ELF_DIR)           \
+	    $(LIB_DIR)           \
 	    $(ISO_DIR)/boot/grub \
-	    $(IMG_DIR)          \
-	    $(LOG_BUILD_DIR)    \
+	    $(IMG_DIR)           \
+	    $(LOG_BUILD_DIR)     \
 	    $(LOG_QEMU_DIR)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
@@ -165,25 +153,17 @@ $(TKLIB_A): $(TKLIB_OBJS)
 	@$(AR) rcs $@ $^ 2>> $(LOG_BUILD_DIR)/compile.log
 	$(call _ok,tklib archived → $(TKLIB_A))
 
-$(BOOT_ELF): $(BOOT_OBJS) $(BOOT_LD)
-	$(call _ld,trboot.elf)
-	@$(LD) $(BOOT_LDFLAGS) $(BOOT_OBJS) -o $@ 2>> $(LOG_BUILD_DIR)/link.log
-	$(call _ok,Boot linked → $(BOOT_ELF))
-	$(call _info_cmd,$(READELF) -h $@ | awk '/Entry point/{print $$4}',Entry)
-	$(call _info_cmd,ls -lh $@ | awk '{print $$5}',Size)
-
-$(KERN_ELF): $(KERN_OBJS) $(TKLIB_A) $(KERN_LD)
-	$(call _ld,troskern.elf)
-	@$(LD) $(KERN_LDFLAGS) $(KERN_OBJS) $(TKLIB_A) -o $@ 2>> $(LOG_BUILD_DIR)/link.log
-	$(call _ok,Kernel linked → $(KERN_ELF))
+$(TRUNK_ELF): $(TRUNK_OBJS) $(TKLIB_A) $(TRUNK_LD)
+	$(call _ld,trunk.elf)
+	@$(LD) $(LDFLAGS) $(TRUNK_OBJS) $(TKLIB_A) -o $@ 2>> $(LOG_BUILD_DIR)/link.log
+	$(call _ok,Trunk linked → $(TRUNK_ELF))
 	$(call _info_cmd,$(READELF) -h $@ | awk '/Entry point/{print $$4}',Entry)
 	$(call _info_cmd,$(NM) $@ | wc -l,Symbols)
 	$(call _info_cmd,ls -lh $@ | awk '{print $$5}',Size)
-	
-$(ISO_IMAGE): $(BOOT_ELF) $(KERN_ELF)
+
+$(ISO_IMAGE): $(TRUNK_ELF)
 	$(call _iso,Building trunk.iso...)
-	@cp $(BOOT_ELF)          $(ISO_DIR)/boot/trboot.elf
-	@cp $(KERN_ELF)          $(ISO_DIR)/boot/troskern.elf
+	@cp $(TRUNK_ELF)         $(ISO_DIR)/boot/trunk.elf
 	@cp $(GRUB_DIR)/grub.cfg $(ISO_DIR)/boot/grub/grub.cfg
 	@$(GRUB_MKRESCUE) -o $@ $(ISO_DIR) 2>$(LOG_BUILD_DIR)/grub.log
 	$(call _ok,ISO ready → $(ISO_IMAGE))
@@ -196,15 +176,15 @@ disk: _dirs
 	$(call _ok,Disk image ready → $(DISK_IMAGE))
 
 .PHONY: install
-install: $(BOOT_ELF) $(KERN_ELF)
+install: $(TRUNK_ELF)
 	@test -f $(DISK_IMAGE) || \
 	    ($(call _warn,Disk not found. Run: make disk) && exit 1)
-	$(call _step,Installing GRUB + kernels to disk...)
+	$(call _step,Installing GRUB + kernel to disk...)
 	@sudo bash $(SCRIPTS_DIR)/installer/installer.sh
 	$(call _ok,Installation complete)
 
 .PHONY: kernel
-kernel: _dirs $(BOOT_ELF) $(KERN_ELF)
+kernel: _dirs $(TRUNK_ELF)
 
 .PHONY: iso
 iso: _dirs $(ISO_IMAGE)
@@ -244,30 +224,24 @@ run-headless:
 	$(call _info,Booting from disk image \(headless\)...)
 	@bash $(SCRIPTS_DIR)/run/qemu_headless.sh --disk
 
-.PHONY: disasm-boot
-disasm-boot: $(BOOT_ELF)
-	$(call _info,Disassembling boot stage...)
-	@$(OBJDUMP) -d -M intel $< > $(LOG_BUILD_DIR)/disasm_boot.txt
-	$(call _ok,→ $(LOG_BUILD_DIR)/disasm_boot.txt)
-
-.PHONY: disasm-kern
-disasm-kern: $(KERN_ELF)
-	$(call _info,Disassembling kernel...)
-	@$(OBJDUMP) -d -M intel $< > $(LOG_BUILD_DIR)/disasm_kern.txt
-	$(call _ok,→ $(LOG_BUILD_DIR)/disasm_kern.txt)
+.PHONY: disasm
+disasm: $(TRUNK_ELF)
+	$(call _info,Disassembling trunk.elf...)
+	@$(OBJDUMP) -d -M intel $< > $(LOG_BUILD_DIR)/disasm.txt
+	$(call _ok,→ $(LOG_BUILD_DIR)/disasm.txt)
 
 .PHONY: sym
-sym: $(KERN_ELF)
+sym: $(TRUNK_ELF)
 	$(call _info,Dumping symbol table...)
 	@$(NM) -n $< > $(LOG_BUILD_DIR)/symbols.txt
 	$(call _ok,→ $(LOG_BUILD_DIR)/symbols.txt)
 
 .PHONY: headers
-headers: $(BOOT_ELF) $(KERN_ELF)
-	@printf "\n  $(_BD)trboot.elf$(_RS)\n"
-	@$(READELF) -h $(BOOT_ELF)
-	@printf "\n  $(_BD)troskern.elf$(_RS)\n"
-	@$(READELF) -h $(KERN_ELF)
+headers: $(TRUNK_ELF)
+	@printf "\n  $(_BD)trunk.elf$(_RS)\n"
+	@$(READELF) -h $(TRUNK_ELF)
+	@printf "\n"
+	@$(READELF) -S $(TRUNK_ELF)
 
 .PHONY: check-deps
 check-deps:
@@ -278,16 +252,15 @@ check-deps:
 info:
 	@printf "\n"
 	@printf "  $(_BD)Trunk — Build Info$(_RS)\n"
-	$(call _info,Kernel   : Trunk v$(VERSION))
-	$(call _info,Mode     : $(BUILD_MODE))
-	$(call _info,Arch     : $(ARCH))
-	$(call _info,Chain    : $(CXX))
-	$(call _info,C++ std  : C++23)
-	$(call _info,Boot ELF : $(BOOT_ELF))
-	$(call _info,Kern ELF : $(KERN_ELF))
-	$(call _info,tklib    : $(TKLIB_A))
-	$(call _info,ISO      : $(ISO_IMAGE))
-	$(call _info,Disk     : $(DISK_IMAGE))
+	$(call _info,Kernel  : Trunk v$(VERSION))
+	$(call _info,Mode    : $(BUILD_MODE))
+	$(call _info,Arch    : $(ARCH))
+	$(call _info,Chain   : $(CXX))
+	$(call _info,C++ std : C++23)
+	$(call _info,ELF     : $(TRUNK_ELF))
+	$(call _info,tklib   : $(TKLIB_A))
+	$(call _info,ISO     : $(ISO_IMAGE))
+	$(call _info,Disk    : $(DISK_IMAGE))
 	@printf "\n"
 
 .PHONY: clean
@@ -300,6 +273,5 @@ clean:
 mrproper: clean
 	$(call _ok,Full wipe complete)
 
--include $(BOOT_OBJS:.o=.d)
--include $(KERN_OBJS:.o=.d)
+-include $(TRUNK_OBJS:.o=.d)
 -include $(TKLIB_OBJS:.o=.d)

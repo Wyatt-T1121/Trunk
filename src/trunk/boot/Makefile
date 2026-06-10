@@ -3,3 +3,5 @@ include src/trunk/boot/mb2/Makefile
 include src/trunk/boot/bu/Makefile
 include src/trunk/boot/mm/Makefile
 include src/trunk/boot/verify/Makefile
+include src/trunk/boot/eldr/Makefile
+include src/trunk/boot/lme/Makefile

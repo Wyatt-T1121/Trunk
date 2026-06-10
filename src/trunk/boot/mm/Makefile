@@ -7,4 +7,4 @@ BOOT_MM_OBJS := \
     $(patsubst $(SRC_DIR)/%.asm, $(OBJ_DIR)/%.asm.o, $(BOOT_MM_SRCS_NASM)) \
     $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(BOOT_MM_SRCS_CXX))
 
-BOOT_OBJS += $(BOOT_MM_OBJS)
+TRUNK_OBJS += $(BOOT_MM_OBJS)

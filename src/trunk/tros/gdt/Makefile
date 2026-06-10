@@ -7,4 +7,4 @@ TROS_GDT_OBJS := \
     $(patsubst $(SRC_DIR)/%.asm, $(OBJ_DIR)/%.asm.o, $(TROS_GDT_SRCS_NASM)) \
     $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o,     $(TROS_GDT_SRCS_CXX))
 
-KERN_OBJS += $(TROS_GDT_OBJS)
+TRUNK_OBJS += $(TROS_GDT_OBJS)

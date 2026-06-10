@@ -7,4 +7,4 @@ BOOT_INIT_OBJS := \
     $(patsubst $(SRC_DIR)/%.asm, $(OBJ_DIR)/%.asm.o, $(BOOT_INIT_SRCS_NASM)) \
     $(patsubst $(SRC_DIR)/%.S,   $(OBJ_DIR)/%.S.o,   $(BOOT_INIT_SRCS_ASM))
 
-BOOT_OBJS += $(BOOT_INIT_OBJS)
+TRUNK_OBJS += $(BOOT_INIT_OBJS)

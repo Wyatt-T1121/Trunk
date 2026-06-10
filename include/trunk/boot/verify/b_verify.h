@@ -29,7 +29,7 @@
 #pragma once
 
 #include <types.h>
-#include <trunk/boot/bu/e_loader.h>
+#include <trunk/boot/eldr/e_loader.h>
 
 namespace trunk::boot
 {

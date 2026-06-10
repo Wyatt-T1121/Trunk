@@ -7,4 +7,4 @@ TROS_KERN_LP_OBJS := \
     $(patsubst $(SRC_DIR)/%.asm, $(OBJ_DIR)/%.asm.o, $(TROS_KERN_LP_SRCS_NASM)) \
     $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o,     $(TROS_KERN_LP_SRCS_CXX))
 
-KERN_OBJS += $(TROS_KERN_LP_OBJS)
+TRUNK_OBJS += $(TROS_KERN_LP_OBJS)
