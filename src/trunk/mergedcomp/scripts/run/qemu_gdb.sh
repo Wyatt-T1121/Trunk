@@ -22,7 +22,7 @@ LOG=$(make_log "qemu_gdb")
 printf "\n"
 info "QEMU GDB — CPU frozen at boot"
 warn "In another terminal run:"
-printf "    ${CYAN}x86_64-elf-gdb %s${RESET}\n" "$KERN_ELF"
+printf "    ${CYAN}x86_64-elf-gdb %s${RESET}\n" "$TRUNK_ELF"
 printf "    ${CYAN}(gdb) target remote :%s${RESET}\n" "$QEMU_GDB_PORT"
 printf "    ${CYAN}(gdb) continue${RESET}\n"
 info "QEMU monitor: telnet :55555"

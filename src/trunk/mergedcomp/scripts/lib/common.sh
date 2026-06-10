@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
-#  Trunk — Shared library sourced by all scripts
+set -euo pipefail
 
 ROOT_DIR_COMMON="${ROOT_DIR_COMMON:-$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)}"
 [[ -f "$ROOT_DIR_COMMON/config/build.cfg" ]] && source "$ROOT_DIR_COMMON/config/build.cfg"
 
-# --- Colors ------------------------------------------------------------------
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
@@ -14,7 +13,6 @@ MAGENTA='\033[0;35m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
-# --- Variables (reconstructed from build.cfg) ---------------------------------
 VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
 
 OBJ_DIR="${BUILD_DIR}/obj"
@@ -29,25 +27,20 @@ LOG_BUILD_DIR="${LOG_DIR}/build"
 LINKER_DIR="${SETUP_DIR}/linker"
 GRUB_DIR="${SETUP_DIR}/grub"
 
-BOOT_ELF="${ELF_DIR}/trboot.elf"
-KERN_ELF="${ELF_DIR}/troskern.elf"
+TRUNK_ELF="${ELF_DIR}/${KERNEL_NAME}.elf"
 TKLIB_A="${LIB_DIR}/tklib.a"
 ISO_IMAGE="${ISO_DIR}/${KERNEL_NAME}.iso"
 DISK_IMAGE="${IMG_DIR}/${KERNEL_NAME}.img"
 
-# --- Output ------------------------------------------------------------------
-ok()   { printf "  ${GREEN}[ OK ]${RESET}  %s\n"   "$1"; }
-info() { printf "  ${CYAN}[ INFO ]${RESET}  %s\n"  "$1"; }
+ok()   { printf "  ${GREEN}[ OK ]${RESET}  %s\n"    "$1"; }
+info() { printf "  ${CYAN}[ INFO ]${RESET}  %s\n"   "$1"; }
 warn() { printf "  ${YELLOW}[ WARN ]${RESET}  %s\n" "$1"; }
-fail() { printf "  ${RED}[ FAIL ]${RESET}  %s\n"   "$1"; exit 1; }
-step() { printf "  ${BLUE}[ .... ]${RESET}  %s\n"  "$1"; }
+fail() { printf "  ${RED}[ FAIL ]${RESET}  %s\n"    "$1"; exit 1; }
+step() { printf "  ${BLUE}[ .... ]${RESET}  %s\n"   "$1"; }
 
-# --- Dependency checker ------------------------------------------------------
 check_dep()  { command -v "$1" &>/dev/null || fail "Missing: $1"; }
 check_deps() { for d in "$@"; do check_dep "$d"; done; ok "Dependencies OK"; }
 
-# --- Boot flag resolver ------------------------------------------------------
-# Usage: BOOT_FLAGS=$(get_boot_flags [auto|iso|disk])
 get_boot_flags() {
     local mode="${1:-auto}"
     case "$mode" in
@@ -76,7 +69,6 @@ get_boot_flags() {
     esac
 }
 
-# --- OVMF UEFI firmware finder -----------------------------------------------
 find_ovmf() {
     local candidates=(
         "/usr/share/ovmf/OVMF.fd"
@@ -90,7 +82,6 @@ find_ovmf() {
     echo ""
 }
 
-# --- UEFI firmware flags -----------------------------------------------------
 get_uefi_flags() {
     local ovmf
     ovmf=$(find_ovmf)
@@ -103,20 +94,16 @@ get_uefi_flags() {
     fi
 }
 
-# --- Log file creator --------------------------------------------------------
 make_log() {
     local name="$1"
     mkdir -p "$QEMU_LOG"
     echo "$QEMU_LOG/${name}_$(date +%Y%m%d_%H%M%S).log"
 }
 
-# --- Root check --------------------------------------------------------------
 require_root() {
     [[ $EUID -eq 0 ]] || fail "This script must be run as root (sudo)"
 }
 
-# --- Kernel check ------------------------------------------------------------
 require_kernel() {
-    [[ -f "$BOOT_ELF" ]] || fail "trboot.elf not found. Run 'make' first."
-    [[ -f "$KERN_ELF" ]] || fail "troskern.elf not found. Run 'make' first."
+    [[ -f "$TRUNK_ELF" ]] || fail "trunk.elf not found. Run 'make' first."
 }
