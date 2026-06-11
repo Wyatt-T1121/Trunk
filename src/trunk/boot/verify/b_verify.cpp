@@ -24,18 +24,14 @@
  *            and halts immediately on any failure.                             *
  *                                                                              *
  * *****************************************************************************/
-
 #include <trunk/boot/verify/b_verify.h>
 
 namespace trunk::boot
 {
 
     static constexpr u32 MB2_MAGIC = 0x36d76289;
-    static constexpr u32 MB2_PTR_MIN = 0x1000;      // Below this is never valid
-    static constexpr u32 MB2_PTR_ALIGN = 8;         // MB2 spec requires 8-byte alignment
-    static constexpr u32 BOOT_PHYS_BASE = 0x100000; // trboot.elf physical base
-    static constexpr u32 BOOT_PHYS_END = 0x200000;  // trboot.elf physical ceiling
-    static constexpr u64 KERN_VMA_BASE = 0xFFFFFFFF80000000ULL;
+    static constexpr u32 MB2_PTR_MIN = 0x1000;
+    static constexpr u32 MB2_PTR_ALIGN = 8;
 
     /* ******************************************************************************
      *                                                                              *
@@ -64,52 +60,6 @@ namespace trunk::boot
             return false;
         if ((phys & (MB2_PTR_ALIGN - 1)) != 0)
             return false;
-        return true;
-    }
-
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : verify_module_range                                               *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Validate the GRUB module range is non-zero, ordered, and does     *
-     *            not overlap the physical boot stage region.                       *
-     *                                                                              *
-     * *****************************************************************************/
-    bool verify_module_range(u32 mod_start, u32 mod_end) noexcept
-    {
-        if (mod_start == 0)
-            return false;
-
-        if (mod_end <= mod_start)
-            return false;
-
-        // Overlap check against trboot.elf physical region.
-        // Reject if the module starts inside the boot region
-        // or the boot region starts inside the module.
-        if (mod_start < BOOT_PHYS_END && mod_end > BOOT_PHYS_BASE)
-            return false;
-
-        return true;
-    }
-
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : verify_elf_result                                                 *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Confirm the ELF load succeeded and the entry point is in the      *
-     *            higher-half virtual range where the kernel is expected to live.   *
-     *                                                                              *
-     * *****************************************************************************/
-    bool verify_elf_result(const ElfResult &result) noexcept
-    {
-        if (result.error != ElfError::None)
-            return false;
-
-        if (result.entry < KERN_VMA_BASE)
-            return false;
-
         return true;
     }
 

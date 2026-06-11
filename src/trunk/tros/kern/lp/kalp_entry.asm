@@ -19,72 +19,87 @@
 ; *  AUTHOR  : Trollycat                                                        *
 ; *  MODULE  : Kernel Landing Pad                                               *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Kernel assembly entry point. ENTRY(_start_kern) in trunk.ld.     *
-; *            points here. Responsibilities in order:                          *
+; *  PURPOSE : System startup landing pad. Called from entry64.asm with         *
+; *            mb2_magic in edi and mb2_phys in esi. Responsibilities in        *
+; *            order:                                                           *
 ; *              1. Harden CPU state: cli + cld                                 *
 ; *              2. Load 64-bit data segments                                   *
 ; *              3. Establish a 16-byte aligned stack per the System V          *
 ; *                 AMD64 ABI, required before any C++ call                     *
 ; *              4. Zero RBP to mark the end of the stack frame chain           *
-; *              5. Call kmain, never returns                                   *
+; *              5. Call Trkload(mb2_magic, mb2_phys), never returns            *
 ; *                                                                             *
-; *            RDI still holds the BootInfo pointer passed by boot_entry        *
-; *            via the KernelEntry function pointer cast. We preserve it        *
-; *            untouched so kmain receives it as its first argument.            *
+; *            EDI/ESI are untouched by steps 1 to 4 and pass through to        *
+; *            Trkload unchanged, satisfying the System V AMD64 ABI.            *
 ; *                                                                             *
 ; *******************************************************************************
 
 bits 64
 
-extern kmain            ; trunk::kernel::kmain, extern "C" in kernel.cpp
+extern Trkload          ; boot.cpp, extern "C"
 extern __stack_top      ; linker script symbol, top of .stack section
 
-global _start_kern
+global TrSystemStartup
 
 section .text
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : _start_kern                                                      *
+; *  FUNC    : TrHardenCPUState                                                 *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Kernel landing pad. Hardens CPU state, aligns the stack to       *
-; *            16 bytes per the System V AMD64 ABI, then calls kmain.           *
-; *            Must not return.                                                 *
+; *  PURPOSE : Hardens CPU state                                                *
 ; *******************************************************************************
-
-_start_kern:
-
-    ; Harden CPU state immediately on entry.
-    ; cli: disable interrupts — we cannot trust the bootloader left them off.
-    ; cld: clear direction flag — string ops must increment, not decrement.
+TrHardenCPUState:
     cli
     cld
+    ret
 
-    ; Load 64-bit data segments.
-    ; Selector offset 16 = third GDT entry (null, code, data).
-    ; CS was already set by the far jump in boot_entry.
+; *******************************************************************************
+; *  AUTHOR  : Trollycat                                                        *
+; *  FUNC    : TrLoad64BitDataSegments                                          *
+; *  DATE    : 2026                                                             *
+; *  PURPOSE : Loads 64-bit data segments                                       *
+; *******************************************************************************
+TrLoad64BitDataSegments:
     mov ax, 16
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
+    ret
 
-    ; Establish the kernel stack.
-    ; Point RSP at __stack_top, subtract 8 to create a safe buffer before
-    ; masking, then AND to 16-byte boundary per the System V AMD64 ABI.
+; *******************************************************************************
+; *  AUTHOR  : Trollycat                                                        *
+; *  FUNC    : TrSetupKernelStack                                               *
+; *  DATE    : 2026                                                             *
+; *  PURPOSE : Sets up the kernel stack                                         *
+; *******************************************************************************
+TrSetupKernelStack:
     mov rsp, __stack_top
     sub rsp, 8
     and rsp, ~0xF
+    ret
 
-    ; Zero RBP so stack unwinders see a clean frame chain termination.
+; *******************************************************************************
+; *  AUTHOR  : Trollycat                                                        *
+; *  FUNC    : TrSystemStartup                                                  *
+; *  DATE    : 2026                                                             *
+; *  PURPOSE : System startup landing pad                                       *
+; *******************************************************************************
+TrSystemStartup:
+    call TrHardenCPUState
+    call TrLoad64BitDataSegments
+
+    mov gs, ax
+    mov ss, ax
+
+    call TrSetupKernelStack
+
     xor rbp, rbp
 
-    ; Call kmain. RDI is untouched and still holds the BootInfo pointer
-    ; passed by boot_entry, satisfying the first argument slot per the ABI.
-    call kmain
+    call Trkload
 
-    ; kmain is [[noreturn]]. Halt permanently if it ever returns.
 .hang:
     cli
     hlt

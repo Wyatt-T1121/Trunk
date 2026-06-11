@@ -19,7 +19,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Declares kmain — the only symbol Boot.cpp needs from the kernel.   *
+ *  PURPOSE : Kernel entry point file, declares TrkStartup()                     *
  *                                                                               *
  ********************************************************************************/
 
@@ -31,11 +31,10 @@ namespace trunk::kernel
 {
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : kmain                                                              *
+     *  FUNC    : TrkStartup()                                                       *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Kernel entry point. Called once by boot_entry() after the machine  *
-     *            is in a known-good 64-bit state. Never returns.                    *
+     *  PURPOSE : Main kernel function. Called by Trkload()                          *
      ********************************************************************************/
     extern "C" [[noreturn]]
-    void kmain(const boot::BootInfo &info) noexcept;
+    void TrkStartup(const boot::BootInfo &info) noexcept;
 } // namespace trunk::kernel

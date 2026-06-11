@@ -29,7 +29,6 @@
 #pragma once
 
 #include <types.h>
-#include <trunk/boot/eldr/e_loader.h>
 
 namespace trunk::boot
 {
@@ -56,31 +55,5 @@ namespace trunk::boot
      *                                                                              *
      * *****************************************************************************/
     [[nodiscard]] bool verify_mb2_ptr(u32 phys) noexcept;
-
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : verify_module_range                                               *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Confirm mod_start and mod_end are sane:                           *
-     *              - mod_start is non-zero                                         *
-     *              - mod_end > mod_start                                           *
-     *              - module does not overlap trboot.elf at 0x100000                *
-     *            Returns true if valid, false otherwise.                           *
-     *                                                                              *
-     * *****************************************************************************/
-    [[nodiscard]] bool verify_module_range(u32 mod_start, u32 mod_end) noexcept;
-
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : verify_elf_result                                                 *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Confirm elf_load() succeeded and the returned entry point is      *
-     *            within the expected higher-half virtual range.                    *
-     *            Returns true if valid, false otherwise.                           *
-     *                                                                              *
-     * *****************************************************************************/
-    [[nodiscard]] bool verify_elf_result(const ElfResult &result) noexcept;
 
 } // namespace trunk::boot

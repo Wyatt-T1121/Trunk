@@ -21,19 +21,18 @@
  *  DATE    : 2026                                                              *
  *  PURPOSE : MB2 info struct parser for the boot stage.                        *
  *            Owns all raw Multiboot2 struct definitions. Extracts the memory   *
- *            map, bootloader name, and kernel module address into BootInfo.    *
+ *            map and bootloader name into BootInfo.                            *
  *                                                                              *
  * *****************************************************************************/
 
 #include <trunk/boot/mm/b_mmap.h>
-#include <trunk/boot/bu/b_string.h>
+#include <tklib/string.h>
 
 namespace trunk::boot
 {
 
     static constexpr u32 TAG_END = 0;
     static constexpr u32 TAG_BOOTLOADER = 2;
-    static constexpr u32 TAG_MODULE = 3;
     static constexpr u32 TAG_MMAP = 6;
     static constexpr u32 MMAP_AVAILABLE = 1;
     static constexpr u32 MMAP_ACPI = 3;
@@ -44,15 +43,6 @@ namespace trunk::boot
     {
         u32 type;
         u32 size;
-    };
-
-    struct [[gnu::packed]] MB2ModuleTag
-    {
-        u32 type;
-        u32 size;
-        u32 mod_start;
-        u32 mod_end;
-        char cmdline[];
     };
 
     struct [[gnu::packed]] MB2MmapEntry
@@ -137,16 +127,14 @@ namespace trunk::boot
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : parse_mb2                                                         *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Walk all MB2 tags, populate BootInfo, return kernel module        *
-     *            physical address or 0 if no module tag found.                    *
+     *  PURPOSE : Walk all MB2 tags and populate BootInfo with the memory map       *
+     *            and bootloader name.                                              *
      *                                                                              *
      * *****************************************************************************/
-    uptr parse_mb2(uptr mb2_phys, BootInfo &info) noexcept
+    void parse_mb2(uptr mb2_phys, BootInfo &info) noexcept
     {
         const uptr end = mb2_phys + *reinterpret_cast<const u32 *>(mb2_phys);
         const auto *tag = reinterpret_cast<const MB2Tag *>(mb2_phys + 8);
-
-        uptr kernel_phys = 0;
 
         while (reinterpret_cast<uptr>(tag) < end && tag->type != TAG_END)
         {
@@ -160,20 +148,8 @@ namespace trunk::boot
             {
                 const char *src = reinterpret_cast<const char *>(
                     reinterpret_cast<uptr>(tag) + 8);
-                usize len = strlen(src, BootInfo::BOOTLOADER_NAME_MAX - 1);
-                memcpy(info.bootloader_name, src, len);
-                info.bootloader_name[len] = '\0';
-                break;
-            }
-
-            case TAG_MODULE:
-            {
-                if (kernel_phys == 0)
-                {
-                    const auto *mod =
-                        reinterpret_cast<const MB2ModuleTag *>(tag);
-                    kernel_phys = static_cast<uptr>(mod->mod_start);
-                }
+                tklib::strlcpy(info.bootloader_name, src,
+                               BootInfo::BOOTLOADER_NAME_MAX);
                 break;
             }
 
@@ -183,8 +159,6 @@ namespace trunk::boot
 
             tag = next_tag(tag);
         }
-
-        return kernel_phys;
     }
 
 } // namespace trunk::boot

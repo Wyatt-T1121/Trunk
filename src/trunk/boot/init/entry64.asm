@@ -25,7 +25,7 @@
 ; *              2. Switch RSP to the kernel stack defined in trunk.ld          *
 ; *              3. Zero the BSS segment                                        *
 ; *              4. Run C++ global constructors (.init_array)                   *
-; *              5. Call boot_entry(mb2_magic, mb2_phys) in boot.cpp            *
+; *              5. Call TrSystemStartup(mb2_magic, mb2_phys) in kalp_entry.asm *
 ; *            MB2 magic and info ptr are restored from boot memory storage     *
 ; *            written by entry32.asm before the mode switch.                   *
 ; *                                                                             *
@@ -33,7 +33,7 @@
 
 bits 64
 
-extern boot_entry           ; boot.cpp, C linkage
+extern TrSystemStartup      ; kalp_entry.asm, C linkage
 extern __bss_start          ; linker script symbol
 extern __bss_end            ; linker script symbol
 extern __stack_top          ; linker script symbol
@@ -72,6 +72,7 @@ entry64:
     mov ss, ax
 
     ; 2. Switch to the kernel stack.
+    ; __stack_top is defined in trunk.ld at the top of the .stack section.
     mov rsp, __stack_top
     xor rbp, rbp
 
@@ -104,12 +105,12 @@ entry64:
     jmp .ctor_loop
 .ctor_done:
 
-    ; 5. Call boot_entry(mb2_magic, mb2_phys).
+    ; 5. Call TrSystemStartup(mb2_magic, mb2_phys).
     ; System V AMD64 ABI: first arg = rdi, second arg = rsi.
     ; r12d/r13d are callee-saved so they survived BSS zero and ctors.
     mov edi, r12d
     mov esi, r13d
-    call boot_entry
+    call TrSystemStartup
 
 .hang:
     cli

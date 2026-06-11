@@ -19,7 +19,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Kernel entry point (kmain). Reads like a table of contents —       *
+ *  PURPOSE : Kernel entry point (TrkStartup). Reads like a table of contents —  *
  *            calls subsystem init functions in order, never returns.            *
  *            No logic lives here. If it does, it belongs in a subsystem file.   *
  *                                                                               *
@@ -36,15 +36,15 @@ namespace trunk::kernel
 {
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : kmain                                                              *
+     *  FUNC    : TrkStartup                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Top-level kernel entry.                                            *
      ********************************************************************************/
     extern "C" [[noreturn]]
-    void kmain(const boot::BootInfo &info) noexcept
+    void TrkStartup(const boot::BootInfo &info) noexcept
     {
         serial::serial_init();
-        serial::serial_puts("Entered kmain()...\n");
+        serial::serial_puts("Entered TrkStartup()...\n");
 
         (void)info;
         serial::serial_puts("BootInfo voided...\n");

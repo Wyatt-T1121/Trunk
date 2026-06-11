@@ -21,7 +21,7 @@
  *  DATE    : 2026                                                              *
  *  PURPOSE : MB2 info struct parser for the boot stage.                        *
  *            Owns all raw Multiboot2 struct definitions and tag walking.       *
- *            Extracts the memory map and module address into BootInfo.         *
+ *            Extracts the memory map and bootloader name into BootInfo.        *
  *            boot.cpp calls parse_mb2 and never touches raw MB2 structs.       *
  *                                                                              *
  * *****************************************************************************/
@@ -39,12 +39,10 @@ namespace trunk::boot
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : parse_mb2                                                         *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Walk all MB2 tags from mb2_phys and populate info.                *
-     *            Returns the physical address of the first module tag found        *
-     *            (troskern.elf), or 0 if no module tag is present.                 *
+     *  PURPOSE : Walk all MB2 tags from mb2_phys and populate info with the        *
+     *            memory map and bootloader name.                                   *
      *                                                                              *
      * *****************************************************************************/
-    [[nodiscard]]
-    uptr parse_mb2(uptr mb2_phys, BootInfo &info) noexcept;
+    void parse_mb2(uptr mb2_phys, BootInfo &info) noexcept;
 
 } // namespace trunk::boot
