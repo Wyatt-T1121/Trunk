@@ -44,23 +44,15 @@ namespace trunk::kernel
     void TrkStartup(const boot::BootInfo &info) noexcept
     {
         serial::serial_init();
-        serial::serial_puts("Entered TrkStartup()...\n");
+        serial::serial_puts("ALERT: TrkStartup() reached");
 
         (void)info;
-        serial::serial_puts("BootInfo voided...\n");
-
-        serial::serial_puts("Initializing GDT...\n");
 
         gdt::gdt_init();
 
-        serial::serial_puts("GDT initialized.\n");
-
-        serial::serial_puts("Kernel halting.\n");
         for (;;)
         {
-            serial::serial_puts("Kernel halted. Press ALT F4 to exit.\n");
             asm volatile("hlt");
-            serial::serial_puts("Kernel resumed after halt. This should never happen.\n");
         }
     }
 } // namespace trunk::kernel

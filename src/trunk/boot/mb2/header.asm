@@ -23,11 +23,6 @@
 ; *            of the final binary. Isolated here so the linker script can      *
 ; *            guarantee placement with KEEP(*(.multiboot2)) and nothing        *
 ; *            else can accidentally push it out of range.                      *
-; *                                                                             *
-; *            Tags present:                                                    *
-; *              - Framebuffer (type 5, optional) - request text mode           *
-; *              - End         (type 0, required) - terminates tag list         *
-; *                                                                             *
 ; *******************************************************************************
 
 bits 32
@@ -40,15 +35,19 @@ MB2_CHECKSUM    equ -(MB2_MAGIC + MB2_ARCH + HEADER_LEN)
 section .multiboot2
 align 8
 
+
+; *******************************************************************************
+; *  AUTHOR  : Trollycat                                                        *
+; *  FUNC    : mb2_start                                                        *
+; *  DATE    : 2026                                                             *
+; *  PURPOSE : Multiboot2 header start                                          *
+; *******************************************************************************
 mb2_start:
     dd MB2_MAGIC
     dd MB2_ARCH
     dd HEADER_LEN
     dd MB2_CHECKSUM
 
-    ; Tag: framebuffer (type 5, optional)
-    ; Request text mode. flags=1 means optional — GRUB will not fail if the
-    ; firmware cannot satisfy it. width/height/depth = 0 = no preference.
     align 8
     dw 5            ; type   = framebuffer
     dw 1            ; flags  = optional
@@ -57,7 +56,6 @@ mb2_start:
     dd 0            ; height — no preference
     dd 0            ; depth  — no preference
 
-    ; Tag: end (type 0, required)
     align 8
     dw 0            ; type  = end
     dw 0            ; flags

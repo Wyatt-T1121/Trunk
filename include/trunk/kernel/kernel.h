@@ -35,6 +35,6 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Main kernel function. Called by Trkload()                          *
      ********************************************************************************/
-    extern "C" [[noreturn]]
-    void TrkStartup(const boot::BootInfo &info) noexcept;
+    extern "C" [[noreturn]] void TrkStartup(const boot::BootInfo &info) noexcept;
+
 } // namespace trunk::kernel

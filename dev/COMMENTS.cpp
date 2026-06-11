@@ -1,9 +1,7 @@
-#error This file is not supposed to be included ANYWHERE.
-#error It is simply a template for developers
-#error Including it is pointless
-#error Remove the include, then rebuild
+#error THIS FILE SHOULD NOT BE INCLUDED: COMMENTS.cpp
+#error PLEASE SCAN SOURCE-TREE, REMOVE ALL INCLUDES OF COMMENTS.CPP
 
-// This is the  TOP_LEVEL_COMMENT for all files.
+// This is the Top of file comment.
 
 /* *******************************************************************************
  *                                                                               *
@@ -30,7 +28,7 @@
  *                                                                               *
  ********************************************************************************/
 
-// This is the function comment for all functions
+// This is the function comment.
 
 /* *******************************************************************************
  *  AUTHOR  :                                                                    *
@@ -39,7 +37,7 @@
  *  PURPOSE :                                                                    *
  ********************************************************************************/
 
-// This is the section comment for all sections
+// This is the section comment.
 
 /* *******************************************************************************
  *  AUTHOR  :                                                                    *

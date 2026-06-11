@@ -90,10 +90,6 @@ TrSetupKernelStack:
 TrSystemStartup:
     call TrHardenCPUState
     call TrLoad64BitDataSegments
-
-    mov gs, ax
-    mov ss, ax
-
     call TrSetupKernelStack
 
     xor rbp, rbp
