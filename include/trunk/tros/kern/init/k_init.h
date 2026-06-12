@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <trunk/boot/boot.h>
+#include <trunk/boot/mb2/boot.h>
 
 namespace trunk::kernel
 {

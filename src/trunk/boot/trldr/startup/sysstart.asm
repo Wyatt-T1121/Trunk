@@ -19,24 +19,11 @@
 ; *  AUTHOR  : Trollycat                                                        *
 ; *  MODULE  : System startup landing pad                                       *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : System startup landing pad. Called from entry64.asm with         *
-; *            mb2_magic in edi and mb2_phys in esi. Responsibilities in        *
-; *            order:                                                           *
-; *              1. Harden CPU state: cli + cld                                 *
-; *              2. Load 64-bit data segments                                   *
-; *              3. Establish a 16-byte aligned stack per the System V          *
-; *                 AMD64 ABI, required before any C++ call                     *
-; *              4. Zero RBP to mark the end of the stack frame chain           *
-; *              5. Call Trkload(mb2_magic, mb2_phys), never returns            *
-; *                                                                             *
-; *            EDI/ESI are untouched by steps 1 to 4 and pass through to        *
-; *            Trkload unchanged, satisfying the System V AMD64 ABI.            *
-; *                                                                             *
+; *  PURPOSE : System startup landing pad. Called from entry64.asm              *
 ; *******************************************************************************
 bits 64
 
 extern Trkload
-extern __stack_top
 
 section .text
 
@@ -49,23 +36,7 @@ section .text
 ; *******************************************************************************
 global TrSystemStartup
 TrSystemStartup:
-    cli
-    cld
-
-    mov ax, 16
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-
-    mov rsp, __stack_top
-    and rsp, ~0xF
-
-    xor rbp, rbp
-
     call Trkload
-
 .hang:
     cli
     hlt

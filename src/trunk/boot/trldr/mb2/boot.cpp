@@ -27,7 +27,8 @@
  *                                                                              *
  * *****************************************************************************/
 
-#include <trunk/boot/boot.h>
+#include <trunk/boot/mb2/boot.h>
+
 #include <trunk/boot/mm/b_mmap.h>
 #include <trunk/boot/verify/b_verify.h>
 

@@ -23,7 +23,7 @@
  *            Global Descriptor Table.                                           *
  *                                                                               *
  ********************************************************************************/
-#include <trunk/gdt/gdt.h>
+#include <trunk/tros/kern/gdt/gdt.h>
 
 namespace trunk::gdt
 {

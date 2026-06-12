@@ -1,4 +1,4 @@
-TROS_GDT_DIR := $(SRC_DIR)/trunk/tros/gdt
+TROS_GDT_DIR := $(SRC_DIR)/trunk/tros/kern/gdt
 
 TROS_GDT_SRCS_NASM := $(wildcard $(TROS_GDT_DIR)/*.asm)
 TROS_GDT_SRCS_CXX  := $(wildcard $(TROS_GDT_DIR)/*.cpp)

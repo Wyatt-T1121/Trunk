@@ -25,9 +25,9 @@
  *                                                                               *
  ********************************************************************************/
 
-#include <trunk/kernel/k_init.h>
+#include <trunk/tros/kern/init/k_init.h>
 
-#include <trunk/gdt/gdt.h>
+#include <trunk/tros/kern/gdt/gdt.h>
 #include <trunk/drivers/serial/serial.h>
 
 namespace serial = trunk::drivers::serial;

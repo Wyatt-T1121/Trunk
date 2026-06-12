@@ -83,14 +83,17 @@ zero_bss:
 ; *  AUTHOR  : Trollycat                                                        *
 ; *  FUNC    : entry64                                                          *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : First 64-bit code to execute. Sets up the environment the C++    *
-; *            runtime expects, then calls boot_entry. Must not return.         *
+; *  PURPOSE : 64-bit entry level code, sets up the stack, calls C++ global con *
 ; *******************************************************************************
 entry64:
+    cli
+    cld
+    
     call load_mb2_from_memory
     call load_64b_data_segments
 
     mov rsp, __stack_top
+    and rsp, ~0XF
     xor rbp, rbp
 
     call zero_bss
@@ -113,7 +116,7 @@ entry64:
 .ctor_done:
     mov edi, r12d
     mov esi, r13d
-    jmp TrSystemStartup
+    call TrSystemStartup
 .hang:
     cli
     hlt
