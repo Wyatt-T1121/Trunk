@@ -19,21 +19,51 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Interrupt dispatcher                                               *
+ *  PURPOSE :  Populates the 256 gates and executes physical lidt instruction    *
  ********************************************************************************/
-#include <trunk/tros/kern/interrupts/dispatcher.h>
-#include <trunk/drivers/serial/serial.h>
+#pragma once
+
+#include <types.h>
+#include <macros.h>
+#include <assert.h>
 
 namespace trunk::interrupts
 {
-    extern "C" void kinterrupt_dispatcher(InterruptFrame *frame) noexcept
+    struct GNU_PACKED IdtDescriptor
     {
-        drivers::serial::serial_puts("Interrupt dispatched\n");
+        u16 offset_low;
+        u16 segment_selector;
 
-        u64 vector = frame->vector_number;
-        while (true)
-        {
-            asm volatile("cli; hlt");
-        }
-    }
+        // clang-format off
+        u16 ist_index   : 3;
+        u16 reserved_0  : 5;
+        u16 gate_type   : 4;
+        u16 reserved_1  : 1;
+        u16 privilege   : 2;
+        u16 present     : 1;
+        // clang-format on
+
+        u16 offset_mid;
+        u32 offset_high;
+
+        u32 reserved_2;
+    };
+
+    struct GNU_PACKED IdtrPointer
+    {
+        u16 limit;
+        u64 base_address;
+    };
+
+    STATIC_ASSERT(sizeof(IdtDescriptor) == 16, "IdtDescriptor must be exactly 16 bytes!");
+    STATIC_ASSERT(sizeof(IdtrPointer) == 10, "IdtrPointer must be exactly 10 bytes!");
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : gdt_init                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Initialize the interrupt descriptor table                          *
+     ********************************************************************************/
+    void idt_init() noexcept;
+
 } // namespace trunk::interrupts

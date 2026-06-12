@@ -26,7 +26,10 @@
  * *****************************************************************************/
 
 #include <trunk/boot/mm/b_mmap.h>
+
 #include <tklib/string.h>
+
+#include <macros.h>
 
 namespace trunk::boot
 {
@@ -39,13 +42,13 @@ namespace trunk::boot
     static constexpr u32 MMAP_NVS = 4;
     static constexpr u32 MMAP_BADRAM = 5;
 
-    struct [[gnu::packed]] MB2Tag
+    struct GNU_PACKED MB2Tag
     {
         u32 type;
         u32 size;
     };
 
-    struct [[gnu::packed]] MB2MmapEntry
+    struct GNU_PACKED MB2MmapEntry
     {
         u64 base;
         u64 length;
@@ -53,7 +56,7 @@ namespace trunk::boot
         u32 reserved;
     };
 
-    struct [[gnu::packed]] MB2MmapTag
+    struct GNU_PACKED MB2MmapTag
     {
         u32 type;
         u32 size;

@@ -19,16 +19,16 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Kernel entry point (TrkStartup). Reads like a table of contents —  *
- *            calls subsystem init functions in order, never returns.            *
- *            No logic lives here. If it does, it belongs in a subsystem file.   *
- *                                                                               *
+ *  PURPOSE : Kernel entry point (TrkStartup)                                    *
  ********************************************************************************/
 
 #include <trunk/tros/kern/init/k_init.h>
 
 #include <trunk/tros/kern/gdt/gdt.h>
+#include <trunk/tros/kern/interrupts/idt/idt.h>
+
 #include <trunk/drivers/serial/serial.h>
+#include <trunk/asi/io.h>
 
 namespace serial = trunk::drivers::serial;
 
@@ -46,6 +46,7 @@ namespace trunk::kernel
     {
         serial::serial_init();
         gdt::gdt_init();
+        interrupts::idt_init();
     }
 
     /* *******************************************************************************
@@ -58,7 +59,12 @@ namespace trunk::kernel
     {
         TrkSetupSubsystems();
 
-        serial::serial_puts("ALERT: TrkStartup() reached");
+        serial::serial_puts("ALERT: TrkStartup() reached\n");
+
+        asi::sti();
+        serial::serial_puts("Interrupts enabled (STI)\n");
+
+        asm volatile("int $3");
 
         (void)info;
         for (;;)

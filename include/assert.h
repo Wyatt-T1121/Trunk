@@ -17,23 +17,16 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Interrupt subsystem                                                *
+ *  MODULE  : Global definitions                                                 *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Interrupt dispatcher                                               *
+ *  PURPOSE : Global-level assert() macros                                       *
  ********************************************************************************/
-#include <trunk/tros/kern/interrupts/dispatcher.h>
-#include <trunk/drivers/serial/serial.h>
+#pragma once
 
-namespace trunk::interrupts
-{
-    extern "C" void kinterrupt_dispatcher(InterruptFrame *frame) noexcept
-    {
-        drivers::serial::serial_puts("Interrupt dispatched\n");
-
-        u64 vector = frame->vector_number;
-        while (true)
-        {
-            asm volatile("cli; hlt");
-        }
-    }
-} // namespace trunk::interrupts
+// clang-format off
+#ifdef __cplusplus
+    #define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
+#else
+    #define STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
+#endif
+// clang-format on

@@ -27,10 +27,11 @@
 #pragma once
 
 #include <types.h>
+#include <macros.h>
 
 namespace trunk::gdt
 {
-    struct [[gnu::packed]] GdtEntry
+    struct GNU_PACKED GdtEntry
     {
         u16 limit_low;
         u16 base_low;
@@ -58,7 +59,7 @@ namespace trunk::gdt
         }
     };
 
-    struct [[gnu::packed]] GdtPointer
+    struct GNU_PACKED GdtPointer
     {
         u16 limit;
         uptr base;
@@ -72,12 +73,12 @@ namespace trunk::gdt
      ********************************************************************************/
     void gdt_init() noexcept;
 
-} // namespace trunk::gdt
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : gdt_flush                                                          *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Assembly function that flushes the global descriptor table         *
+     ********************************************************************************/
+    extern "C" void gdt_flush(uptr gdt_ptr_addr) noexcept;
 
-/* *******************************************************************************
- *  AUTHOR  : Trollycat                                                          *
- *  FUNC    : gdt_flush                                                          *
- *  DATE    : 2026                                                               *
- *  PURPOSE : Assembly function that flushes the global descriptor table         *
- ********************************************************************************/
-extern "C" void gdt_flush(uptr gdt_ptr_addr) noexcept;
+} // namespace trunk::gdt

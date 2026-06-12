@@ -17,23 +17,19 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Interrupt subsystem                                                *
+ *  MODULE  : Global definitions                                                 *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Interrupt dispatcher                                               *
+ *  PURPOSE : Global-level macros for everything                                 *
  ********************************************************************************/
-#include <trunk/tros/kern/interrupts/dispatcher.h>
-#include <trunk/drivers/serial/serial.h>
 
-namespace trunk::interrupts
-{
-    extern "C" void kinterrupt_dispatcher(InterruptFrame *frame) noexcept
-    {
-        drivers::serial::serial_puts("Interrupt dispatched\n");
+#pragma once
 
-        u64 vector = frame->vector_number;
-        while (true)
-        {
-            asm volatile("cli; hlt");
-        }
-    }
-} // namespace trunk::interrupts
+// clang-format off
+#if defined(__GNUC__) || defined(__clang__)
+    #define GNU_PACKED [[gnu::packed]]
+    #define ALIGNED(x) __attribute__((aligned(x)))
+#else
+    #define GNU_PACKED
+    #define ALIGNED
+#endif
+// clang-format on
