@@ -35,11 +35,11 @@ global _start
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : _save_mb2_to_memory                                              *
+; *  FUNC    : save_mb2_to_memory                                               *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Stores MB2 values to memory in boot section so they can survive  *
 ; *******************************************************************************
-_save_mb2_to_memory:
+save_mb2_to_memory:
     mov dword [mb2_magic_store], eax
     mov dword [mb2_info_store], ebx
     
@@ -57,7 +57,7 @@ _save_mb2_to_memory:
 _start:
     cli
     
-    call _save_mb2_to_memory
+    call save_mb2_to_memory
 
     mov esp, 0x7C00
     

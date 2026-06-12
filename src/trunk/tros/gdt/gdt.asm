@@ -19,16 +19,27 @@
 ; *  AUTHOR  : Trollycat                                                          *
 ; *  MODULE  : Architecture Initialization                                        *
 ; *  DATE    : 2026                                                               *
-; *  PURPOSE : Assembly code for the Global Descriptor Table.                     *
-; *            Contains gdt_flush (called by c++)                                 *
-; *                                                                               *
-; *                                                                               *
+; *  PURPOSE : Global descriptor table (assembly) code                            *
 ; ********************************************************************************/
 
 bits 64
 
 section .text
-global gdt_flush
+
+; *********************************************************************************
+; *  AUTHOR  : Trollycat                                                          *
+; *  FUNC    : gdt_reload_data_segments                                           *
+; *  DATE    : 2026                                                               *
+; *  PURPOSE : Reloads the data segments for the GDT                              *
+; ********************************************************************************/
+gdt_reload_data_segments:
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    ret
 
 ; *********************************************************************************
 ; *  AUTHOR  : Trollycat                                                          *
@@ -36,26 +47,16 @@ global gdt_flush
 ; *  DATE    : 2026                                                               *
 ; *  PURPOSE : Assembly function that flushes the global descriptor table         *
 ; ********************************************************************************/
+global gdt_flush
 gdt_flush:
     lgdt [rdi]
 
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
+    call gdt_reload_data_segments
 
     push 0x08
     lea rax, [.reload_segments]
     push rax
+    
     retfq
-
-; *********************************************************************************
-; *  AUTHOR  : Trollycat                                                          *
-; *  FUNC    : .reload_segments                                                   *
-; *  DATE    : 2026                                                               *
-; *  PURPOSE : Landing pad after far return                                       *
-; ********************************************************************************/
 .reload_segments:
     ret

@@ -40,6 +40,21 @@ namespace trunk::boot
     /* ******************************************************************************
      *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
+     *  FUNC    : VerifyMB2                                                         *
+     *  DATE    : 2026                                                              *
+     *  PURPOSE : Wrapper for verify_mb2_(NAME)                                     *
+     *                                                                              *
+     * *****************************************************************************/
+    [[nodiscard]] bool VerifyMB2(u32 mb2_m, u32 mb2_ph) noexcept
+    {
+        if (!verify_mb2_magic(mb2_m) || !verify_mb2_ptr(mb2_ph))
+            return false;
+        return true;
+    }
+
+    /* ******************************************************************************
+     *                                                                              *
+     *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : Trkload                                                           *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Called from TrSystemStartup. Validates the MB2 handoff,           *
@@ -50,7 +65,7 @@ namespace trunk::boot
     extern "C" [[noreturn]]
     void Trkload(u32 mb2_magic, u32 mb2_phys) noexcept
     {
-        if (!verify_mb2_magic(mb2_magic) || !verify_mb2_ptr(mb2_phys))
+        if (!VerifyMB2(mb2_magic, mb2_phys))
             for (;;)
                 asm volatile("cli; hlt");
 

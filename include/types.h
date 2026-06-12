@@ -27,6 +27,9 @@
 
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+
 /* ******************************************************************************
  *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
@@ -39,7 +42,7 @@ using u8 = unsigned char;
 using u16 = unsigned short;
 using u32 = unsigned int;
 using u64 = unsigned long long;
-using u128 = unsigned __int128;
+using i128 = __int128;
 
 /* ******************************************************************************
  *                                                                              *
@@ -428,3 +431,5 @@ struct enable_if<true, T>
 
 template <bool Cond, typename T = void>
 using enable_if_t = typename enable_if<Cond, T>::type;
+
+#pragma GCC diagnostic pop

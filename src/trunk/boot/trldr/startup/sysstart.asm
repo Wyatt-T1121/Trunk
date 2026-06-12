@@ -17,7 +17,7 @@
 ; *******************************************************************************
 ; *                                                                             *
 ; *  AUTHOR  : Trollycat                                                        *
-; *  MODULE  : Kernel Landing Pad                                               *
+; *  MODULE  : System startup landing pad                                       *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : System startup landing pad. Called from entry64.asm with         *
 ; *            mb2_magic in edi and mb2_phys in esi. Responsibilities in        *
@@ -33,64 +33,34 @@
 ; *            Trkload unchanged, satisfying the System V AMD64 ABI.            *
 ; *                                                                             *
 ; *******************************************************************************
-
 bits 64
 
-extern Trkload          ; boot.cpp, extern "C"
-extern __stack_top      ; linker script symbol, top of .stack section
-
-global TrSystemStartup
+extern Trkload
+extern __stack_top
 
 section .text
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : TrHardenCPUState                                                 *
+; *  FUNC    : TrSystemStartup                                                  *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Hardens CPU state                                                *
+; *  PURPOSE : Official System Startup. entry64.asm -> calls TrSystemStartup -> *
+; *                                     calls TrkLoad() -> calls Trkstartup()   *
 ; *******************************************************************************
-TrHardenCPUState:
+global TrSystemStartup
+TrSystemStartup:
     cli
     cld
-    ret
 
-; *******************************************************************************
-; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : TrLoad64BitDataSegments                                          *
-; *  DATE    : 2026                                                             *
-; *  PURPOSE : Loads 64-bit data segments                                       *
-; *******************************************************************************
-TrLoad64BitDataSegments:
     mov ax, 16
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    ret
 
-; *******************************************************************************
-; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : TrSetupKernelStack                                               *
-; *  DATE    : 2026                                                             *
-; *  PURPOSE : Sets up the kernel stack                                         *
-; *******************************************************************************
-TrSetupKernelStack:
     mov rsp, __stack_top
-    sub rsp, 8
     and rsp, ~0xF
-    ret
-
-; *******************************************************************************
-; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : TrSystemStartup                                                  *
-; *  DATE    : 2026                                                             *
-; *  PURPOSE : System startup landing pad                                       *
-; *******************************************************************************
-TrSystemStartup:
-    call TrHardenCPUState
-    call TrLoad64BitDataSegments
-    call TrSetupKernelStack
 
     xor rbp, rbp
 

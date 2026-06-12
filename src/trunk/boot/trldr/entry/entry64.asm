@@ -67,11 +67,11 @@ load_64b_data_segments:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : _zero_bss                                                        *
+; *  FUNC    : zero_bss                                                         *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Zeros the BSS section                                            *
 ; *******************************************************************************
-_zero_bss:
+zero_bss:
     mov rdi, __bss_start
     mov rcx, __bss_end
     sub rcx, rdi
@@ -93,7 +93,7 @@ entry64:
     mov rsp, __stack_top
     xor rbp, rbp
 
-    call _zero_bss
+    call zero_bss
 
     mov rbx, __init_array_start
 
@@ -113,7 +113,7 @@ entry64:
 .ctor_done:
     mov edi, r12d
     mov esi, r13d
-    call TrSystemStartup
+    jmp TrSystemStartup
 .hang:
     cli
     hlt

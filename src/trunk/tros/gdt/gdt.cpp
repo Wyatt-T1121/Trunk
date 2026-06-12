@@ -40,11 +40,11 @@ namespace trunk::gdt
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : gdt_init                                                           *
+     *  FUNC    : gdt_create_entries                                                 *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Initializes the global descriptor table subsystem                  *
+     *  PURPOSE : Creates standard GDT entries                                       *
      ********************************************************************************/
-    void gdt_init() noexcept
+    void gdt_create_entries() noexcept
     {
         gdt[0] = GdtEntry{0, 0, 0, 0, 0, 0};
 
@@ -59,6 +59,17 @@ namespace trunk::gdt
 
         // User Data
         gdt[4] = GdtEntry::create(GDT_PRESENT | GDT_RING3 | GDT_SYSTEM | GDT_READ_WRITE, 0);
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : gdt_init                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Initializes the global descriptor table subsystem                  *
+     ********************************************************************************/
+    void gdt_init() noexcept
+    {
+        gdt_create_entries();
 
         gdt_pointer.limit = sizeof(gdt) - 1;
         gdt_pointer.base = reinterpret_cast<uptr>(&gdt);

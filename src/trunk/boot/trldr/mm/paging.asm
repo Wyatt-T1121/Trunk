@@ -30,68 +30,60 @@
 
 bits 32
 
-; Physical addresses for the temporary page tables.
-; These sit in low memory below the kernel load address (1MB).
-; Each table is one 4KB page = 512 eight-byte entries.
-
 PML4_ADDR       equ 0x1000      ; Page Map Level 4
 PDPT_ID         equ 0x2000      ; PDPT for identity map (PML4 entry 0)
 PDPT_HH         equ 0x3000      ; PDPT for higher-half  (PML4 entry 511)
 PD_ADDR         equ 0x4000      ; Page Directory shared by both PDPTs
 
 ; Page table flag bits.
-
 PTE_PRESENT     equ (1 << 0)
 PTE_WRITABLE    equ (1 << 1)
 PTE_HUGE        equ (1 << 7)
 PTE_FLAGS       equ PTE_PRESENT | PTE_WRITABLE
 PTE_HUGE_FLAGS  equ PTE_PRESENT | PTE_WRITABLE | PTE_HUGE
 
-; PDPT index for 0xFFFFFFFF80000000.
-; Virtual address breakdown:
-;   PML4 index 511
-;   PDPT index 510
-;   PD   index 0    (first 2MB page)
-
 HH_PDPT_INDEX   equ 510
 
 section .boot.text
+
+
+; *******************************************************************************
+; *  AUTHOR  : Trollycat                                                        *
+; *  FUNC    : zero_page_tables                                                 *
+; *  DATE    : 2026                                                             *
+; *  PURPOSE : Zeroes the four page-table pages                                 *
+; *******************************************************************************
+zero_page_tables:
+    mov edi, PML4_ADDR
+    xor eax, eax
+    mov ecx, (0x4000 / 4)
+    rep stosd
+    ret
+
+; *******************************************************************************
+; *  AUTHOR  : Trollycat                                                        *
+; *  FUNC    : populate_page_tables                                             *
+; *  DATE    : 2026                                                             *
+; *  PURPOSE : Populates the page tables with appropriate mappings              *
+; *******************************************************************************
+populate_page_tables:
+    mov dword [PML4_ADDR],                   PDPT_ID | PTE_FLAGS
+    mov dword [PML4_ADDR + 511 * 8],         PDPT_HH | PTE_FLAGS
+    mov dword [PDPT_ID], PD_ADDR |           PTE_FLAGS
+    mov dword [PDPT_HH + HH_PDPT_INDEX * 8], PD_ADDR | PTE_FLAGS
+    ret
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
 ; *  FUNC    : setup_page_tables                                                *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Zeroes the four page-table pages then populates them:            *
-; *              PML4[0]        -> PDPT_ID (identity map)                       *
-; *              PML4[511]      -> PDPT_HH (higher-half)                        *
-; *              PDPT_ID[0]     -> PD_ADDR                                      *
-; *              PDPT_HH[510]   -> PD_ADDR                                      *
-; *              PD[0..511]     -> 512 x 2MB huge pages covering 0 to 1GB       *
-; *            Called from entry32.asm before long mode is enabled.             *
+; *  PURPOSE : Setup the page tables                                            *
 ; *******************************************************************************
-
 global setup_page_tables
 setup_page_tables:
+    call zero_page_tables
+    call populate_page_tables
 
-    ; Zero all four tables (4 pages = 0x4000 bytes).
-    mov edi, PML4_ADDR
-    xor eax, eax
-    mov ecx, (0x4000 / 4)
-    rep stosd
-
-    ; PML4 entry 0 -> PDPT_ID (identity map: virtual 0x0 to 0x7FFFFFFFFFFF)
-    mov dword [PML4_ADDR],           PDPT_ID | PTE_FLAGS
-
-    ; PML4 entry 511 -> PDPT_HH (higher-half: virtual 0xFFFF800000000000+)
-    mov dword [PML4_ADDR + 511 * 8], PDPT_HH | PTE_FLAGS
-
-    ; Identity PDPT entry 0 -> PD (covers virtual 0x0 to 0x3FFFFFFF = 1GB)
-    mov dword [PDPT_ID], PD_ADDR | PTE_FLAGS
-
-    ; Higher-half PDPT entry 510 -> PD (virtual 0xFFFFFFFF80000000)
-    mov dword [PDPT_HH + HH_PDPT_INDEX * 8], PD_ADDR | PTE_FLAGS
-
-    ; Page Directory: 512 x 2MB huge pages covering 0 to 1GB physical.
     mov edi, PD_ADDR
     mov eax, PTE_HUGE_FLAGS
     mov ecx, 512
@@ -101,7 +93,6 @@ setup_page_tables:
     add eax, 0x200000
     add edi, 8
     loop .fill_pd
-
     ret
 
 ; *******************************************************************************
@@ -110,15 +101,9 @@ setup_page_tables:
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Loads CR3, enables PAE in CR4, sets EFER.LME via MSR, then       *
 ; *            enables paging in CR0 which activates 64-bit long mode.          *
-; *            The CPU enters compatibility mode after this returns. A far      *
-; *            jump to a 64-bit code descriptor in entry32.asm completes the    *
-; *            switch. Must be called after setup_page_tables.                  *
 ; *******************************************************************************
-
 global enable_long_mode
 enable_long_mode:
-
-    ; 1. Point CR3 at the PML4.
     mov eax, PML4_ADDR
     mov cr3, eax
 

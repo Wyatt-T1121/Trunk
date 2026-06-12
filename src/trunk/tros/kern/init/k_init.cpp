@@ -25,31 +25,42 @@
  *                                                                               *
  ********************************************************************************/
 
-#include <trunk/kernel/kernel.h>
-#include <trunk/gdt/gdt.h>
+#include <trunk/kernel/k_init.h>
 
+#include <trunk/gdt/gdt.h>
 #include <trunk/drivers/serial/serial.h>
 
 namespace serial = trunk::drivers::serial;
 
+#define STARTUP_FUNC_FLAGS extern "C" [[noreturn]] __attribute__((section(".text")))
+
 namespace trunk::kernel
 {
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : TrkSetupSubsystems                                                 *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Setup all subsystems of the Trunk kernel                           *
+     ********************************************************************************/
+    void TrkSetupSubsystems() noexcept
+    {
+        serial::serial_init();
+        gdt::gdt_init();
+    }
+
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : TrkStartup                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Top-level kernel entry.                                            *
      ********************************************************************************/
-    extern "C" [[noreturn]]
-    void TrkStartup(const boot::BootInfo &info) noexcept
+    STARTUP_FUNC_FLAGS void TrkStartup(const boot::BootInfo &info) noexcept
     {
-        serial::serial_init();
+        TrkSetupSubsystems();
+
         serial::serial_puts("ALERT: TrkStartup() reached");
 
         (void)info;
-
-        gdt::gdt_init();
-
         for (;;)
         {
             asm volatile("hlt");
