@@ -16,50 +16,43 @@
  *                                                                               *
  *********************************************************************************
  *                                                                               *
- *  AUTHOR  :  Trollycat                                                         *
- *  MODULE  :  Interrupt subsystem                                               *
- *  DATE    :  2026                                                              *
- *  PURPOSE :  Maps the hardware and software register state on an interrupt     *
- *                                                                  trap         *
+ *  AUTHOR  : Trollycat                                                          *
+ *  MODULE  : Programmable Interrupt Controller                                  *
+ *  DATE    : 2026                                                               *
+ *  PURPOSE : Defines constants and interfaces for the Dual 8259 PIC chips       *
  ********************************************************************************/
 #pragma once
 
 #include <types.h>
 
-namespace trunk::interrupts
+namespace trunk::drivers::pic
 {
+
     // clang-format off
-    #pragma pack(push, 1)
+    inline constexpr static u8 PIC1         = 0x20;
+    inline constexpr static u8 PIC2         = 0xA0;
 
-    struct TrapFrame
-    {
-        u64 r15;
-        u64 r14;
-        u64 r13;
-        u64 r12;
-        u64 r11;
-        u64 r10;
-        u64 r9;
-        u64 r8;
-        u64 rbp;
-        u64 rdi;
-        u64 rsi;
-        u64 rdx;
-        u64 rcx;
-        u64 rbx;
-        u64 rax;
+    inline constexpr static u8 PIC1_COMMAND = PIC1;
+    inline constexpr static u8 PIC1_DATA    = PIC1 + 1;
+    inline constexpr static u8 PIC2_COMMAND = PIC2;
+    inline constexpr static u8 PIC2_DATA    = PIC2 + 1;
+    
+    inline constexpr static u8 PIC_EOI      = 0x20;
 
-        u64 vector_number;
-        u64 error_code;
+    inline constexpr static u8 PIC1_OFFSET  = 0x20;
+    inline constexpr static u8 PIC2_OFFSET  = 0x28;
 
-        u64 rip;
-        u64 cs;
-        u64 rflags;
-        u64 rsp;
-        u64 ss;
-    };
-
-    #pragma pack(pop)
+    inline constexpr static u8 ICW1_INIT    = 0x11;
+    inline constexpr static u8 ICW4_8086    = 0x01;
 
     // clang-format on
-} // namespace trunk::interrupts
+
+    void pic_init() noexcept;
+
+    void irq_ack(u8 irq) noexcept;
+
+    void pic_mask(u8 irq) noexcept;
+    void pic_unmask(u8 irq) noexcept;
+
+    void pic_disable() noexcept;
+}; // namespace trunk::drivers::pic
