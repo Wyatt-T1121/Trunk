@@ -19,11 +19,9 @@
  *  AUTHOR  : Trollycat                                                         *
  *  MODULE  : Standard library utility                                          *
  *  DATE    : 2026                                                              *
- *  PURPOSE : Freestanding string and memory utility functions.                 *
- *            No heap allocation. No formatting. Pure manipulation.             *
+ *  PURPOSE : String and memory manipulation utilities                          *
  *                                                                              *
  * *****************************************************************************/
-
 #pragma once
 
 #include <types.h>

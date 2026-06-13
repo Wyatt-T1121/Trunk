@@ -21,7 +21,6 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Global-level macros for everything                                 *
  ********************************************************************************/
-
 #pragma once
 
 // clang-format off
