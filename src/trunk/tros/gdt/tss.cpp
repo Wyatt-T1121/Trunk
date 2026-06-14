@@ -17,76 +17,61 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Global Descriptor Table                                            *
+ *  MODULE  : Task State Segment                                                 *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Defines and initalizes the permanent 64-bit                        *
- *            Global Descriptor Table.                                           *
- *                                                                               *
+ *  PURPOSE : Defines and initializes the Task State Segment                     *
  ********************************************************************************/
+#include <trunk/tros/gdt/tss.h>
 
-#pragma once
+#include <assert.h>
+#include <kmlayout.h>
 
-#include <types.h>
-#include <macros.h>
+#include <tklib/math.h>
 
 namespace trunk::gdt
 {
-    inline constexpr u8 GDT_PRESENT = 0x80;
-    inline constexpr u8 GDT_RING0 = 0x00;
-    inline constexpr u8 GDT_RING3 = 0x60;
-    inline constexpr u8 GDT_SYSTEM = 0x10;
-    inline constexpr u8 GDT_EXECUTABLE = 0x08;
-    inline constexpr u8 GDT_READ_WRITE = 0x02;
-    inline constexpr u8 GDT_LONG_MODE = 0x20;
+    static Tss s_tss{};
 
-    struct GNU_PACKED GdtEntry
-    {
-        u16 limit_low;
-        u16 base_low;
-        u8 base_middle;
-        u8 access;
-        u8 flags_limit_high;
-        u8 base_high;
-
-        /* *******************************************************************************
-         *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : create                                                             *
-         *  DATE    : 2026                                                               *
-         *  PURPOSE : Creates a new GdtEntry with passed in paramaters                   *
-         ********************************************************************************/
-
-        static constexpr GdtEntry create(u8 access, u8 flags) noexcept
-        {
-            return GdtEntry{
-                .limit_low = 0,
-                .base_low = 0,
-                .base_middle = 0,
-                .access = access,
-                .flags_limit_high = static_cast<u8>((flags & 0xF0)),
-                .base_high = 0};
-        }
-    };
-
-    struct GNU_PACKED GdtPointer
-    {
-        u16 limit;
-        uptr base;
-    };
+    static u8 s_ist1_stack[IST_STACK_SIZE];
+    static u8 s_ist2_stack[IST_STACK_SIZE];
+    static u8 s_ist3_stack[IST_STACK_SIZE];
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : gdt_init                                                           *
+     *  FUNC    : tss_init                                                           *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Initializes the global descriptor table                            *
+     *  PURPOSE : Initializes the Task State Segment                                 *
      ********************************************************************************/
-    void gdt_init() noexcept;
+    void tss_init() noexcept
+    {
+        s_tss.iopb_offset = sizeof(Tss);
+        s_tss.ist[0] = reinterpret_cast<u64>(s_ist1_stack + IST_STACK_SIZE);
+        s_tss.ist[1] = reinterpret_cast<u64>(s_ist2_stack + IST_STACK_SIZE);
+        s_tss.ist[2] = reinterpret_cast<u64>(s_ist3_stack + IST_STACK_SIZE);
+    }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : gdt_flush                                                          *
+     *  FUNC    : tss_set_rsp0                                                       *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Flushes/Reloads the global descriptor table (external assembly)    *
+     *  PURPOSE : Set the RSP0 field for ring mode                                   *
      ********************************************************************************/
-    extern "C" void gdt_flush(uptr gdt_ptr_addr) noexcept;
+    void tss_set_rsp0(u64 rsp) noexcept
+    {
+        ASSERT(rsp == reinterpret_cast<u64>(__stack_top), "RSP0 DOES NOT MATCH KERNEL STACK TOP");
+        ASSERT(math::is_aligned(rsp, 16), "RSP0 IS NOT 16-BYTE ALIGNED");
 
+        s_tss.rsp0 = rsp;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : tss_get                                                            *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Get the current tss by reference                                   *
+     ********************************************************************************/
+    [[nodiscard]] const Tss &tss_get() noexcept
+    {
+        return s_tss;
+    }
 } // namespace trunk::gdt

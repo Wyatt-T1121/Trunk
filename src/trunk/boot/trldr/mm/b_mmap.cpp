@@ -62,7 +62,7 @@ namespace trunk::boot
         u32 size;
         u32 entry_size;
         u32 entry_version;
-        MB2MmapEntry entries[];
+        MB2MmapEntry entries[1];
     };
 
     /* ******************************************************************************

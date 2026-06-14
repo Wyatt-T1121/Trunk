@@ -91,10 +91,10 @@ namespace trunk::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if value is aligned to alignment.                     *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr bool is_aligned(T value, T alignment) noexcept
+    template <typename T, typename U>
+    [[nodiscard]] constexpr bool is_aligned(T value, U alignment) noexcept
     {
-        return (value & (alignment - 1)) == 0;
+        return (value & (static_cast<T>(alignment) - 1)) == 0;
     }
 
     /* *******************************************************************************

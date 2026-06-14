@@ -30,14 +30,6 @@ namespace trunk::gdt
     static GdtEntry gdt[5];
     static GdtPointer gdt_pointer;
 
-    constexpr u8 GDT_PRESENT = 0x80;
-    constexpr u8 GDT_RING0 = 0x00;
-    constexpr u8 GDT_RING3 = 0x60;
-    constexpr u8 GDT_SYSTEM = 0x10;
-    constexpr u8 GDT_EXECUTABLE = 0x08;
-    constexpr u8 GDT_READ_WRITE = 0x02;
-    constexpr u8 GDT_LONG_MODE = 0x20;
-
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : gdt_create_entries                                                 *

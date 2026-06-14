@@ -24,11 +24,9 @@
 #include <trunk/tros/mem/memblock.h>
 
 #include <assert.h>
+#include <kmlayout.h>
 
 #include <tklib/math.h>
-
-extern "C" char __kernel_phys_start[];
-extern "C" char __kernel_phys_end[];
 
 namespace trunk::mem
 {

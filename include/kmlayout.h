@@ -17,79 +17,22 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Programmable Interrupt Controller                                  *
+ *  MODULE  : Global definitions                                                 *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Implements the functionality for the Dual 8259 PIC chips           *
+ *  PURPOSE : Kernel memory layout pulled from linkerscript                      *
  ********************************************************************************/
-#include <trunk/drivers/hal/pic.h>
-#include <trunk/asi/io.h>
+#pragma once
 
-namespace trunk::drivers::pic
+#include <types.h>
+
+namespace trunk
 {
-
-    static void get_pic_line_properties(u8 &irq, u16 &out_port) noexcept
+    extern "C"
     {
-        if (irq < 8)
-        {
-            out_port = PIC1_DATA;
-        }
-        else
-        {
-            out_port = PIC2_DATA;
-            irq -= 8;
-        }
+        extern char __kernel_phys_start[];
+        extern char __kernel_phys_end[];
+
+        extern u8 __stack_bottom[];
+        extern u8 __stack_top[];
     }
-
-    void pic_init() noexcept
-    {
-        // ICW1
-        asi::outb(PIC1_COMMAND, ICW1_INIT);
-        asi::outb(PIC2_COMMAND, ICW1_INIT);
-
-        // ICW2
-        asi::outb(PIC1_DATA, PIC1_OFFSET);
-        asi::outb(PIC2_DATA, PIC2_OFFSET);
-
-        // ICW3
-        asi::outb(PIC1_DATA, 0x04);
-        asi::outb(PIC2_DATA, 0x02);
-
-        // ICW4
-        asi::outb(PIC1_DATA, ICW4_8086);
-        asi::outb(PIC2_DATA, ICW4_8086);
-
-        // clear mask register
-        asi::outb(PIC1_DATA, 0x00);
-        asi::outb(PIC2_DATA, 0x00);
-    }
-
-    void irq_ack(u8 irq) noexcept
-    {
-        if (irq >= 8)
-            asi::outb(PIC2_COMMAND, PIC_EOI);
-        asi::outb(PIC1_COMMAND, PIC_EOI);
-    }
-
-    void pic_mask(u8 irq) noexcept
-    {
-        u16 port = 0;
-        get_pic_line_properties(irq, port);
-        u8 value = asi::inb(port) | (1 << irq);
-        asi::outb(port, value);
-    }
-
-    void pic_unmask(u8 irq) noexcept
-    {
-        u16 port = 0;
-        get_pic_line_properties(irq, port);
-        u8 value = asi::inb(port) & ~(1 << irq);
-        asi::outb(port, value);
-    }
-
-    void pic_disable() noexcept
-    {
-        asi::outb(PIC1_DATA, 0xFF);
-        asi::outb(PIC2_DATA, 0xFF);
-    }
-
-}; // namespace trunk::drivers::pic
+}
