@@ -20,7 +20,6 @@
  *  MODULE  : Standard library utility                                          *
  *  DATE    : 2026                                                              *
  *  PURPOSE : String and memory manipulation utilities                          *
- *                                                                              *
  * *****************************************************************************/
 #pragma once
 

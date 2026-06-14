@@ -21,8 +21,12 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Memory allocator for early boot stage.                             *
  ********************************************************************************/
-
 #include <trunk/tros/mem/memblock.h>
+
+#include <assert.h>
+
+#include <tklib/math.h>
+#include <tklib/bitf.h>
 
 extern "C" char __kernel_phys_start[];
 extern "C" char __kernel_phys_end[];
@@ -35,45 +39,116 @@ namespace trunk::mem
     static usize s_memory_count = 0;
     static usize s_reserved_count = 0;
 
+    static u64 s_total_free = 0;
+    static u64 s_total_reserved = 0;
+
     namespace
     {
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : align_up                                                           *
+         *  FUNC    : insertion_sort_regions                                             *
          *  DATE    : 2026                                                               *
-         *  PURPOSE : Alignment utility function                                         *
+         *  PURPOSE : Sort regions by base address.                                      *
          ********************************************************************************/
-        [[nodiscard]] constexpr u64 align_up(u64 address, u64 alignment) noexcept
+        void insertion_sort_regions(MemoryRegion *regions, usize count) noexcept
         {
-            if (alignment == 0 || (address % alignment) == 0) [[likely]]
-                return address;
-            return address + (alignment - (address % alignment));
+            for (usize i = 1; i < count; ++i)
+            {
+                MemoryRegion key = regions[i];
+
+                isize j = static_cast<isize>(i) - 1;
+
+                while (j >= 0 && regions[j].base > key.base)
+                {
+                    regions[j + 1] = regions[j];
+                    --j;
+                }
+
+                regions[j + 1] = key;
+            }
         }
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : sort_regions                                                       *
+         *  FUNC    : merge_reserved_regions                                             *
          *  DATE    : 2026                                                               *
-         *  PURPOSE : Sort the memory regions so no full space is left behind            *
+         *  PURPOSE : Coalesce adjacent or overlapping reserved regions into one entry.  *
          ********************************************************************************/
-        void sort_regions(MemoryRegion *regions, usize count) noexcept
+        void merge_reserved_regions() noexcept
         {
-            if (count < 2)
+            if (s_reserved_count < 2)
                 return;
 
-            for (usize i = 0; i < count - 1; ++i)
+            usize write = 0;
+            for (usize read = 1; read < s_reserved_count; ++read)
             {
-                for (usize j = 0; j < count - i - 1; ++j)
+                const u64 cur_end = s_reserved_regions[write].base + s_reserved_regions[write].size;
+                const u64 next_start = s_reserved_regions[read].base;
+                const u64 next_end = next_start + s_reserved_regions[read].size;
+
+                if (next_start <= cur_end)
                 {
-                    if (regions[j].base > regions[j + 1].base)
-                    {
-                        MemoryRegion temp = regions[j];
-                        regions[j] = regions[j + 1];
-                        regions[j + 1] = temp;
-                    }
+                    if (next_end > cur_end)
+                        s_reserved_regions[write].size = next_end - s_reserved_regions[write].base;
+                }
+                else
+                {
+                    ++write;
+                    s_reserved_regions[write] = s_reserved_regions[read];
                 }
             }
+            s_reserved_count = write + 1;
         }
+
+        /* *******************************************************************************
+         *  AUTHOR  : Trollycat                                                          *
+         *  FUNC    : carve_free_region                                                  *
+         *  DATE    : 2026                                                               *
+         *  PURPOSE : Remove [base, base + size) from the free list. Splits the          *
+         *            containing region into left/right remainders as needed.            *
+         ********************************************************************************/
+        bool carve_free_region(u64 base, u64 size) noexcept
+        {
+            const u64 end = base + size;
+
+            for (usize i = 0; i < s_memory_count; ++i)
+            {
+                const u64 region_start = s_memory_regions[i].base;
+                const u64 region_end = region_start + s_memory_regions[i].size;
+
+                if (base < region_start || end > region_end)
+                    continue;
+
+                const u64 left_size = base - region_start;
+                const u64 right_size = region_end - end;
+
+                if (left_size > 0 && right_size > 0)
+                {
+                    s_memory_regions[i].size = left_size;
+                    if (s_memory_count < MAX_MEMBLOCK_REGIONS)
+                        s_memory_regions[s_memory_count++] = {end, right_size};
+                }
+                else if (left_size > 0)
+                {
+                    s_memory_regions[i].size = left_size;
+                }
+                else if (right_size > 0)
+                {
+                    s_memory_regions[i].base = end;
+                    s_memory_regions[i].size = right_size;
+                }
+                else
+                {
+                    s_memory_regions[i] = s_memory_regions[--s_memory_count];
+                }
+
+                s_total_free -= size;
+                return true;
+            }
+
+            return false;
+        }
+
     } // namespace
 
     /* *******************************************************************************
@@ -87,33 +162,33 @@ namespace trunk::mem
         s_memory_count = 0;
         s_reserved_count = 0;
 
+        s_total_free = 0;
+        s_total_reserved = 0;
+
         for (usize i = 0; i < boot_info.mmap_count; ++i)
         {
-            s_memory_count = 0;
-            s_reserved_count = 0;
+            const auto &entry = boot_info.mmap[i];
 
-            for (usize i = 0; i < boot_info.mmap_count; ++i)
+            if (entry.available())
             {
-                const auto &entry = boot_info.mmap[i];
-
-                if (entry.available())
-                {
-                    ASSERT(s_memory_count < MAX_MEMBLOCK_REGIONS, "EXCEEDED MAX_MEMBLOCK_REGIONS IN MEMORY TRACKER");
-                    s_memory_regions[s_memory_count++] = {entry.base, entry.length};
-                }
-                else
-                {
-                    memblock_reserve(entry.base, entry.length);
-                }
+                ASSERT(s_memory_count < MAX_MEMBLOCK_REGIONS,
+                       "EXCEEDED MAX_MEMBLOCK_REGIONS IN MEMORY TRACKER");
+                s_memory_regions[s_memory_count++] = {entry.base, entry.length};
+                s_total_free += entry.length;
             }
-
-            u64 k_start = reinterpret_cast<u64>(__kernel_phys_start);
-            u64 k_end = reinterpret_cast<u64>(__kernel_phys_end);
-            memblock_reserve(k_start, k_end - k_start);
-
-            sort_regions(s_memory_regions, s_memory_count);
-            sort_regions(s_reserved_regions, s_reserved_count);
+            else
+            {
+                memblock_reserve(entry.base, entry.length);
+            }
         }
+
+        u64 k_start = reinterpret_cast<u64>(__kernel_phys_start);
+        u64 k_end = reinterpret_cast<u64>(__kernel_phys_end);
+        memblock_reserve(k_start, k_end - k_start);
+
+        insertion_sort_regions(s_memory_regions, s_memory_count);
+        insertion_sort_regions(s_reserved_regions, s_reserved_count);
+        merge_reserved_regions();
     }
 
     /* *******************************************************************************
@@ -127,12 +202,14 @@ namespace trunk::mem
         if (size == 0 || alignment == 0) [[unlikely]]
             return 0;
 
+        ASSERT(math::is_power_of_two(alignment), "memblock_alloc: alignment must be a power of two");
+
         for (usize i = 0; i < s_memory_count; ++i)
         {
             const u64 region_start = s_memory_regions[i].base;
             const u64 region_end = region_start + s_memory_regions[i].size;
 
-            u64 candidate = align_up(region_start, alignment);
+            u64 candidate = math::align_up(region_start, alignment);
 
             while (candidate + size <= region_end)
             {
@@ -143,16 +220,20 @@ namespace trunk::mem
                     const u64 res_start = s_reserved_regions[j].base;
                     const u64 res_end = res_start + s_reserved_regions[j].size;
 
+                    if (res_start >= candidate + size)
+                        break;
+
                     if (candidate < res_end && (candidate + size) > res_start)
                     {
                         overlapped = true;
-                        candidate = align_up(res_end, alignment);
+                        candidate = math::align_up(res_end, alignment);
                         break;
                     }
                 }
 
                 if (!overlapped)
                 {
+                    carve_free_region(candidate, size);
                     memblock_reserve(candidate, size);
                     return candidate;
                 }
@@ -172,11 +253,66 @@ namespace trunk::mem
     {
         if (size == 0)
             return;
-        ASSERT(s_reserved_count < MAX_MEMBLOCK_REGIONS, "Reserved region count exceeds MAX_MEMBLOCK_REGIONS");
+
+        ASSERT(!math::add_would_overflow(base, size), "memblock_reserve: base + size overflows u64");
+        ASSERT(s_reserved_count < MAX_MEMBLOCK_REGIONS,
+               "Reserved region count exceeds MAX_MEMBLOCK_REGIONS");
 
         s_reserved_regions[s_reserved_count++] = {base, size};
+        s_total_reserved += size;
 
-        sort_regions(s_reserved_regions, s_reserved_count);
+        insertion_sort_regions(s_reserved_regions, s_reserved_count);
+        merge_reserved_regions();
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : memblock_is_reserved                                               *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Returns true if any byte in [base, base + size) is reserved.       *
+     ********************************************************************************/
+    [[nodiscard]] bool memblock_is_reserved(u64 base, u64 size) noexcept
+    {
+        if (size == 0)
+            return false;
+
+        const u64 end = base + size;
+
+        for (usize i = 0; i < s_reserved_count; ++i)
+        {
+            const u64 res_start = s_reserved_regions[i].base;
+            const u64 res_end = res_start + s_reserved_regions[i].size;
+
+            if (res_start >= end)
+                break;
+
+            if (base < res_end && end > res_start)
+                return true;
+        }
+
+        return false;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : memblock_total_free                                                *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Returns total free bytes remaining in the memory pool.             *
+     ********************************************************************************/
+    [[nodiscard]] u64 memblock_total_free() noexcept
+    {
+        return s_total_free;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : memblock_total_reserved                                            *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Returns total reserved bytes across all reserved regions.          *
+     ********************************************************************************/
+    [[nodiscard]] u64 memblock_total_reserved() noexcept
+    {
+        return s_total_reserved;
     }
 
 } // namespace trunk::mem

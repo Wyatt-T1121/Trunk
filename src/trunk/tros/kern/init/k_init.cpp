@@ -59,18 +59,12 @@ namespace trunk::kernel
     STARTUP_FUNC_FLAGS void
     TrkStartup(const boot::BootInfo &info) noexcept
     {
-        serial::serial_puts("ALERT: TrkStartup() reached\n");
-
-        serial::serial_puts("ALERT: CALL TrkSetupSubsystems()\n");
         TrkSetupSubsystems();
-
-        serial::serial_puts("ALERT: Enabling Interrupts\n");
         asi::sti();
 
         (void)info;
         for (;;)
         {
-            serial::serial_puts("ALERT: HALTING KERNEL\n");
             asm volatile("cli; hlt");
         }
     }

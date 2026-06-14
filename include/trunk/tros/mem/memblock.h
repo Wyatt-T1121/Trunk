@@ -43,19 +43,28 @@ namespace trunk::mem
     {
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : align_up                                                           *
+         *  FUNC    : insertion_sort_regions                                             *
          *  DATE    : 2026                                                               *
-         *  PURPOSE : Alignment utility function                                         *
+         *  PURPOSE : Sort regions by base address.                                      *
          ********************************************************************************/
-        [[nodiscard]] constexpr u64 align_up(u64 address, u64 alignment) noexcept;
+        void insertion_sort_regions(MemoryRegion *regions, usize count) noexcept;
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : sort_regions                                                       *
+         *  FUNC    : merge_reserved_regions                                             *
          *  DATE    : 2026                                                               *
-         *  PURPOSE : Sort the memory regions so no full space is left behind            *
+         *  PURPOSE : Coalesce adjacent or overlapping reserved regions into one entry.  *
          ********************************************************************************/
-        void sort_regions(MemoryRegion *regions, usize count) noexcept;
+        void merge_reserved_regions() noexcept;
+
+        /* *******************************************************************************
+         *  AUTHOR  : Trollycat                                                          *
+         *  FUNC    : carve_free_region                                                  *
+         *  DATE    : 2026                                                               *
+         *  PURPOSE : Remove [base, base + size) from the free list. Splits the          *
+         *            containing region into left/right remainders as needed.            *
+         ********************************************************************************/
+        bool carve_free_region(u64 base, u64 size) noexcept;
     } // namespace
 
     /* *******************************************************************************
@@ -81,5 +90,29 @@ namespace trunk::mem
      *  PURPOSE : Reserve a region inside the memblock                               *
      ********************************************************************************/
     void memblock_reserve(u64 base, u64 size) noexcept;
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : memblock_is_reserved                                               *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Returns true if any byte in [base, base + size) is reserved.       *
+     ********************************************************************************/
+    [[nodiscard]] bool memblock_is_reserved(u64 base, u64 size) noexcept;
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : memblock_total_free                                                *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Returns total free bytes remaining in the memory pool.             *
+     ********************************************************************************/
+    [[nodiscard]] u64 memblock_total_free() noexcept;
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : memblock_total_reserved                                            *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Returns total reserved bytes across all reserved regions.          *
+     ********************************************************************************/
+    [[nodiscard]] u64 memblock_total_reserved() noexcept;
 
 } // namespace trunk::mem
