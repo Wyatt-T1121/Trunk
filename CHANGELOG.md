@@ -35,9 +35,11 @@ entry64.asm set's up 64-bit mode.
 
 Our boot code has some basic steps:
 
-Basic paging to map 1GB of RAM (for GRUB and the kernel)
+Basic paging to map 1GB of RAM (for GRUB and the kernel).
+
 multiboot2-data Is collected and parsed, then stored Into 'BootInfo' structure and later passed to the physical memory manager.
-Make's sure to align the stack to 16 before calling C++ global constructors. (Per System V ABI)
+
+Make's sure to align the stack to 16 before calling C++ global constructors. (Per System V ABI).
 
 The trunk boot code Is grouped under 'trldr'
 Even tho It's not a custom bootloader, I still named It.
@@ -102,9 +104,9 @@ Perform:
 
 asm volatile("int $3");
 
-This tells assembly to fire off interrupt 3 (which is BREAKPOINT)
+This tells assembly to fire off interrupt 3 (which is BREAKPOINT).
 
-'kabort'?
+What Is 'kabort()'?
 
 kabort() Is basically the panic() of Trunk.
 
