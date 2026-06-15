@@ -30,102 +30,33 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpedantic"
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Unsigned integer aliases                                          *
- *  DATE    : 2026                                                              *
- *  PURPOSE : Fixed-width unsigned types.                                       *
- *                                                                              *
- * *****************************************************************************/
 using u8 = unsigned char;
 using u16 = unsigned short;
 using u32 = unsigned int;
 using u64 = unsigned long long;
 using u128 = unsigned __int128;
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Signed integer aliases                                            *
- *  DATE    : 2026                                                              *
- *  PURPOSE : Fixed-width signed types.                                         *
- *                                                                              *
- * *****************************************************************************/
 using i8 = signed char;
 using i16 = signed short;
 using i32 = signed int;
 using i64 = signed long long;
 using i128 = __int128;
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Size and pointer-sized types                                      *
- *  DATE    : 2026                                                              *
- *  PURPOSE : usize/isize: counts and offsets (size_t/ptrdiff_t equivalent).    *
- *            uptr: raw physical or virtual addresses.                          *
- *                                                                              *
- * *****************************************************************************/
 using usize = unsigned long;
 using isize = long;
 using uptr = unsigned long;
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Floating point aliases                                            *
- *  DATE    : 2026                                                              *
- *  PURPOSE : f32 / f64 for cases where floating point is needed.               *
- *            Avoid in hot paths - kernel code prefers fixed point.             *
- *                                                                              *
- * *****************************************************************************/
 using f32 = float;
 using f64 = double;
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Boolean alias                                                     *
- *  DATE    : 2026                                                              *
- *  PURPOSE : Explicit bool alias. Keeps parity with the other type aliases.    *
- *                                                                              *
- * *****************************************************************************/
 using b8 = bool;
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Null pointer type                                                 *
- *  DATE    : 2026                                                              *
- *  PURPOSE : nullptr_t lets functions explicitly accept or return nullptr.     *
- *            Mirrors std::nullptr_t without any standard header.               *
- *                                                                              *
- * *****************************************************************************/
 using nullptr_t = decltype(nullptr);
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Byte type                                                         *
- *  DATE    : 2026                                                              *
- *  PURPOSE : Raw memory byte. Distinct from u8 to prevent arithmetic.          *
- *            Use when the value is raw memory, not a number.                   *
- *                                                                              *
- * *****************************************************************************/
 enum class byte : unsigned char
 {
 };
 
-/* ******************************************************************************
- *                                                                              *
- *  AUTHOR  : Trollycat                                                         *
- *  SECTION : Integer limits                                                    *
- *  DATE    : 2026                                                              *
- *  PURPOSE : Compile-time min/max constants for every integer type.            *
- *            Avoids pulling in <climits> or <limits.h>.                        *
- *                                                                              *
- * *****************************************************************************/
 namespace limits
 {
     inline constexpr u8 u8_min = 0;

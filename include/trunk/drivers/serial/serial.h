@@ -15,15 +15,10 @@
  *  limitations under the License.                                              *
  *                                                                              *
  ********************************************************************************
- *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
  *  MODULE  : Serial communication driver                                       *
  *  DATE    : 2026                                                              *
  *  PURPOSE : COM1 serial port driver declarations.                             *
- *            Talks to hardware via port I/O. No dependencies beyond Io.h.      *
- *            Hardcoded early driver — a proper version comes with the          *
- *            driver subsystem later.                                           *
- *                                                                              *
  * *****************************************************************************/
 
 #pragma once
@@ -33,18 +28,7 @@
 
 namespace trunk::drivers::serial
 {
-
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  SECTION : COM1 port addresses                                               *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Base address and register offsets for COM1.                       *
-     *            All access goes through Io.h outb/inb.                            *
-     *                                                                              *
-     * *****************************************************************************/
     inline constexpr u16 SERIAL_COM1_BASE = 0x3F8;
-
     inline constexpr u16 SERIAL_REG_DATA = SERIAL_COM1_BASE + 0;
     inline constexpr u16 SERIAL_REG_INT_ENABLE = SERIAL_COM1_BASE + 1;
     inline constexpr u16 SERIAL_REG_FIFO = SERIAL_COM1_BASE + 2;
@@ -53,50 +37,17 @@ namespace trunk::drivers::serial
     inline constexpr u16 SERIAL_REG_LINE_STATUS = SERIAL_COM1_BASE + 5;
     inline constexpr u16 SERIAL_REG_MODEM_STATUS = SERIAL_COM1_BASE + 6;
 
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  SECTION : Baud rate divisors                                                *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : DLAB must be set in LINE_CTRL before writing these.               *
-     *            115200 baud is standard for QEMU serial output.                   *
-     *                                                                              *
-     * *****************************************************************************/
     inline constexpr u16 SERIAL_BAUD_115200_LO = 0x01;
     inline constexpr u16 SERIAL_BAUD_115200_HI = 0x00;
 
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  SECTION : Line control flags                                                *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Bit flags for SERIAL_REG_LINE_CTRL.                               *
-     *                                                                              *
-     * *****************************************************************************/
     inline constexpr u8 SERIAL_LCR_8N1 = 0x03;
     inline constexpr u8 SERIAL_LCR_DLAB = 0x80;
 
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  SECTION : FIFO control flags                                                *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Bit flags for SERIAL_REG_FIFO.                                    *
-     *                                                                              *
-     * *****************************************************************************/
     inline constexpr u8 SERIAL_FCR_ENABLE = 0x01;
     inline constexpr u8 SERIAL_FCR_CLEAR_RX = 0x02;
     inline constexpr u8 SERIAL_FCR_CLEAR_TX = 0x04;
     inline constexpr u8 SERIAL_FCR_TRIGGER_14 = 0xC0;
 
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  SECTION : Line status flags                                                 *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Bit flags for SERIAL_REG_LINE_STATUS.                             *
-     *                                                                              *
-     * *****************************************************************************/
     inline constexpr u8 SERIAL_LSR_TX_EMPTY = 0x20;
     inline constexpr u8 SERIAL_LSR_DATA_READY = 0x01;
 

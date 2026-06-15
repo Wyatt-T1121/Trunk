@@ -19,10 +19,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Bootstrapping                                                      *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Defines BootInfo — the clean interface between the boot layer      *
- *            and the kernel. boot.cpp fills this from raw Multiboot2 tags.      *
- *            Everything above boot.cpp uses this type only. Nothing above       *
- *            boot.cpp ever touches a raw MB2 struct.                            *
+ *  PURPOSE : Stores BootInfo - All information pulled from boot stage.          *
  *                                                                               *
  ********************************************************************************/
 

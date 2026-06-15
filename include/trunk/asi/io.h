@@ -17,12 +17,9 @@
  *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Hardware abstraction layer                                         *
+ *  MODULE  : Assembly Instructions                                              *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Raw x86 port I/O primitives. Every device driver and subsystem     *
- *            that needs to talk to hardware goes through these functions.       *
- *            All functions are inline — no .cpp needed for this header.         *
- *                                                                               *
+ *  PURPOSE : Assembly instruction C++ wrappers()                                *
  ********************************************************************************/
 
 #pragma once

@@ -15,15 +15,10 @@
  *  limitations under the License.                                              *
  *                                                                              *
  ********************************************************************************
- *                                                                              *
  *  AUTHOR  : Trollycat                                                         *
  *  MODULE  : Bootstrapping                                                     *
  *  DATE    : 2026                                                              *
- *  PURPOSE : Boot-stage validation routines.                                   *
- *            Validates MB2 handoff state, module addresses, and ELF load       *
- *            results before the kernel is entered. All validation logic        *
- *            lives here so boot.cpp stays a clean orchestrator.                *
- *                                                                              *
+ *  PURPOSE : Boot-stage validation functions                                   *
  * *****************************************************************************/
 
 #pragma once
@@ -39,8 +34,6 @@ namespace trunk::boot
      *  FUNC    : verify_mb2_magic                                                  *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Confirm the MB2 magic value left in EAX by GRUB is correct.       *
-     *            Returns true if valid, false otherwise.                           *
-     *                                                                              *
      * *****************************************************************************/
     [[nodiscard]] bool verify_mb2_magic(u32 magic) noexcept;
 
@@ -51,8 +44,6 @@ namespace trunk::boot
      *  DATE    : 2026                                                              *
      *  PURPOSE : Confirm the MB2 info pointer is non-null, above the first page,   *
      *            and 8-byte aligned as required by the MB2 specification.          *
-     *            Returns true if valid, false otherwise.                           *
-     *                                                                              *
      * *****************************************************************************/
     [[nodiscard]] bool verify_mb2_ptr(u32 phys) noexcept;
 
