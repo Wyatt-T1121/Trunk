@@ -85,6 +85,7 @@ namespace trunk::gdt
         desc->base_middle = (base >> 16) & 0xFF;
 
         desc->type = 0x9;
+        desc->zero = 0;
         desc->dpl = 0;
         desc->p = 1;
 

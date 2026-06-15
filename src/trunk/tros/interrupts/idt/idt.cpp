@@ -19,7 +19,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE :  Populates the 256 gates and executes physical lidt instruction    *
+ *  PURPOSE : Populates the 256 gates and executes physical lidt instruction     *
  ********************************************************************************/
 #include <trunk/tros/interrupts/idt/idt.h>
 

@@ -28,21 +28,6 @@ section .text
 
 ; *********************************************************************************
 ; *  AUTHOR  : Trollycat                                                          *
-; *  FUNC    : gdt_reload_data_segments                                           *
-; *  DATE    : 2026                                                               *
-; *  PURPOSE : Reloads the data segments for the GDT                              *
-; ********************************************************************************/
-gdt_reload_data_segments:
-    mov ax, 0x10
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    ret
-
-; *********************************************************************************
-; *  AUTHOR  : Trollycat                                                          *
 ; *  FUNC    : gdt_flush                                                          *
 ; *  DATE    : 2026                                                               *
 ; *  PURPOSE : Assembly function that flushes the global descriptor table         *
@@ -51,12 +36,15 @@ global gdt_flush
 gdt_flush:
     lgdt [rdi]
 
-    call gdt_reload_data_segments
+    mov ax, 0x10
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
 
-    push 0x08
-    lea rax, [.reload_segments]
+    mov rax, [rsp]          
+
+    mov qword [rsp], 0x08
     push rax
-    
     retfq
-.reload_segments:
-    ret
