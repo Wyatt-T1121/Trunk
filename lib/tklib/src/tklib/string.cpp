@@ -19,9 +19,7 @@
  *  AUTHOR  : Trollycat                                                         *
  *  MODULE  : Standard library utility                                          *
  *  DATE    : 2026                                                              *
- *  PURPOSE : Implementation of freestanding string and memory utilities.       *
- *            No heap allocation. No dependencies beyond String.h.              *
- *                                                                              *
+ *  PURPOSE : String and memory manipulation utilities                          *
  * *****************************************************************************/
 
 #include <tklib/string.h>
