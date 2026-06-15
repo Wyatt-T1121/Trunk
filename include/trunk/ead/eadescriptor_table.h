@@ -15,44 +15,91 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Task State Segment                                                 *
+ *  MODULE  : Struct definitions                                                 *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Defines and initializes the Task State Segment                     *
+ *  PURPOSE : Stores the GDT, IDT, and TSS structures                            *
  ********************************************************************************/
 #pragma once
-
-#include <trunk/ead/eadescriptor_table.h>
 
 #include <macros.h>
 #include <types.h>
 
-namespace trunk::gdt
+struct GNU_PACKED Tss
 {
-    inline constexpr u32 IST_STACK_SIZE = 4096;
+    u32 reserved0;
+    u64 rsp0;
+    u64 rsp1;
+    u64 rsp2;
+    u64 reserved1;
+    u64 ist[7];
+    u64 reserved2;
+    u16 reserved3;
+    u16 iopb_offset;
+};
+
+struct GNU_PACKED TssDescriptor
+{
+    u16 limit_low;
+    u16 base_low;
+    u8 base_middle;
+
+    u8 type : 4;
+    u8 zero : 1;
+    u8 dpl : 2;
+    u8 p : 1;
+
+    u8 limit_high : 4;
+    u8 avl : 1;
+    u8 l : 1;
+    u8 db : 1;
+    u8 g : 1;
+
+    u8 base_high;
+    u32 base_upper;
+    u32 reserved;
+};
+
+struct GNU_PACKED GdtEntry
+{
+    u16 limit_low;
+    u16 base_low;
+    u8 base_middle;
+    u8 access;
+    u8 flags_limit_high;
+    u8 base_high;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : tss_init                                                           *
+     *  FUNC    : create                                                             *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Initializes the Task State Segment                                 *
+     *  PURPOSE : Creates a new GdtEntry with passed in paramaters                   *
      ********************************************************************************/
-    void tss_init() noexcept;
 
-    /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : tss_set_rsp0                                                       *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Set the RSP0 field for ring mode                                   *
-     ********************************************************************************/
-    void tss_set_rsp0(u64 rsp) noexcept;
+    static constexpr GdtEntry create(u8 access, u8 flags) noexcept
+    {
+        return GdtEntry{
+            .limit_low = 0,
+            .base_low = 0,
+            .base_middle = 0,
+            .access = access,
+            .flags_limit_high = static_cast<u8>((flags & 0xF0)),
+            .base_high = 0};
+    }
+};
 
-    /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : tss_get                                                            *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Get the current tss by reference                                   *
-     ********************************************************************************/
-    [[nodiscard]] const Tss &tss_get() noexcept;
-} // namespace trunk::gdt
+struct GNU_PACKED GdtLayout
+{
+    GdtEntry null_desc;
+    GdtEntry kernel_code;
+    GdtEntry kernel_data;
+    GdtEntry user_code;
+    GdtEntry user_data;
+    TssDescriptor tss_desc;
+};
+
+struct GNU_PACKED GdtPointer
+{
+    u16 limit;
+    uptr base;
+};
