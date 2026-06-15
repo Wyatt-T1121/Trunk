@@ -15,7 +15,7 @@ Every sub-dir and root-dir has a makefile, It's a whole chain.
 The makefiles collect objects and place them into 'TRUNK_OBJS'
 This is finally built together by the root 'Makefile'
 Then, It uses scripts and configuration files for the actual running.
-Checkout 'src/trunk/mergedcomp/' do see this in work
+Checkout 'builder/' do see this in work
 The scripts are in charge of launching QEMU and building the disk file, using DECLS from the configuration files.
 'common.sh' Is the shared library for the scripts, It contains reusable code.
 'trunk.ld' is the master linkerscript, setting the kernel virtual address, and boot code address.

@@ -1,5 +1,5 @@
-include src/trunk/mergedcomp/config/build.cfg
-include src/trunk/mergedcomp/config/toolchain.cfg
+include builder/config/build.cfg
+include builder/config/toolchain.cfg
 
 VERSION         := $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 
@@ -60,7 +60,7 @@ endif
 
 MODE_DEFS += -DTRUNK_VERSION=\"$(VERSION)\" -DTRUNK_ARCH=\"$(ARCH)\"
 
-INCLUDES := -I$(INCLUDE_DIR)
+INCLUDES := -I$(INCLUDE_DIR) -I$(TKLIB_INCLUDE_DIR)
 
 CXXFLAGS := \
     -std=c++23            \
@@ -108,7 +108,7 @@ endif
 TRUNK_OBJS :=
 TKLIB_OBJS :=
 
-include src/tklib/Makefile
+include lib/tklib/Makefile
 include src/trunk/Makefile
 
 .PHONY: all
@@ -272,6 +272,10 @@ clean:
 .PHONY: mrproper
 mrproper: clean
 	$(call _ok,Full wipe complete)
+
+.PHONY: tests
+test:
+	@make --no-print-directory -C $(TEST_DIR)
 
 -include $(TRUNK_OBJS:.o=.d)
 -include $(TKLIB_OBJS:.o=.d)
