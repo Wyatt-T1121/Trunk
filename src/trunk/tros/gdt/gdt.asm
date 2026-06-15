@@ -15,7 +15,6 @@
 ; *  limitations under the License.                                               *
 ; *                                                                               *
 ; *********************************************************************************
-; *                                                                               *
 ; *  AUTHOR  : Trollycat                                                          *
 ; *  MODULE  : Architecture Initialization                                        *
 ; *  DATE    : 2026                                                               *

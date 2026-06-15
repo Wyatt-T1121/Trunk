@@ -18,9 +18,8 @@
  *  AUTHOR  : Trollycat                                                         *
  *  MODULE  : Serial communication driver                                       *
  *  DATE    : 2026                                                              *
- *  PURPOSE : COM1 serial port driver declarations.                             *
+ *  PURPOSE : COM1 serial port driver                                           *
  * *****************************************************************************/
-
 #pragma once
 
 #include <types.h>
@@ -52,46 +51,27 @@ namespace trunk::drivers::serial
     inline constexpr u8 SERIAL_LSR_DATA_READY = 0x01;
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : serial_init                                                       *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled.                *
-     *            Must be called before any serial output.                          *
-     *                                                                              *
+     *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled                 *
      * *****************************************************************************/
     void serial_init() noexcept;
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : serial_putchar                                                    *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write one character to COM1.                                      *
-     *            Spins until the transmit buffer is ready.                         *
-     *                                                                              *
      * *****************************************************************************/
     void serial_putchar(char c) noexcept;
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : serial_puts                                                       *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write a null-terminated string to COM1.                           *
-     *                                                                              *
      * *****************************************************************************/
     void serial_puts(const char *s) noexcept;
-
-    /* ******************************************************************************
-     *                                                                              *
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_is_transmit_ready                                          *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Return true if the transmit buffer is empty.                      *
-     *            Used internally by serial_putchar.                                *
-     *                                                                              *
-     * *****************************************************************************/
-    [[nodiscard]] bool serial_is_transmit_ready() noexcept;
 
 } // namespace trunk::drivers::serial

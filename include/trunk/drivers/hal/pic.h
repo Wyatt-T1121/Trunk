@@ -19,7 +19,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Programmable Interrupt Controller                                  *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Defines constants and interfaces for the Dual 8259 PIC chips       *
+ *  PURPOSE : Driver for the 8259 PIC chips                                      *
  ********************************************************************************/
 #pragma once
 
@@ -47,12 +47,43 @@ namespace trunk::drivers::pic
 
     // clang-format on
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_init                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Initialize the PIC driver                                          *
+     ********************************************************************************/
     void pic_init() noexcept;
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : irq_ack                                                            *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Signals that an interrupt is being processed                       *
+     ********************************************************************************/
     void irq_ack(u8 irq) noexcept;
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_mask                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Mask an IRQ (interrupt request)                                    *
+     ********************************************************************************/
     void pic_mask(u8 irq) noexcept;
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_mask                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Unmask an IRQ (interrupt request)                                  *
+     ********************************************************************************/
     void pic_unmask(u8 irq) noexcept;
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_disable                                                        *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Disable the PIC driver                                             *
+     ********************************************************************************/
     void pic_disable() noexcept;
 }; // namespace trunk::drivers::pic

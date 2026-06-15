@@ -15,7 +15,6 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *

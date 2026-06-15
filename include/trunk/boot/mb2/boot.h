@@ -15,12 +15,10 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Bootstrapping                                                      *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Stores BootInfo - All information pulled from boot stage.          *
- *                                                                               *
  ********************************************************************************/
 
 #pragma once
@@ -29,7 +27,6 @@
 
 namespace trunk::boot
 {
-
     enum class MemoryType : u32
     {
         Available = 0,

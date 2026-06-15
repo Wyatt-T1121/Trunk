@@ -34,14 +34,6 @@
 namespace trunk::boot
 {
 
-    static constexpr u32 TAG_END = 0;
-    static constexpr u32 TAG_BOOTLOADER = 2;
-    static constexpr u32 TAG_MMAP = 6;
-    static constexpr u32 MMAP_AVAILABLE = 1;
-    static constexpr u32 MMAP_ACPI = 3;
-    static constexpr u32 MMAP_NVS = 4;
-    static constexpr u32 MMAP_BADRAM = 5;
-
     struct GNU_PACKED MB2Tag
     {
         u32 type;
@@ -66,12 +58,10 @@ namespace trunk::boot
     };
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : next_tag                                                          *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Advance to the next MB2 tag. Tags are 8-byte aligned.             *
-     *                                                                              *
      * *****************************************************************************/
     [[nodiscard]]
     static const MB2Tag *next_tag(const MB2Tag *tag) noexcept
@@ -128,7 +118,6 @@ namespace trunk::boot
      *  FUNC    : parse_mb2                                                         *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Walk all MB2 tags and populate BootInfo with the memory map       *
-     *            and bootloader name.                                              *
      * *****************************************************************************/
     void parse_mb2(uptr mb2_phys, BootInfo &info) noexcept
     {

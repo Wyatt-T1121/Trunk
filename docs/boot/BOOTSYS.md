@@ -37,7 +37,7 @@ sysstart.asm -> This acts as a simple landing pad, right before the kernel Is lo
 
 boot.cpp -> Fills, walks, and parses MB2, stores In a grand 'BootInfo' struct, sends off to Trkstartup() In Trkload()
 
-k_init.cpp -> Contains Trkload(), the final function for the kernel loading process. Initializes subsystems and set's up the actual kernel
+kinit.cpp -> Contains Trkload(), the final function for the kernel loading process. Initializes subsystems and set's up the actual kernel
 
 So that Is the boot order.
 Of course, there's many more steps to It, that's just a high level overview.

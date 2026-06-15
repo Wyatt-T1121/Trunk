@@ -19,27 +19,33 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Programmable Interrupt Controller                                  *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Implements the functionality for the Dual 8259 PIC chips           *
+ *  PURPOSE : Driver for the 8259 PIC chips                                      *
  ********************************************************************************/
 #include <trunk/drivers/hal/pic.h>
 #include <trunk/asi/io.h>
 
 namespace trunk::drivers::pic
 {
-
-    static void get_pic_line_properties(u8 &irq, u16 &out_port) noexcept
+    namespace
     {
-        if (irq < 8)
+        static void get_pic_line_properties(u8 &irq, u16 &out_port) noexcept
         {
-            out_port = PIC1_DATA;
+            if (irq < 8)
+                out_port = PIC1_DATA;
+            else
+            {
+                out_port = PIC2_DATA;
+                irq -= 8;
+            }
         }
-        else
-        {
-            out_port = PIC2_DATA;
-            irq -= 8;
-        }
-    }
+    } // namespace
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_init                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Initialize the PIC driver                                          *
+     ********************************************************************************/
     void pic_init() noexcept
     {
         asi::outb(PIC1_COMMAND, ICW1_INIT);
@@ -58,6 +64,12 @@ namespace trunk::drivers::pic
         asi::outb(PIC2_DATA, 0x00);
     }
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : irq_ack                                                            *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Signals that an interrupt is being processed                       *
+     ********************************************************************************/
     void irq_ack(u8 irq) noexcept
     {
         if (irq >= 8)
@@ -65,6 +77,12 @@ namespace trunk::drivers::pic
         asi::outb(PIC1_COMMAND, PIC_EOI);
     }
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_mask                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Mask an IRQ (interrupt request)                                    *
+     ********************************************************************************/
     void pic_mask(u8 irq) noexcept
     {
         u16 port = 0;
@@ -73,6 +91,12 @@ namespace trunk::drivers::pic
         asi::outb(port, value);
     }
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_mask                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Unmask an IRQ (interrupt request)                                  *
+     ********************************************************************************/
     void pic_unmask(u8 irq) noexcept
     {
         u16 port = 0;
@@ -81,6 +105,12 @@ namespace trunk::drivers::pic
         asi::outb(port, value);
     }
 
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : pic_disable                                                        *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Disable the PIC driver                                             *
+     ********************************************************************************/
     void pic_disable() noexcept
     {
         asi::outb(PIC1_DATA, 0xFF);

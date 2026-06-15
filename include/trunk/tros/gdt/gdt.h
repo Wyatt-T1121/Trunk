@@ -15,13 +15,10 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Global Descriptor Table                                            *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Defines and initalizes the permanent 64-bit                        *
- *            Global Descriptor Table.                                           *
- *                                                                               *
+ *  PURPOSE : Defines and initalizes the Global Descriptor Table.                *
  ********************************************************************************/
 
 #pragma once

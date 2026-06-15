@@ -15,7 +15,6 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Assembly Instructions                                              *
  *  DATE    : 2026                                                               *
@@ -108,9 +107,7 @@ namespace trunk::asi
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : io_wait                                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Brief I/O delay by writing to an unused port. Some old hardware    *
-     *            needs time between port accesses to process a command.             *
-     *            Port 0x80 is the POST code port — safe to write to, ignored.       *
+     *  PURPOSE : Brief I/O delay by writing to an unused port.                      *
      ********************************************************************************/
     inline void io_wait() noexcept
     {
@@ -121,8 +118,7 @@ namespace trunk::asi
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : rdmsr                                                              *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Read a Model Specific Register. Returns the full 64-bit value.     *
-     *            Used for EFER, STAR, LSTAR (syscalls), APIC base, etc.             *
+     *  PURPOSE : Read a Model Specific Register.                                    *
      ********************************************************************************/
     [[nodiscard]]
     inline u64 rdmsr(u32 msr) noexcept
@@ -137,7 +133,6 @@ namespace trunk::asi
      *  FUNC    : wrmsr                                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write a Model Specific Register.                                   *
-     *            Used for EFER, STAR, LSTAR (syscalls), APIC base, etc.             *
      ********************************************************************************/
     inline void wrmsr(u32 msr, u64 value) noexcept
     {
@@ -151,7 +146,6 @@ namespace trunk::asi
      *  FUNC    : read_cr0                                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR0.                                         *
-     *            Contains: protected mode, paging, write protect, cache flags.      *
      ********************************************************************************/
     [[nodiscard]]
     inline u64 read_cr0() noexcept
@@ -177,7 +171,6 @@ namespace trunk::asi
      *  FUNC    : read_cr2                                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR2.                                         *
-     *            Contains the faulting virtual address on a page fault.             *
      ********************************************************************************/
     [[nodiscard]]
     inline u64 read_cr2() noexcept
@@ -192,7 +185,6 @@ namespace trunk::asi
      *  FUNC    : read_cr3                                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR3.                                         *
-     *            Contains the physical address of the PML4 (page table root).       *
      ********************************************************************************/
     [[nodiscard]]
     inline u64 read_cr3() noexcept
@@ -206,8 +198,7 @@ namespace trunk::asi
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : write_cr3                                                          *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Write control register CR3. Flushes the entire TLB.                *
-     *            Use to switch page tables (process context switch).                *
+     *  PURPOSE : Write control register CR3.                                        *
      ********************************************************************************/
     inline void write_cr3(u64 value) noexcept
     {
@@ -219,7 +210,6 @@ namespace trunk::asi
      *  FUNC    : read_cr4                                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR4.                                         *
-     *            Contains: PAE, PSE, OSFXSR, OSXSAVE and other feature flags.       *
      ********************************************************************************/
     [[nodiscard]]
     inline u64 read_cr4() noexcept
@@ -245,7 +235,6 @@ namespace trunk::asi
      *  FUNC    : invlpg                                                             *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Invalidate a single TLB entry for the given virtual address.       *
-     *            Much cheaper than a full CR3 reload when mapping a single page.    *
      ********************************************************************************/
     inline void invlpg(uptr vaddr) noexcept
     {
@@ -290,7 +279,6 @@ namespace trunk::asi
      *  FUNC    : pause                                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Hint to the CPU that this is a spin-wait loop.                     *
-     *            Improves performance and power consumption in spinlocks.           *
      ********************************************************************************/
     inline void pause() noexcept
     {
@@ -301,8 +289,7 @@ namespace trunk::asi
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : cpuid                                                              *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Execute CPUID instruction. Returns eax/ebx/ecx/edx via             *
-     *            output parameters. Used for CPU feature detection.                 *
+     *  PURPOSE : Execute CPUID instruction.                                         *
      ********************************************************************************/
     inline void cpuid(u32 leaf, u32 &eax, u32 &ebx, u32 &ecx, u32 &edx) noexcept
     {
@@ -315,8 +302,7 @@ namespace trunk::asi
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : rdtsc                                                              *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Read the Time Stamp Counter. Returns CPU cycles since reset.       *
-     *            Useful for basic timing and entropy.                               *
+     *  PURPOSE : Read the Time Stamp Counter.                                       *
      ********************************************************************************/
     [[nodiscard]]
     inline u64 rdtsc() noexcept

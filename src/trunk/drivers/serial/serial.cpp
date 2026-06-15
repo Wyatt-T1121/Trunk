@@ -19,30 +19,32 @@
  *  AUTHOR  : Trollycat                                                         *
  *  MODULE  : Serial communication driver                                       *
  *  DATE    : 2026                                                              *
- *  PURPOSE : COM1 serial port driver implementation.                           *
+ *  PURPOSE : COM1 serial port driver                                           *
  * *****************************************************************************/
 
 #include <trunk/drivers/serial/serial.h>
 
 namespace trunk::drivers::serial
 {
-
-    /* ******************************************************************************
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_is_transmit_ready                                          *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Return true if the transmit buffer is empty.                      *
-     * *****************************************************************************/
-    bool serial_is_transmit_ready() noexcept
+    namespace
     {
-        return (asi::inb(SERIAL_REG_LINE_STATUS) & SERIAL_LSR_TX_EMPTY) != 0;
-    }
+        /* ******************************************************************************
+         *  AUTHOR  : Trollycat                                                         *
+         *  FUNC    : serial_is_transmit_ready                                          *
+         *  DATE    : 2026                                                              *
+         *  PURPOSE : Return true if the transmit buffer is empty.                      *
+         * *****************************************************************************/
+        [[nodiscard]] bool serial_is_transmit_ready() noexcept
+        {
+            return (asi::inb(SERIAL_REG_LINE_STATUS) & SERIAL_LSR_TX_EMPTY) != 0;
+        }
+    } // namespace
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : serial_init                                                       *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled.                *
+     *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled                 *
      * *****************************************************************************/
     void serial_init() noexcept
     {

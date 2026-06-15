@@ -16,7 +16,7 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Architecture Initialization                                        *
+ *  MODULE  : Global Descriptor Table                                            *
  *  DATE    : 2026                                                               *
  *  PURPOSE : Defines and initalizes the Global Descriptor Table.                *
  ********************************************************************************/

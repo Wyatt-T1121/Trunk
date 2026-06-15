@@ -103,3 +103,29 @@ struct GNU_PACKED GdtPointer
     u16 limit;
     uptr base;
 };
+
+struct GNU_PACKED IdtDescriptor
+{
+    u16 offset_low;
+    u16 segment_selector;
+
+    // clang-format off
+        u16 ist_index   : 3;
+        u16 reserved_0  : 5;
+        u16 gate_type   : 4;
+        u16 reserved_1  : 1;
+        u16 privilege   : 2;
+        u16 present     : 1;
+    // clang-format on
+
+    u16 offset_mid;
+    u32 offset_high;
+
+    u32 reserved_2;
+};
+
+struct GNU_PACKED IdtrPointer
+{
+    u16 limit;
+    u64 base_address;
+};

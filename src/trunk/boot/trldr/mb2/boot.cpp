@@ -52,17 +52,15 @@ namespace trunk::boot
     }
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : Trkload                                                           *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Called from TrSystemStartup. Validates the MB2 handoff,           *
-     *            builds BootInfo from the MB2 info struct, then calls              *
-     *            TrkStartup. Never returns.                                        *
-     *                                                                              *
+     *  PURPOSE : Called from TrSystemStartup. Builds BootInfo struct               *
      * *****************************************************************************/
     extern "C" void Trkload(u32 mb2_magic, u32 mb2_phys) noexcept
     {
+        // TODO: IM PLANNING ON WRITING A BASIC NO BUFFER UART DRIVER FOR BOOT STAGE
+        // THIS IS THE ACTUAL DRIVER, THIS CALL WILL BE REMOVED AND REPLACED WITH THE NEW BOOT CODE DRIVER.
         drivers::serial::serial_init();
 
         if (!VerifyMB2(mb2_magic, mb2_phys))

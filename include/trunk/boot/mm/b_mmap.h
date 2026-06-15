@@ -29,6 +29,14 @@
 
 namespace trunk::boot
 {
+    inline constexpr u32 TAG_END = 0;
+    inline constexpr u32 TAG_BOOTLOADER = 2;
+    inline constexpr u32 TAG_MMAP = 6;
+    inline constexpr u32 MMAP_AVAILABLE = 1;
+    inline constexpr u32 MMAP_ACPI = 3;
+    inline constexpr u32 MMAP_NVS = 4;
+    inline constexpr u32 MMAP_BADRAM = 5;
+
     /* ******************************************************************************
      *                                                                              *
      *  AUTHOR  : Trollycat                                                         *

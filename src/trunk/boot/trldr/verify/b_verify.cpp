@@ -25,10 +25,6 @@
 namespace trunk::boot
 {
 
-    static constexpr u32 MB2_MAGIC = 0x36d76289;
-    static constexpr u32 MB2_PTR_MIN = 0x1000;
-    static constexpr u32 MB2_PTR_ALIGN = 8;
-
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : verify_mb2_magic                                                  *

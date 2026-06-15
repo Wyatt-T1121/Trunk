@@ -15,7 +15,6 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Task State Segment                                                 *
  *  DATE    : 2026                                                               *

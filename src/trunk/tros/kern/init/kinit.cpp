@@ -21,7 +21,7 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Kernel entry point (TrkStartup)                                    *
  ********************************************************************************/
-#include <trunk/tros/kern/init/k_init.h>
+#include <trunk/tros/kern/init/kinit.h>
 #include <trunk/asi/io.h>
 #include <trunk/drivers/hal/pic.h>
 #include <trunk/tros/gdt/gdt.h>

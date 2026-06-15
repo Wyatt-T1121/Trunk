@@ -21,7 +21,6 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Bit-based helper functions (bitwise helpers inside bit.h)          *
  ********************************************************************************/
-
 #pragma once
 
 #include <types.h>

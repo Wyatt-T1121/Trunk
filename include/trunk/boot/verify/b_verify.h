@@ -27,6 +27,9 @@
 
 namespace trunk::boot
 {
+    inline constexpr u32 MB2_MAGIC = 0x36d76289;
+    inline constexpr u32 MB2_PTR_MIN = 0x1000;
+    inline constexpr u32 MB2_PTR_ALIGN = 8;
 
     /* ******************************************************************************
      *                                                                              *

@@ -27,34 +27,10 @@
 #include <macros.h>
 #include <assert.h>
 
+#include <trunk/ead/eadescriptor_table.h>
+
 namespace trunk::interrupts
 {
-    struct GNU_PACKED IdtDescriptor
-    {
-        u16 offset_low;
-        u16 segment_selector;
-
-        // clang-format off
-        u16 ist_index   : 3;
-        u16 reserved_0  : 5;
-        u16 gate_type   : 4;
-        u16 reserved_1  : 1;
-        u16 privilege   : 2;
-        u16 present     : 1;
-        // clang-format on
-
-        u16 offset_mid;
-        u32 offset_high;
-
-        u32 reserved_2;
-    };
-
-    struct GNU_PACKED IdtrPointer
-    {
-        u16 limit;
-        u64 base_address;
-    };
-
     STATIC_ASSERT(sizeof(IdtDescriptor) == 16, "IdtDescriptor must be exactly 16 bytes!");
     STATIC_ASSERT(sizeof(IdtrPointer) == 10, "IdtrPointer must be exactly 10 bytes!");
 
