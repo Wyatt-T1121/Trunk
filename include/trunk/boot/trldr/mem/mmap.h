@@ -25,7 +25,7 @@
 #pragma once
 
 #include <types.h>
-#include <trunk/boot/mb2/boot.h>
+#include <trunk/boot/trldr/mb2/boot.h>
 
 namespace trunk::boot
 {

@@ -15,76 +15,66 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Memory management system                                           *
+ *  MODULE  : Standard library utility                                           *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Memory allocator for early boot stage.                             *
+ *  PURPOSE : Number to string utilites                                          *
  ********************************************************************************/
+
 #pragma once
 
 #include <types.h>
-#include <macros.h>
-#include <assert.h>
 
-#include <trunk/boot/trldr/mb2/boot.h>
-
-namespace trunk::mem
+namespace tklib
 {
-    inline constexpr usize MAX_MEMBLOCK_REGIONS = 128;
-
-    struct GNU_PACKED MemoryRegion
-    {
-        u64 base;
-        u64 size;
-    };
+    inline constexpr const char HEX_CHARS[] = "0123456789abcdef";
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_init                                                      *
+     *  FUNC    : fmt_hex                                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Initialization function for memblock                               *
+     *  PURPOSE : Format val as a zero-padded 16-digit hex string into buf.          *
      ********************************************************************************/
-    void memblock_init(const boot::BootInfo &boot_info) noexcept;
+    void fmt_hex(char *buf, usize size, u64 val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_alloc                                                     *
+     *  FUNC    : fmt_hex32                                                          *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Allocate a new chunk inside the memblock region                    *
+     *  PURPOSE : Format val as a zero-padded 8-digit hex string into buf.           *
      ********************************************************************************/
-    u64 memblock_alloc(u64 size, u64 alignment) noexcept;
+    void fmt_hex32(char *buf, usize size, u32 val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_reserve                                                   *
+     *  FUNC    : fmt_dec                                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Reserve a region inside the memblock                               *
+     *  PURPOSE : Format val as a decimal string into buf.                           *
      ********************************************************************************/
-    void memblock_reserve(u64 base, u64 size) noexcept;
+    void fmt_dec(char *buf, usize size, u64 val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_is_reserved                                               *
+     *  FUNC    : fmt_dec_signed                                                     *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns true if any byte in [base, base + size) is reserved.       *
+     *  PURPOSE : Format val as a signed decimal string into buf.                    *
      ********************************************************************************/
-    [[nodiscard]] bool memblock_is_reserved(u64 base, u64 size) noexcept;
+    void fmt_dec_signed(char *buf, usize size, i64 val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_free                                                *
+     *  FUNC    : fmt_bin                                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns total free bytes remaining in the memory pool.             *
+     *  PURPOSE : Format val as a zero-padded 64-bit binary string into buf.         *
      ********************************************************************************/
-    [[nodiscard]] u64 memblock_total_free() noexcept;
+    void fmt_bin(char *buf, usize size, u64 val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_reserved                                            *
+     *  FUNC    : fmt_size                                                           *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns total reserved bytes across all reserved regions.          *
+     *  PURPOSE : Format val as a human-readable size string (KB, MB, GB).           *
      ********************************************************************************/
-    [[nodiscard]] u64 memblock_total_reserved() noexcept;
+    void fmt_size(char *buf, usize size, u64 val) noexcept;
 
-} // namespace trunk::mem
+} // namespace tklib

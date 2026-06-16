@@ -25,7 +25,7 @@
  *                                                                              *
  * *****************************************************************************/
 
-#include <trunk/boot/mm/b_mmap.h>
+#include <trunk/boot/trldr/mem/mmap.h>
 
 #include <tklib/string.h>
 

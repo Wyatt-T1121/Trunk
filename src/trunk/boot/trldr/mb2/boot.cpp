@@ -21,9 +21,10 @@
  *  PURPOSE : First C++ Boot-level code to be called.                           *
  * *****************************************************************************/
 
-#include <trunk/boot/mb2/boot.h>
-#include <trunk/boot/mm/b_mmap.h>
-#include <trunk/boot/verify/b_verify.h>
+#include <trunk/boot/trldr/mb2/boot.h>
+#include <trunk/boot/trldr/mem/mmap.h>
+#include <trunk/boot/trldr/safety/verify.h>
+#include <trunk/boot/trldr/safety/bdump.h>
 
 #include <trunk/drivers/serial/serial.h>
 #include <trunk/tros/kern/kabort.h>
@@ -35,6 +36,25 @@ namespace trunk::boot
     extern "C" [[noreturn]] void TrkStartup(const BootInfo &info) noexcept;
 
     static BootInfo g_boot_info{};
+
+    [[nodiscard]] const char *memory_type_str(MemoryType type) noexcept
+    {
+        switch (type)
+        {
+        case MemoryType::Available:
+            return "Available";
+        case MemoryType::Reserved:
+            return "Reserved";
+        case MemoryType::AcpiReclaimable:
+            return "ACPI Reclaimable";
+        case MemoryType::AcpiNvs:
+            return "ACPI NVS";
+        case MemoryType::BadRam:
+            return "Bad RAM";
+        default:
+            return "Unknown";
+        }
+    }
 
     /* ******************************************************************************
      *                                                                              *
@@ -67,6 +87,8 @@ namespace trunk::boot
             kernel::kabort("Fatal: Multiboot2 verification failed. Magic number or alignment mismatch.");
 
         parse_mb2(static_cast<uptr>(mb2_phys), g_boot_info);
+
+        bdump(g_boot_info);
 
         TrkStartup(g_boot_info);
 

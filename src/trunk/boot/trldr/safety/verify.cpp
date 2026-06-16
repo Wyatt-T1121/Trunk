@@ -20,7 +20,7 @@
  *  DATE    : 2026                                                              *
  *  PURPOSE : Boot-stage validation routines.                                   *
  * *****************************************************************************/
-#include <trunk/boot/verify/b_verify.h>
+#include <trunk/boot/trldr/safety/verify.h>
 
 namespace trunk::boot
 {

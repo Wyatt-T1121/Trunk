@@ -1,4 +1,4 @@
-BOOT_VERIFY_DIR := $(SRC_DIR)/trunk/boot/trldr/verify
+BOOT_VERIFY_DIR := $(SRC_DIR)/trunk/boot/trldr/safety
 
 BOOT_VERIFY_SRCS_NASM := $(wildcard $(BOOT_VERIFY_DIR)/*.asm)
 BOOT_VERIFY_SRCS_CXX  := $(wildcard $(BOOT_VERIFY_DIR)/*.cpp)
