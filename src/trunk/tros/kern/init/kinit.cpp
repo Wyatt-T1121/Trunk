@@ -59,7 +59,7 @@ namespace trunk::kernel
         (void)info;
         for (;;)
         {
-            asm volatile("cli; hlt");
+            asm volatile("sti; hlt");
         }
     }
 } // namespace trunk::kernel

@@ -63,6 +63,11 @@ namespace trunk::interrupts
         for (int i = 0; i < 256; ++i)
             set_gate(static_cast<u8>(i), g_InterruptVectorTable[i], kernel_code_selector, 0, 0);
 
+        set_gate(8, g_InterruptVectorTable[8], kernel_code_selector, 0, 1);
+        set_gate(2, g_InterruptVectorTable[2], kernel_code_selector, 0, 2);
+        set_gate(1, g_InterruptVectorTable[1], kernel_code_selector, 0, 3);
+        set_gate(18, g_InterruptVectorTable[18], kernel_code_selector, 0, 4);
+
         IdtrPointer idtr;
         idtr.limit = (sizeof(IdtDescriptor) * 256) - 1;
         idtr.base_address = reinterpret_cast<u64>(&g_IdtEntries);

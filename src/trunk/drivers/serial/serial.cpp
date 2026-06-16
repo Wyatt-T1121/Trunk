@@ -20,8 +20,10 @@
  *  DATE    : 2026                                                              *
  *  PURPOSE : COM1 serial port driver                                           *
  * *****************************************************************************/
-
 #include <trunk/drivers/serial/serial.h>
+#include <trunk/drivers/hal/pic.h>
+
+#include <trunk/tros/interrupts/interrupts.h>
 
 namespace trunk::drivers::serial
 {
@@ -38,6 +40,21 @@ namespace trunk::drivers::serial
             return (asi::inb(SERIAL_REG_LINE_STATUS) & SERIAL_LSR_TX_EMPTY) != 0;
         }
     } // namespace
+
+    /* ******************************************************************************
+     * AUTHOR  : Trollycat                                                          *
+     * FUNC    : serial_interrupt_handler                                           *
+     * DATE    : 2026                                                               *
+     * PURPOSE : Handles incoming characters from the serial port asynchronously    *
+     * *****************************************************************************/
+    void serial_interrupt_handler([[maybe_unused]] interrupts::InterruptFrame *frame, [[maybe_unused]] void *context) noexcept
+    {
+        while (asi::inb(SERIAL_REG_LINE_STATUS) & 0x01)
+        {
+            u8 incoming_byte = asi::inb(SERIAL_REG_DATA);
+            serial_putchar(static_cast<char>(incoming_byte));
+        }
+    }
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -60,6 +77,11 @@ namespace trunk::drivers::serial
                       SERIAL_FCR_TRIGGER_14);
 
         asi::outb(SERIAL_REG_MODEM_CTRL, 0x0B);
+
+        asi::outb(SERIAL_REG_INT_ENABLE, 0x01);
+
+        interrupts::register_interrupt_handler(36, serial_interrupt_handler, nullptr);
+        drivers::pic::pic_unmask(4);
     }
 
     /* ******************************************************************************

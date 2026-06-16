@@ -29,7 +29,7 @@
 
 namespace trunk::interrupts
 {
-    static InterruptHandler g_InterruptHandlers[256] = {nullptr};
+    static RegisteredHandler g_InterruptHandlers[256] = {};
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -37,9 +37,15 @@ namespace trunk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Assigns a custom C++ driver function to an IDT slot                *
      ********************************************************************************/
-    void register_interrupt_handler(u8 vector, InterruptHandler handler) noexcept
+    void register_interrupt_handler(u8 vector, InterruptHandler handler, void *context) noexcept
     {
-        g_InterruptHandlers[vector] = handler;
+        ASSERT(vector < 256, "VECTOR OUT OF BOUNDS IN REGISTER_INTERRUPT_HANDLER");
+
+        if (g_InterruptHandlers[vector].handler != nullptr && vector >= 32)
+            drivers::serial::serial_puts("WARNING: OVERRIDING INTERRUPT VECTOR\n");
+
+        g_InterruptHandlers[vector].handler = handler;
+        g_InterruptHandlers[vector].context = context;
     }
 
     /* *******************************************************************************
@@ -50,10 +56,10 @@ namespace trunk::interrupts
      ********************************************************************************/
     void execute_interrupt_handler(u8 vector, InterruptFrame *frame) noexcept
     {
-        InterruptHandler handler = g_InterruptHandlers[vector];
+        RegisteredHandler target = g_InterruptHandlers[vector];
 
-        if (handler != nullptr)
-            handler(frame);
+        if (target.handler != nullptr)
+            target.handler(frame, target.context);
         else
         {
             if (vector < 32)

@@ -38,12 +38,12 @@ namespace trunk::interrupts
     {
         const u8 vector = static_cast<u8>(frame->vector_number);
 
-        execute_interrupt_handler(vector, frame);
-
         if (vector >= drivers::pic::PIC1_OFFSET && vector < (drivers::pic::PIC1_OFFSET + 16))
         {
             const u8 irq = vector - drivers::pic::PIC1_OFFSET;
             drivers::pic::irq_ack(irq);
         }
+
+        execute_interrupt_handler(vector, frame);
     }
 } // namespace trunk::interrupts
