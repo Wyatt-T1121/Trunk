@@ -15,7 +15,6 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Standard library utility                                           *
  *  DATE    : 2026                                                               *
@@ -69,7 +68,7 @@ namespace tklib::math
      *  FUNC    : align_up_pow2                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Round value up to the next power of two greater than or equal      *
-     *            to value. Returns 1 for value == 0.                                *
+     *            to value.                                                          *
      ********************************************************************************/
     [[nodiscard]] constexpr u64 align_up_pow2(u64 value) noexcept
     {
@@ -282,4 +281,4 @@ namespace tklib::math
         return result;
     }
 
-} // namespace trunk::math
+} // namespace tklib::math

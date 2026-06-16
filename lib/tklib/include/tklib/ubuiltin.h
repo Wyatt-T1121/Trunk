@@ -44,13 +44,10 @@ namespace tklib
     };
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : forward                                                           *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Perfect forward t as T.                                           *
-     *            Replaces std::forward - no <utility> needed.                      *
-     *                                                                              *
      * *****************************************************************************/
     template <typename T>
     [[nodiscard]] constexpr T &&
@@ -67,13 +64,10 @@ namespace tklib
     }
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : move                                                              *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Cast t to rvalue reference.                                       *
-     *            Replaces std::move - no <utility> needed.                         *
-     *                                                                              *
      * *****************************************************************************/
     template <typename T>
     [[nodiscard]] constexpr typename remove_reference<T>::type &&
@@ -83,13 +77,10 @@ namespace tklib
     }
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : exchange                                                          *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Replace obj with new_val, return old value.                       *
-     *            Useful in move constructors and swap implementations.             *
-     *                                                                              *
      * *****************************************************************************/
     template <typename T, typename U = T>
     constexpr T exchange(T &obj, U &&new_val) noexcept
@@ -100,12 +91,10 @@ namespace tklib
     }
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : addressof                                                         *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Take address of ref bypassing overloaded operator&.               *
-     *                                                                              *
      * *****************************************************************************/
     template <typename T>
     [[nodiscard]] constexpr T *addressof(T &ref) noexcept
@@ -114,12 +103,10 @@ namespace tklib
     }
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
      *  FUNC    : declval                                                           *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Produce T&& in unevaluated contexts without constructing T.       *
-     *                                                                              *
      * *****************************************************************************/
     template <typename T>
     typename remove_reference<T>::type &&declval() noexcept;
@@ -251,4 +238,4 @@ namespace tklib
 
     template <bool Cond, typename T = void>
     using enable_if_t = typename enable_if<Cond, T>::type;
-} // namespace trunk
+} // namespace tklib

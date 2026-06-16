@@ -14,7 +14,6 @@
  *  See the License for the specific language governing permissions and          *
  *  limitations under the License.                                               *
  *                                                                               *
- *********************************************************************************
  *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Standard library utilites                                          *
@@ -279,4 +278,4 @@ namespace tklib
         return (value & ~(m << pos)) | ((field & m) << pos);
     }
 
-} // namespace trunk::bitf
+} // namespace tklib
