@@ -1,4 +1,4 @@
-include ../builder/config/build.cfg
+include common.mk
 
 CXX      := g++
 CXXFLAGS := -std=c++23 -Wall -Wextra -O2
