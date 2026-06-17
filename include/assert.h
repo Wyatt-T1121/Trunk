@@ -34,7 +34,7 @@
 #if defined(TRUNK_DEBUG) || !defined(NDEBUG)
     #define ASSERT(condition, message)                                            \
         do {                                                                      \
-            if (!(condition)) [[unlikely]] {                                      \
+            if (!(condition)) UNLIKELY {                                      \
                 ::trunk::kernel::kabort("ASSERTION FAILED: " message " (" #condition ")"); \
             }                                                                     \
         } while (false)

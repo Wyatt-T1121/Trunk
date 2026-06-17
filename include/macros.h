@@ -25,10 +25,18 @@
 // clang-format off
 #if defined(__GNUC__) || defined(__clang__)
     #define GNU_PACKED [[gnu::packed]]
+    #define NO_DISCARD [[nodiscard]]
+    #define NO_RETURN  [[noreturn]]
+    #define UNLIKELY   [[unlikely]]
+    #define MAYBE_UNUSED [[maybe_unused]]
     #define ALIGNED(x) __attribute__((aligned(x)))
     #define OFFSET_OF(type, member) reinterpret_cast<usize>(&(reinterpret_cast<type*>(0)->member))
 #else
     #define GNU_PACKED
+    #define NO_DISCARD
+    #define NO_RETURN
+    #define UNLIKELY
+    #define MAYBE_UNUSED
     #define ALIGNED
     #define OFFSET_OF
 #endif

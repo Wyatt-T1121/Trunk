@@ -22,6 +22,7 @@
  ********************************************************************************/
 #pragma once
 
+#include <macros.h>
 #include <types.h>
 
 #ifndef TRUNK_VERSION_STRING
@@ -48,13 +49,12 @@ struct KernelVersion
     const char *build_string;
 };
 
-constexpr KernelVersion g_KernelVersion{
-    .major = TRUNK_VERSION_MAJOR,
-    .minor = TRUNK_VERSION_MINOR,
-    .patch = TRUNK_VERSION_PATCH,
-    .build_string = TRUNK_VERSION_STRING};
+constexpr KernelVersion g_KernelVersion{.major        = TRUNK_VERSION_MAJOR,
+                                        .minor        = TRUNK_VERSION_MINOR,
+                                        .patch        = TRUNK_VERSION_PATCH,
+                                        .build_string = TRUNK_VERSION_STRING};
 
-[[nodiscard]] inline const KernelVersion &get_version() noexcept
+NO_DISCARD inline const KernelVersion &get_version() noexcept
 {
     return g_KernelVersion;
 }

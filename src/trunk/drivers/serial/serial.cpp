@@ -20,10 +20,12 @@
  *  DATE    : 2026                                                              *
  *  PURPOSE : COM1 serial port driver                                           *
  * *****************************************************************************/
-#include <trunk/drivers/serial/serial.h>
 #include <trunk/drivers/hal/pic.h>
+#include <trunk/drivers/serial/serial.h>
 
 #include <trunk/tros/interrupts/interrupts.h>
+
+#include <macros.h>
 
 namespace trunk::drivers::serial
 {
@@ -35,7 +37,7 @@ namespace trunk::drivers::serial
          *  DATE    : 2026                                                              *
          *  PURPOSE : Return true if the transmit buffer is empty.                      *
          * *****************************************************************************/
-        [[nodiscard]] bool serial_is_transmit_ready() noexcept
+        NO_DISCARD bool serial_is_transmit_ready() noexcept
         {
             return (asi::inb(SERIAL_REG_LINE_STATUS) & SERIAL_LSR_TX_EMPTY) != 0;
         }
@@ -47,10 +49,10 @@ namespace trunk::drivers::serial
      * DATE    : 2026                                                               *
      * PURPOSE : Handles incoming characters from the serial port asynchronously    *
      * *****************************************************************************/
-    void serial_interrupt_handler([[maybe_unused]] interrupts::InterruptFrame *frame, [[maybe_unused]] void *context) noexcept
+    void serial_interrupt_handler(MAYBE_UNUSED interrupts::InterruptFrame *frame,
+                                  MAYBE_UNUSED void *context) noexcept
     {
-        while (asi::inb(SERIAL_REG_LINE_STATUS) & 0x01)
-        {
+        while (asi::inb(SERIAL_REG_LINE_STATUS) & 0x01) {
             u8 incoming_byte = asi::inb(SERIAL_REG_DATA);
             serial_putchar(static_cast<char>(incoming_byte));
         }
@@ -70,11 +72,8 @@ namespace trunk::drivers::serial
         asi::outb(SERIAL_REG_INT_ENABLE, SERIAL_BAUD_115200_HI);
         asi::outb(SERIAL_REG_LINE_CTRL, SERIAL_LCR_8N1);
 
-        asi::outb(SERIAL_REG_FIFO,
-                  SERIAL_FCR_ENABLE |
-                      SERIAL_FCR_CLEAR_RX |
-                      SERIAL_FCR_CLEAR_TX |
-                      SERIAL_FCR_TRIGGER_14);
+        asi::outb(SERIAL_REG_FIFO, SERIAL_FCR_ENABLE | SERIAL_FCR_CLEAR_RX | SERIAL_FCR_CLEAR_TX |
+                                       SERIAL_FCR_TRIGGER_14);
 
         asi::outb(SERIAL_REG_MODEM_CTRL, 0x0B);
 
@@ -95,8 +94,7 @@ namespace trunk::drivers::serial
         if (c == '\n')
             serial_putchar('\r');
 
-        while (!serial_is_transmit_ready())
-        {
+        while (!serial_is_transmit_ready()) {
         }
 
         // clang-format off

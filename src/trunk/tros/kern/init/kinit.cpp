@@ -29,7 +29,7 @@
 #include <trunk/tros/gdt/gdt.h>
 #include <trunk/tros/interrupts/idt/idt.h>
 
-#define STARTUP_FUNC_FLAGS extern "C" [[noreturn]] __attribute__((section(".text")))
+#define STARTUP_FUNC_FLAGS extern "C" NO_RETURN __attribute__((section(".text")))
 
 namespace trunk::kernel
 {
@@ -52,8 +52,7 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Top-level kernel entry.                                            *
      ********************************************************************************/
-    STARTUP_FUNC_FLAGS void
-    TrkStartup(const boot::BootInfo &info) noexcept
+    STARTUP_FUNC_FLAGS void TrkStartup(const boot::BootInfo &info) noexcept
     {
         TrkSetupSubsystems();
         asi::sti();
@@ -61,8 +60,7 @@ namespace trunk::kernel
         welcome_user();
 
         (void)info;
-        for (;;)
-        {
+        for (;;) {
             asm volatile("sti; hlt");
         }
     }

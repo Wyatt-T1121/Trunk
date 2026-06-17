@@ -54,5 +54,5 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get the current tss by reference                                   *
      ********************************************************************************/
-    [[nodiscard]] const Tss &tss_get() noexcept;
+    NO_DISCARD const Tss &tss_get() noexcept;
 } // namespace trunk::gdt

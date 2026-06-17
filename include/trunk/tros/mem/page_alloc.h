@@ -23,6 +23,7 @@
  ********************************************************************************/
 #pragma once
 
+#include <macros.h>
 #include <types.h>
 
 #include <trunk/tros/mem/pfn.h>
@@ -52,7 +53,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Allocate pages                                                     *
      ********************************************************************************/
-    [[nodiscard]] Page *pfn_alloc_pages(u8 order) noexcept;
+    NO_DISCARD Page *pfn_alloc_pages(u8 order) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

@@ -22,12 +22,11 @@
  *                                                          memblock             *
  ********************************************************************************/
 
-#include <gtest/gtest.h>
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
+#include <gtest/gtest.h>
 
-asm(
-    ".data\n"
+asm(".data\n"
     ".global __kernel_phys_start\n"
     ".global __kernel_phys_end\n"
     ".global __stack_bottom\n"
@@ -44,11 +43,11 @@ asm(
 namespace trunk::kernel
 {
 
-    [[noreturn]] void kabort(const char *message) noexcept
+    NO_RETURN void kabort(const char *message) noexcept
     {
         std::printf("\n[ KERNEL PANIC ]: %s\n\n", message ? message : "No message provided");
         ADD_FAILURE() << "Kernel panicked: " << (message ? message : "");
         std::abort();
     }
 
-}
+} // namespace trunk::kernel

@@ -1,5 +1,7 @@
-include builder/config/build.cfg
-include builder/config/toolchain.cfg
+REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+
+include $(REPO_ROOT)/builder/config/build.cfg
+include $(REPO_ROOT)/builder/config/toolchain.cfg
 
 VERSION         := $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
 

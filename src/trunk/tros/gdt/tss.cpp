@@ -48,13 +48,13 @@ namespace trunk::gdt
     void tss_init() noexcept
     {
         s_tss.iopb_offset = sizeof(Tss);
-        s_tss.ist[0] = reinterpret_cast<u64>(s_ist1_stack + IST_STACK_SIZE);
-        s_tss.ist[1] = reinterpret_cast<u64>(s_ist2_stack + IST_STACK_SIZE);
-        s_tss.ist[2] = reinterpret_cast<u64>(s_ist3_stack + IST_STACK_SIZE);
-        s_tss.ist[3] = reinterpret_cast<u64>(s_ist4_stack + IST_STACK_SIZE);
-        s_tss.ist[4] = reinterpret_cast<u64>(s_ist5_stack + IST_STACK_SIZE);
-        s_tss.ist[5] = reinterpret_cast<u64>(s_ist6_stack + IST_STACK_SIZE);
-        s_tss.ist[6] = reinterpret_cast<u64>(s_ist7_stack + IST_STACK_SIZE);
+        s_tss.ist[0]      = reinterpret_cast<u64>(s_ist1_stack + IST_STACK_SIZE);
+        s_tss.ist[1]      = reinterpret_cast<u64>(s_ist2_stack + IST_STACK_SIZE);
+        s_tss.ist[2]      = reinterpret_cast<u64>(s_ist3_stack + IST_STACK_SIZE);
+        s_tss.ist[3]      = reinterpret_cast<u64>(s_ist4_stack + IST_STACK_SIZE);
+        s_tss.ist[4]      = reinterpret_cast<u64>(s_ist5_stack + IST_STACK_SIZE);
+        s_tss.ist[5]      = reinterpret_cast<u64>(s_ist6_stack + IST_STACK_SIZE);
+        s_tss.ist[6]      = reinterpret_cast<u64>(s_ist7_stack + IST_STACK_SIZE);
     }
 
     /* *******************************************************************************
@@ -76,7 +76,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get the current tss by reference                                   *
      ********************************************************************************/
-    [[nodiscard]] const Tss &tss_get() noexcept
+    NO_DISCARD const Tss &tss_get() noexcept
     {
         return s_tss;
     }

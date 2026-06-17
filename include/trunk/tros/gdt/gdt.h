@@ -23,21 +23,21 @@
 
 #pragma once
 
-#include <trunk/tros/gdt/tss.h>
 #include <trunk/ead/eadescriptor_table.h>
+#include <trunk/tros/gdt/tss.h>
 
-#include <types.h>
 #include <macros.h>
+#include <types.h>
 
 namespace trunk::gdt
 {
-    inline constexpr u8 GDT_PRESENT = 0x80;
-    inline constexpr u8 GDT_RING0 = 0x00;
-    inline constexpr u8 GDT_RING3 = 0x60;
-    inline constexpr u8 GDT_SYSTEM = 0x10;
+    inline constexpr u8 GDT_PRESENT    = 0x80;
+    inline constexpr u8 GDT_RING0      = 0x00;
+    inline constexpr u8 GDT_RING3      = 0x60;
+    inline constexpr u8 GDT_SYSTEM     = 0x10;
     inline constexpr u8 GDT_EXECUTABLE = 0x08;
     inline constexpr u8 GDT_READ_WRITE = 0x02;
-    inline constexpr u8 GDT_LONG_MODE = 0x20;
+    inline constexpr u8 GDT_LONG_MODE  = 0x20;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -61,6 +61,6 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Installs the TSS                                                   *
      ********************************************************************************/
-    [[nodiscard]] u16 gdt_install_tss(const Tss *tss_ptr) noexcept;
+    NO_DISCARD u16 gdt_install_tss(const Tss *tss_ptr) noexcept;
 
 } // namespace trunk::gdt

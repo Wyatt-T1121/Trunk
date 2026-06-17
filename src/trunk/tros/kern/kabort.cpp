@@ -20,9 +20,10 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Halts the kernel on a fatal state, equ to panic().                 *
  ********************************************************************************/
+#include <trunk/drivers/serial/serial.h>
 #include <trunk/tros/kern/kabort.h>
 
-#include <trunk/drivers/serial/serial.h>
+#include <macros.h>
 
 namespace trunk::kernel
 {
@@ -32,18 +33,18 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Halts the kernel forever and prints the message                    *
      ********************************************************************************/
-    [[noreturn]] void kabort(const char *message) noexcept
+    NO_RETURN void kabort(const char *message) noexcept
     {
         asm volatile("cli");
 
-        drivers::serial::serial_puts("                        KERNEL ABORTED                     \n");
+        drivers::serial::serial_puts(
+            "                        KERNEL ABORTED                     \n");
         drivers::serial::serial_puts("STOP_REASON: ");
         drivers::serial::serial_puts(message);
 
-        asm volatile(
-            ".lockdown_loop:\n\t"
-            "hlt\n\t"
-            "jmp .lockdown_loop");
+        asm volatile(".lockdown_loop:\n\t"
+                     "hlt\n\t"
+                     "jmp .lockdown_loop");
         __builtin_unreachable();
     }
-}
+} // namespace trunk::kernel

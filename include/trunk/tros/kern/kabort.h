@@ -23,6 +23,8 @@
  ********************************************************************************/
 #pragma once
 
+#include <macros.h>
+
 namespace trunk::kernel
 {
     /* *******************************************************************************
@@ -31,5 +33,5 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Halts the kernel forever and prints the message                    *
      ********************************************************************************/
-    [[noreturn]] void kabort(const char *message) noexcept;
+    NO_RETURN void kabort(const char *message) noexcept;
 } // namespace trunk::kernel

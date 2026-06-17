@@ -23,17 +23,18 @@
 
 #pragma once
 
+#include <macros.h>
 #include <types.h>
 
 namespace trunk::boot
 {
     enum class MemoryType : u32
     {
-        Available = 0,
-        Reserved = 1,
+        Available       = 0,
+        Reserved        = 1,
         AcpiReclaimable = 2,
-        AcpiNvs = 3,
-        BadRam = 4,
+        AcpiNvs         = 3,
+        BadRam          = 4,
     };
 
     struct MemoryRegion
@@ -42,17 +43,23 @@ namespace trunk::boot
         u64 length;
         MemoryType type;
 
-        [[nodiscard]] constexpr u64 end() const noexcept { return base + length; }
-        [[nodiscard]] constexpr bool available() const noexcept { return type == MemoryType::Available; }
+        NO_DISCARD constexpr u64 end() const noexcept
+        {
+            return base + length;
+        }
+        NO_DISCARD constexpr bool available() const noexcept
+        {
+            return type == MemoryType::Available;
+        }
     };
 
     struct BootInfo
     {
         static constexpr usize BOOTLOADER_NAME_MAX = 64;
-        static constexpr usize MAX_MMAP_ENTRIES = 64;
+        static constexpr usize MAX_MMAP_ENTRIES    = 64;
 
-        MemoryRegion mmap[MAX_MMAP_ENTRIES] = {};
-        usize mmap_count = 0;
+        MemoryRegion mmap[MAX_MMAP_ENTRIES]       = {};
+        usize mmap_count                          = 0;
         char bootloader_name[BOOTLOADER_NAME_MAX] = {};
 
         /* ***************************************************************************
@@ -61,7 +68,7 @@ namespace trunk::boot
          *  DATE    : 2026                                                           *
          *  PURPOSE : Sum of all Available region lengths. Used by the PMM.          *
          ****************************************************************************/
-        [[nodiscard]]
+        NO_DISCARD
         u64 total_available_bytes() const noexcept
         {
             u64 total = 0;
@@ -78,6 +85,6 @@ namespace trunk::boot
      *  DATE    : 2026                                                               *
      *  PURPOSE : Return a short string describing a MemoryType value.               *
      ********************************************************************************/
-    [[nodiscard]] const char *memory_type_str(MemoryType type) noexcept;
+    NO_DISCARD const char *memory_type_str(MemoryType type) noexcept;
 
 } // namespace trunk::boot

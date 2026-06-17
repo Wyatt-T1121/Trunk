@@ -15,92 +15,88 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Memory block                                                       *
+ *  MODULE  : Memory management unit                                             *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Memory allocator for early boot stage.                             *
+ *  PURPOSE : Paging, segments, and everything else related to mmu               *
  ********************************************************************************/
 #pragma once
 
-#include <assert.h>
 #include <macros.h>
 #include <types.h>
 
-#include <trunk/boot/trldr/mb2/boot.h>
+#include <trunk/tros/cpu/cpu_flags.h>
+#include <trunk/tros/mem/page.h>
 
 namespace trunk::mem
 {
-    inline constexpr usize MAX_MEMBLOCK_REGIONS = 128;
+    constexpr usize MAX_ENTRIES = 512;
 
-    struct GNU_PACKED MemoryRegion
+    struct PageTable
     {
-        u64 base;
+        u64 entries[MAX_ENTRIES];
+    } ALIGNED(4096);
+
+    struct MapRange
+    {
+        u64 start_vaddr;
+        u64 start_paddr;
         u64 size;
     };
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_init                                                      *
+     *  FUNC    : mmu_early_init                                                     *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Initialization function for memblock                               *
+     *  PURPOSE : Early MMU init to setup In boot stage(uses memblock)               *
      ********************************************************************************/
-    void memblock_init(const boot::BootInfo &boot_info) noexcept;
+    void mmu_early_init() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_alloc                                                     *
+     *  FUNC    : mmu_init                                                           *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Allocate a new chunk inside the memblock region                    *
+     *  PURPOSE : The true Initialization function for the memory management unit    *
      ********************************************************************************/
-    u64 memblock_alloc(u64 size, u64 alignment) noexcept;
+    void mmu_init() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_reserve                                                   *
+     *  FUNC    : mmu_early_init_percpu                                              *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Reserve a region inside the memblock                               *
+     *  PURPOSE : Early MMU init for each cpu core                                   *
      ********************************************************************************/
-    void memblock_reserve(u64 base, u64 size) noexcept;
+    void mmu_early_init_percpu() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_is_reserved                                               *
+     *  FUNC    : mmu_map_page                                                       *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns true if any byte in [base, base + size) is reserved.       *
+     *  PURPOSE : Maps a page In the MMU                                             *
      ********************************************************************************/
-    NO_DISCARD bool memblock_is_reserved(u64 base, u64 size) noexcept;
+    NO_DISCARD bool mmu_map_page(PageTable *pml4, u64 va, u64 pa, u64 flags) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_free                                                *
+     *  FUNC    : mmu_map_range                                                      *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns total free bytes remaining in the memory pool.             *
+     *  PURPOSE : Maps a range In the MMU                                            *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_total_free() noexcept;
+    NO_DISCARD bool mmu_map_range(PageTable *pml4, MapRange range, u64 flags) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_reserved                                            *
+     *  FUNC    : mmu_unmap_page                                                     *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns total reserved bytes across all reserved regions.          *
+     *  PURPOSE : Unmaps a page In the MMU                                           *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_total_reserved() noexcept;
+    NO_DISCARD bool mmu_unmap_page(PageTable *pml4, u64 va) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_get_region_count                                          *
+     *  FUNC    : mmu_translate                                                      *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Get the current region count.                                      *
+     *  PURPOSE : Translates a page in the mmu                                       *
      ********************************************************************************/
-    NO_DISCARD usize memblock_get_region_count() noexcept;
-
-    /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_get_region                                                *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Get a region at the passed in index.                               *
-     ********************************************************************************/
-    NO_DISCARD MemoryRegion memblock_get_region(usize index) noexcept;
-
+    NO_DISCARD u64 mmu_translate(PageTable *pml4, u64 va) noexcept;
 } // namespace trunk::mem

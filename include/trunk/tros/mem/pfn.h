@@ -22,12 +22,13 @@
  ********************************************************************************/
 #pragma once
 
+#include <macros.h>
 #include <types.h>
+
+#include <trunk/tros/mem/page.h>
 
 namespace trunk::mem
 {
-    inline constexpr usize PAGE_SHIFT = 12;
-    inline constexpr usize PAGE_SIZE = 4096;
     inline constexpr usize BUDDY_MAX_ORDER = 11;
 
     struct FreeAreaNode
@@ -48,7 +49,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Shift address to Page frame number                                 *
      ********************************************************************************/
-    [[nodiscard]] inline constexpr u64 addr_to_pfn(u64 addr) noexcept
+    NO_DISCARD inline constexpr u64 addr_to_pfn(u64 addr) noexcept
     {
         return addr >> PAGE_SHIFT;
     }
@@ -59,7 +60,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Shift Page frame number to address                                 *
      ********************************************************************************/
-    [[nodiscard]] inline constexpr u64 pfn_to_addr(u64 pfn) noexcept
+    NO_DISCARD inline constexpr u64 pfn_to_addr(u64 pfn) noexcept
     {
         return pfn << PAGE_SHIFT;
     }

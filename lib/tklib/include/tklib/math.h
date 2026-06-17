@@ -22,6 +22,7 @@
  ********************************************************************************/
 #pragma once
 
+#include <macros.h>
 #include <types.h>
 
 namespace tklib::math
@@ -32,8 +33,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if value is a non-zero power of two.                  *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr bool is_power_of_two(T value) noexcept
+    template <typename T> NO_DISCARD constexpr bool is_power_of_two(T value) noexcept
     {
         return value != 0 && (value & (value - 1)) == 0;
     }
@@ -44,8 +44,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Round value up to the nearest multiple of alignment.               *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T align_up(T value, T alignment) noexcept
+    template <typename T> NO_DISCARD constexpr T align_up(T value, T alignment) noexcept
     {
         T rem = value % alignment;
         return (rem == 0) ? value : value + (alignment - rem);
@@ -57,8 +56,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Round value down to the nearest multiple of alignment.             *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T align_down(T value, T alignment) noexcept
+    template <typename T> NO_DISCARD constexpr T align_down(T value, T alignment) noexcept
     {
         return value & ~(alignment - 1);
     }
@@ -70,7 +68,7 @@ namespace tklib::math
      *  PURPOSE : Round value up to the next power of two greater than or equal      *
      *            to value.                                                          *
      ********************************************************************************/
-    [[nodiscard]] constexpr u64 align_up_pow2(u64 value) noexcept
+    NO_DISCARD constexpr u64 align_up_pow2(u64 value) noexcept
     {
         if (value == 0)
             return 1;
@@ -91,7 +89,7 @@ namespace tklib::math
      *  PURPOSE : Returns true if value is aligned to alignment.                     *
      ********************************************************************************/
     template <typename T, typename U>
-    [[nodiscard]] constexpr bool is_aligned(T value, U alignment) noexcept
+    NO_DISCARD constexpr bool is_aligned(T value, U alignment) noexcept
     {
         return (value & (static_cast<T>(alignment) - 1)) == 0;
     }
@@ -102,8 +100,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if a + b would overflow T.                            *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr bool add_would_overflow(T a, T b) noexcept
+    template <typename T> NO_DISCARD constexpr bool add_would_overflow(T a, T b) noexcept
     {
         return b > 0 && a > limits::u64_max - b;
     }
@@ -114,7 +111,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if a * b would overflow u64.                          *
      ********************************************************************************/
-    [[nodiscard]] constexpr bool mul_would_overflow(u64 a, u64 b) noexcept
+    NO_DISCARD constexpr bool mul_would_overflow(u64 a, u64 b) noexcept
     {
         if (a == 0 || b == 0)
             return false;
@@ -127,8 +124,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the smaller of a and b.                                    *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T min(T a, T b) noexcept
+    template <typename T> NO_DISCARD constexpr T min(T a, T b) noexcept
     {
         return a < b ? a : b;
     }
@@ -139,8 +135,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the larger of a and b.                                     *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T max(T a, T b) noexcept
+    template <typename T> NO_DISCARD constexpr T max(T a, T b) noexcept
     {
         return a > b ? a : b;
     }
@@ -151,8 +146,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Clamp value to [lo, hi].                                           *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T clamp(T value, T lo, T hi) noexcept
+    template <typename T> NO_DISCARD constexpr T clamp(T value, T lo, T hi) noexcept
     {
         return value < lo ? lo : (value > hi ? hi : value);
     }
@@ -163,8 +157,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the absolute value of a signed integer.                    *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T abs(T value) noexcept
+    template <typename T> NO_DISCARD constexpr T abs(T value) noexcept
     {
         return value < 0 ? -value : value;
     }
@@ -175,8 +168,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns -1, 0, or 1 depending on the sign of value.                *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T sign(T value) noexcept
+    template <typename T> NO_DISCARD constexpr T sign(T value) noexcept
     {
         return (value > T{0}) - (value < T{0});
     }
@@ -187,8 +179,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Integer division rounding up.                                      *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T div_round_up(T a, T b) noexcept
+    template <typename T> NO_DISCARD constexpr T div_round_up(T a, T b) noexcept
     {
         return (a + b - 1) / b;
     }
@@ -199,8 +190,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Integer division rounding down.                                    *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T div_round_down(T a, T b) noexcept
+    template <typename T> NO_DISCARD constexpr T div_round_down(T a, T b) noexcept
     {
         return a / b;
     }
@@ -211,8 +201,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Integer division rounding to the nearest integer.                  *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T div_round_nearest(T a, T b) noexcept
+    template <typename T> NO_DISCARD constexpr T div_round_nearest(T a, T b) noexcept
     {
         return (a + b / 2) / b;
     }
@@ -223,16 +212,14 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Computes base raised to the power of exp. Integer only.            *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T pow(T base, u32 exp) noexcept
+    template <typename T> NO_DISCARD constexpr T pow(T base, u32 exp) noexcept
     {
         T result = 1;
-        while (exp > 0)
-        {
+        while (exp > 0) {
             if (exp & 1)
                 result *= base;
-            base *= base;
-            exp >>= 1;
+            base  *= base;
+            exp  >>= 1;
         }
         return result;
     }
@@ -243,7 +230,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns floor(log2(value)).                                        *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 log2_floor(u64 value) noexcept
+    NO_DISCARD constexpr u32 log2_floor(u64 value) noexcept
     {
         u32 result = 0;
         while (value >>= 1)
@@ -257,7 +244,7 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns ceil(log2(value)).                                         *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 log2_ceil(u64 value) noexcept
+    NO_DISCARD constexpr u32 log2_ceil(u64 value) noexcept
     {
         if (value <= 1)
             return 0;
@@ -270,11 +257,10 @@ namespace tklib::math
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns floor(log10(value)).                                       *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 log10_floor(u64 value) noexcept
+    NO_DISCARD constexpr u32 log10_floor(u64 value) noexcept
     {
         u32 result = 0;
-        while (value >= 10)
-        {
+        while (value >= 10) {
             value /= 10;
             ++result;
         }

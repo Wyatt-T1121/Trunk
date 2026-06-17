@@ -57,11 +57,11 @@ namespace trunk::boot
      *  DATE    : 2026                                                              *
      *  PURPOSE : Advance to the next MB2 tag.                                      *
      * *****************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     static const MB2Tag *next_tag(const MB2Tag *tag) noexcept
     {
         uptr addr = reinterpret_cast<uptr>(tag) + tag->size;
-        addr = (addr + 7) & ~uptr{7};
+        addr      = (addr + 7) & ~uptr{7};
         return reinterpret_cast<const MB2Tag *>(addr);
     }
 
@@ -73,18 +73,16 @@ namespace trunk::boot
      * *****************************************************************************/
     static void parse_mmap(const MB2MmapTag *tag, BootInfo &info) noexcept
     {
-        const uptr end = reinterpret_cast<uptr>(tag) + tag->size;
+        const uptr end    = reinterpret_cast<uptr>(tag) + tag->size;
         const auto *entry = tag->entries;
 
         while (reinterpret_cast<uptr>(entry) < end &&
-               info.mmap_count < BootInfo::MAX_MMAP_ENTRIES)
-        {
-            auto &out = info.mmap[info.mmap_count++];
-            out.base = entry->base;
+               info.mmap_count < BootInfo::MAX_MMAP_ENTRIES) {
+            auto &out  = info.mmap[info.mmap_count++];
+            out.base   = entry->base;
             out.length = entry->length;
 
-            switch (entry->type)
-            {
+            switch (entry->type) {
             case MMAP_AVAILABLE:
                 out.type = MemoryType::Available;
                 break;
@@ -102,8 +100,8 @@ namespace trunk::boot
                 break;
             }
 
-            entry = reinterpret_cast<const MB2MmapEntry *>(
-                reinterpret_cast<uptr>(entry) + tag->entry_size);
+            entry = reinterpret_cast<const MB2MmapEntry *>(reinterpret_cast<uptr>(entry) +
+                                                           tag->entry_size);
         }
     }
 
@@ -115,23 +113,18 @@ namespace trunk::boot
      * *****************************************************************************/
     void parse_mb2(uptr mb2_phys, BootInfo &info) noexcept
     {
-        const uptr end = mb2_phys + *reinterpret_cast<const u32 *>(mb2_phys);
+        const uptr end  = mb2_phys + *reinterpret_cast<const u32 *>(mb2_phys);
         const auto *tag = reinterpret_cast<const MB2Tag *>(mb2_phys + 8);
 
-        while (reinterpret_cast<uptr>(tag) < end && tag->type != TAG_END)
-        {
-            switch (tag->type)
-            {
+        while (reinterpret_cast<uptr>(tag) < end && tag->type != TAG_END) {
+            switch (tag->type) {
             case TAG_MMAP:
                 parse_mmap(reinterpret_cast<const MB2MmapTag *>(tag), info);
                 break;
 
-            case TAG_BOOTLOADER:
-            {
-                const char *src = reinterpret_cast<const char *>(
-                    reinterpret_cast<uptr>(tag) + 8);
-                tklib::strlcpy(info.bootloader_name, src,
-                               BootInfo::BOOTLOADER_NAME_MAX);
+            case TAG_BOOTLOADER: {
+                const char *src = reinterpret_cast<const char *>(reinterpret_cast<uptr>(tag) + 8);
+                tklib::strlcpy(info.bootloader_name, src, BootInfo::BOOTLOADER_NAME_MAX);
                 break;
             }
 

@@ -22,6 +22,7 @@
  ********************************************************************************/
 #pragma once
 
+#include <macros.h>
 #include <types.h>
 
 namespace tklib
@@ -33,12 +34,12 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the number of set bits in value.                           *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 popcount(u32 value) noexcept
+    NO_DISCARD constexpr u32 popcount(u32 value) noexcept
     {
         return static_cast<u32>(__builtin_popcount(value));
     }
 
-    [[nodiscard]] constexpr u32 popcount(u64 value) noexcept
+    NO_DISCARD constexpr u32 popcount(u64 value) noexcept
     {
         return static_cast<u32>(__builtin_popcountll(value));
     }
@@ -49,12 +50,12 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Count leading zero bits.                                           *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 clz(u32 value) noexcept
+    NO_DISCARD constexpr u32 clz(u32 value) noexcept
     {
         return static_cast<u32>(__builtin_clz(value));
     }
 
-    [[nodiscard]] constexpr u32 clz(u64 value) noexcept
+    NO_DISCARD constexpr u32 clz(u64 value) noexcept
     {
         return static_cast<u32>(__builtin_clzll(value));
     }
@@ -65,12 +66,12 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Count trailing zero bits.                                          *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 ctz(u32 value) noexcept
+    NO_DISCARD constexpr u32 ctz(u32 value) noexcept
     {
         return static_cast<u32>(__builtin_ctz(value));
     }
 
-    [[nodiscard]] constexpr u32 ctz(u64 value) noexcept
+    NO_DISCARD constexpr u32 ctz(u64 value) noexcept
     {
         return static_cast<u32>(__builtin_ctzll(value));
     }
@@ -81,12 +82,12 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the number of bits needed to represent value.              *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 bit_width(u32 value) noexcept
+    NO_DISCARD constexpr u32 bit_width(u32 value) noexcept
     {
         return value == 0 ? 0u : 32u - clz(value);
     }
 
-    [[nodiscard]] constexpr u32 bit_width(u64 value) noexcept
+    NO_DISCARD constexpr u32 bit_width(u64 value) noexcept
     {
         return value == 0 ? 0u : 64u - clz(value);
     }
@@ -97,12 +98,12 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the largest power of two not greater than value.           *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 bit_floor(u32 value) noexcept
+    NO_DISCARD constexpr u32 bit_floor(u32 value) noexcept
     {
         return value == 0 ? 0u : 1u << (bit_width(value) - 1u);
     }
 
-    [[nodiscard]] constexpr u64 bit_floor(u64 value) noexcept
+    NO_DISCARD constexpr u64 bit_floor(u64 value) noexcept
     {
         return value == 0 ? 0ull : 1ull << (bit_width(value) - 1u);
     }
@@ -113,14 +114,14 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the smallest power of two not less than value.             *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 bit_ceil(u32 value) noexcept
+    NO_DISCARD constexpr u32 bit_ceil(u32 value) noexcept
     {
         if (value <= 1)
             return 1u;
         return 1u << bit_width(value - 1u);
     }
 
-    [[nodiscard]] constexpr u64 bit_ceil(u64 value) noexcept
+    NO_DISCARD constexpr u64 bit_ceil(u64 value) noexcept
     {
         if (value <= 1)
             return 1ull;
@@ -133,8 +134,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if value is a non-zero power of two.                  *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr bool has_single_bit(T value) noexcept
+    template <typename T> NO_DISCARD constexpr bool has_single_bit(T value) noexcept
     {
         return value != 0 && (value & (value - 1)) == 0;
     }
@@ -145,8 +145,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if bit at position pos is set in value.               *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr bool test_bit(T value, u32 pos) noexcept
+    template <typename T> NO_DISCARD constexpr bool test_bit(T value, u32 pos) noexcept
     {
         return (value >> pos) & T{1};
     }
@@ -157,8 +156,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns value with bit at position pos set.                        *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T set_bit(T value, u32 pos) noexcept
+    template <typename T> NO_DISCARD constexpr T set_bit(T value, u32 pos) noexcept
     {
         return value | (T{1} << pos);
     }
@@ -169,8 +167,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns value with bit at position pos cleared.                    *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T clear_bit(T value, u32 pos) noexcept
+    template <typename T> NO_DISCARD constexpr T clear_bit(T value, u32 pos) noexcept
     {
         return value & ~(T{1} << pos);
     }
@@ -181,8 +178,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns value with bit at position pos toggled.                    *
      ********************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T toggle_bit(T value, u32 pos) noexcept
+    template <typename T> NO_DISCARD constexpr T toggle_bit(T value, u32 pos) noexcept
     {
         return value ^ (T{1} << pos);
     }
@@ -193,13 +189,13 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Rotate value left by shift bits.                                   *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 rotl(u32 value, u32 shift) noexcept
+    NO_DISCARD constexpr u32 rotl(u32 value, u32 shift) noexcept
     {
         shift &= 31u;
         return (value << shift) | (value >> (32u - shift));
     }
 
-    [[nodiscard]] constexpr u64 rotl(u64 value, u32 shift) noexcept
+    NO_DISCARD constexpr u64 rotl(u64 value, u32 shift) noexcept
     {
         shift &= 63u;
         return (value << shift) | (value >> (64u - shift));
@@ -211,13 +207,13 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Rotate value right by shift bits.                                  *
      ********************************************************************************/
-    [[nodiscard]] constexpr u32 rotr(u32 value, u32 shift) noexcept
+    NO_DISCARD constexpr u32 rotr(u32 value, u32 shift) noexcept
     {
         shift &= 31u;
         return (value >> shift) | (value << (32u - shift));
     }
 
-    [[nodiscard]] constexpr u64 rotr(u64 value, u32 shift) noexcept
+    NO_DISCARD constexpr u64 rotr(u64 value, u32 shift) noexcept
     {
         shift &= 63u;
         return (value >> shift) | (value << (64u - shift));
@@ -229,17 +225,17 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Reverse the byte order of value.                                   *
      ********************************************************************************/
-    [[nodiscard]] constexpr u16 byteswap(u16 value) noexcept
+    NO_DISCARD constexpr u16 byteswap(u16 value) noexcept
     {
         return static_cast<u16>(__builtin_bswap16(value));
     }
 
-    [[nodiscard]] constexpr u32 byteswap(u32 value) noexcept
+    NO_DISCARD constexpr u32 byteswap(u32 value) noexcept
     {
         return __builtin_bswap32(value);
     }
 
-    [[nodiscard]] constexpr u64 byteswap(u64 value) noexcept
+    NO_DISCARD constexpr u64 byteswap(u64 value) noexcept
     {
         return __builtin_bswap64(value);
     }
@@ -250,7 +246,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns a u64 mask with the lowest n bits set.                     *
      ********************************************************************************/
-    [[nodiscard]] constexpr u64 mask(u32 n) noexcept
+    NO_DISCARD constexpr u64 mask(u32 n) noexcept
     {
         return n >= 64 ? ~u64{0} : (u64{1} << n) - 1;
     }
@@ -261,7 +257,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Extract a field of width bits starting at bit position pos.        *
      ********************************************************************************/
-    [[nodiscard]] constexpr u64 extract_bits(u64 value, u32 pos, u32 width) noexcept
+    NO_DISCARD constexpr u64 extract_bits(u64 value, u32 pos, u32 width) noexcept
     {
         return (value >> pos) & mask(width);
     }
@@ -272,7 +268,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Insert field into value at bit position pos with given width.      *
      ********************************************************************************/
-    [[nodiscard]] constexpr u64 insert_bits(u64 value, u64 field, u32 pos, u32 width) noexcept
+    NO_DISCARD constexpr u64 insert_bits(u64 value, u64 field, u32 pos, u32 width) noexcept
     {
         const u64 m = mask(width);
         return (value & ~(m << pos)) | ((field & m) << pos);

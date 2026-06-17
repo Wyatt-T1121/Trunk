@@ -23,6 +23,7 @@
 
 #pragma once
 
+#include <macros.h>
 #include <types.h>
 
 namespace trunk::asi
@@ -67,7 +68,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read a byte from an I/O port.                                      *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u8 inb(u16 port) noexcept
     {
         u8 value;
@@ -81,7 +82,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read a word (2 bytes) from an I/O port.                            *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u16 inw(u16 port) noexcept
     {
         u16 value;
@@ -95,7 +96,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read a dword (4 bytes) from an I/O port.                           *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u32 inl(u16 port) noexcept
     {
         u32 value;
@@ -120,7 +121,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read a Model Specific Register.                                    *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u64 rdmsr(u32 msr) noexcept
     {
         u32 low, high;
@@ -136,7 +137,7 @@ namespace trunk::asi
      ********************************************************************************/
     inline void wrmsr(u32 msr, u64 value) noexcept
     {
-        u32 low = static_cast<u32>(value);
+        u32 low  = static_cast<u32>(value);
         u32 high = static_cast<u32>(value >> 32);
         asm volatile("wrmsr" : : "c"(msr), "a"(low), "d"(high));
     }
@@ -147,7 +148,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR0.                                         *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u64 read_cr0() noexcept
     {
         u64 value;
@@ -172,7 +173,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR2.                                         *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u64 read_cr2() noexcept
     {
         u64 value;
@@ -186,7 +187,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR3.                                         *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u64 read_cr3() noexcept
     {
         u64 value;
@@ -211,7 +212,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read control register CR4.                                         *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u64 read_cr4() noexcept
     {
         u64 value;
@@ -293,9 +294,7 @@ namespace trunk::asi
      ********************************************************************************/
     inline void cpuid(u32 leaf, u32 &eax, u32 &ebx, u32 &ecx, u32 &edx) noexcept
     {
-        asm volatile("cpuid"
-                     : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx)
-                     : "a"(leaf), "c"(0));
+        asm volatile("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) : "a"(leaf), "c"(0));
     }
 
     /* *******************************************************************************
@@ -304,7 +303,7 @@ namespace trunk::asi
      *  DATE    : 2026                                                               *
      *  PURPOSE : Read the Time Stamp Counter.                                       *
      ********************************************************************************/
-    [[nodiscard]]
+    NO_DISCARD
     inline u64 rdtsc() noexcept
     {
         u32 low, high;

@@ -23,22 +23,20 @@
  ********************************************************************************/
 #pragma once
 
+#include <macros.h>
 #include <types.h>
 
 namespace tklib
 {
-    template <typename T>
-    struct remove_reference
+    template <typename T> struct remove_reference
     {
         using type = T;
     };
-    template <typename T>
-    struct remove_reference<T &>
+    template <typename T> struct remove_reference<T &>
     {
         using type = T;
     };
-    template <typename T>
-    struct remove_reference<T &&>
+    template <typename T> struct remove_reference<T &&>
     {
         using type = T;
     };
@@ -50,15 +48,13 @@ namespace tklib
      *  PURPOSE : Perfect forward t as T.                                           *
      * *****************************************************************************/
     template <typename T>
-    [[nodiscard]] constexpr T &&
-    forward(typename remove_reference<T>::type &t) noexcept
+    NO_DISCARD constexpr T &&forward(typename remove_reference<T>::type &t) noexcept
     {
         return static_cast<T &&>(t);
     }
 
     template <typename T>
-    [[nodiscard]] constexpr T &&
-    forward(typename remove_reference<T>::type &&t) noexcept
+    NO_DISCARD constexpr T &&forward(typename remove_reference<T>::type &&t) noexcept
     {
         return static_cast<T &&>(t);
     }
@@ -70,8 +66,7 @@ namespace tklib
      *  PURPOSE : Cast t to rvalue reference.                                       *
      * *****************************************************************************/
     template <typename T>
-    [[nodiscard]] constexpr typename remove_reference<T>::type &&
-    move(T &&t) noexcept
+    NO_DISCARD constexpr typename remove_reference<T>::type &&move(T &&t) noexcept
     {
         return static_cast<typename remove_reference<T>::type &&>(t);
     }
@@ -82,11 +77,10 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Replace obj with new_val, return old value.                       *
      * *****************************************************************************/
-    template <typename T, typename U = T>
-    constexpr T exchange(T &obj, U &&new_val) noexcept
+    template <typename T, typename U = T> constexpr T exchange(T &obj, U &&new_val) noexcept
     {
         T old = move(obj);
-        obj = forward<U>(new_val);
+        obj   = forward<U>(new_val);
         return old;
     }
 
@@ -96,8 +90,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Take address of ref bypassing overloaded operator&.               *
      * *****************************************************************************/
-    template <typename T>
-    [[nodiscard]] constexpr T *addressof(T &ref) noexcept
+    template <typename T> NO_DISCARD constexpr T *addressof(T &ref) noexcept
     {
         return __builtin_addressof(ref);
     }
@@ -108,117 +101,93 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Produce T&& in unevaluated contexts without constructing T.       *
      * *****************************************************************************/
-    template <typename T>
-    typename remove_reference<T>::type &&declval() noexcept;
+    template <typename T> typename remove_reference<T>::type &&declval() noexcept;
 
-    template <typename A, typename B>
-    struct is_same
+    template <typename A, typename B> struct is_same
     {
         static constexpr bool value = false;
     };
-    template <typename A>
-    struct is_same<A, A>
+    template <typename A> struct is_same<A, A>
     {
         static constexpr bool value = true;
     };
 
-    template <typename A, typename B>
-    inline constexpr bool is_same_v = is_same<A, B>::value;
+    template <typename A, typename B> inline constexpr bool is_same_v = is_same<A, B>::value;
 
-    template <typename T>
-    struct is_integral
+    template <typename T> struct is_integral
     {
         static constexpr bool value = false;
     };
-    template <>
-    struct is_integral<u8>
+    template <> struct is_integral<u8>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<u16>
+    template <> struct is_integral<u16>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<u32>
+    template <> struct is_integral<u32>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<u64>
+    template <> struct is_integral<u64>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<i8>
+    template <> struct is_integral<i8>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<i16>
+    template <> struct is_integral<i16>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<i32>
+    template <> struct is_integral<i32>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<i64>
+    template <> struct is_integral<i64>
     {
         static constexpr bool value = true;
     };
-    template <>
-    struct is_integral<bool>
+    template <> struct is_integral<bool>
     {
         static constexpr bool value = true;
     };
 
-    template <typename T>
-    inline constexpr bool is_integral_v = is_integral<T>::value;
+    template <typename T> inline constexpr bool is_integral_v = is_integral<T>::value;
 
-    template <typename T>
-    struct is_pointer
+    template <typename T> struct is_pointer
     {
         static constexpr bool value = false;
     };
-    template <typename T>
-    struct is_pointer<T *>
+    template <typename T> struct is_pointer<T *>
     {
         static constexpr bool value = true;
     };
-    template <typename T>
-    struct is_pointer<T *const>
+    template <typename T> struct is_pointer<T *const>
     {
         static constexpr bool value = true;
     };
 
-    template <typename T>
-    inline constexpr bool is_pointer_v = is_pointer<T>::value;
+    template <typename T> inline constexpr bool is_pointer_v = is_pointer<T>::value;
 
-    template <typename T>
-    struct is_const
+    template <typename T> struct is_const
     {
         static constexpr bool value = false;
     };
-    template <typename T>
-    struct is_const<const T>
+    template <typename T> struct is_const<const T>
     {
         static constexpr bool value = true;
     };
 
-    template <typename T>
-    inline constexpr bool is_const_v = is_const<T>::value;
+    template <typename T> inline constexpr bool is_const_v = is_const<T>::value;
 
-    template <bool Cond, typename A, typename B>
-    struct conditional
+    template <bool Cond, typename A, typename B> struct conditional
     {
         using type = A;
     };
-    template <typename A, typename B>
-    struct conditional<false, A, B>
+    template <typename A, typename B> struct conditional<false, A, B>
     {
         using type = B;
     };
@@ -226,16 +195,13 @@ namespace tklib
     template <bool Cond, typename A, typename B>
     using conditional_t = typename conditional<Cond, A, B>::type;
 
-    template <bool Cond, typename T = void>
-    struct enable_if
+    template <bool Cond, typename T = void> struct enable_if
     {
     };
-    template <typename T>
-    struct enable_if<true, T>
+    template <typename T> struct enable_if<true, T>
     {
         using type = T;
     };
 
-    template <bool Cond, typename T = void>
-    using enable_if_t = typename enable_if<Cond, T>::type;
+    template <bool Cond, typename T = void> using enable_if_t = typename enable_if<Cond, T>::type;
 } // namespace tklib
