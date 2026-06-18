@@ -16,30 +16,33 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Global definitions                                                 *
+ *  MODULE  : User welcome                                                       *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Global-level assert() macros                                       *
+ *  PURPOSE : Welcome information for the user                                   *
  ********************************************************************************/
-#pragma once
+#include <cbk/kern/welcome.h>
+#include <drivers/serial/serial.h>
 
-#include <cbk/kern/kabort.h>
+#include <version.h>
 
-// clang-format off
-#ifdef __cplusplus
-    #define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#else
-    #define STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#endif
+namespace serial = trunk::drivers::serial;
 
-#if defined(TRUNK_DEBUG) || !defined(NDEBUG)
-    #define ASSERT(condition, message)                                            \
-        do {                                                                      \
-            if (!(condition)) UNLIKELY {                                      \
-                ::trunk::kernel::kabort("ASSERTION FAILED: " message " (" #condition ")"); \
-            }                                                                     \
-        } while (false)
-#else
-    #define ASSERT(condition, message) do { (void)(condition); } while (false)
-#endif
+namespace trunk::kernel
+{
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : welcome_user                                                       *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Welcomes the user to Trunk                                         *
+     ********************************************************************************/
+    void welcome_user() noexcept
+    {
+        serial::serial_puts("Welcome to Trunk!\n");
+        serial::serial_puts("The Hobby C++ operating system.\n");
+        serial::serial_puts("Copyright (c) ALL CONTRIBUTERS TO TRUNK.\n");
+        serial::serial_puts("You are likely a developer, as you have built Trunk In DEBUG mode!\n");
 
-// clang-format on
+        serial::serial_puts("VERSION: ");
+        serial::serial_puts(get_version().build_string);
+    }
+} // namespace trunk::kernel

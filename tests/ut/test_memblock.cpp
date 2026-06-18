@@ -21,24 +21,24 @@
  *  PURPOSE : Unit tests for memblock                                            *
  ********************************************************************************/
 
+#include <cbk/mem/memblock.h>
 #include <gtest/gtest.h>
-#include <trunk/tros/mem/memblock.h>
 
 static trunk::boot::BootInfo make_fake_boot_info()
 {
     trunk::boot::BootInfo info{};
 
-    info.mmap[0].base = 0x100000;
+    info.mmap[0].base   = 0x100000;
     info.mmap[0].length = 0x400000;
-    info.mmap[0].type = trunk::boot::MemoryType::Available;
+    info.mmap[0].type   = trunk::boot::MemoryType::Available;
 
-    info.mmap[1].base = 0x600000;
+    info.mmap[1].base   = 0x600000;
     info.mmap[1].length = 0x200000;
-    info.mmap[1].type = trunk::boot::MemoryType::Available;
+    info.mmap[1].type   = trunk::boot::MemoryType::Available;
 
-    info.mmap[2].base = 0x000000;
+    info.mmap[2].base   = 0x000000;
     info.mmap[2].length = 0x100000;
-    info.mmap[2].type = trunk::boot::MemoryType::Reserved;
+    info.mmap[2].type   = trunk::boot::MemoryType::Reserved;
 
     info.mmap_count = 3;
     return info;
@@ -46,7 +46,7 @@ static trunk::boot::BootInfo make_fake_boot_info()
 
 class MemblockTest : public ::testing::Test
 {
-protected:
+  protected:
     void SetUp() override
     {
         auto info = make_fake_boot_info();

@@ -16,30 +16,24 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Global definitions                                                 *
+ *  MODULE  : Bootstrapping                                                      *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Global-level assert() macros                                       *
+ *  PURPOSE : Dumps boot information from BootInfo                               *
  ********************************************************************************/
+
 #pragma once
 
-#include <cbk/kern/kabort.h>
+#include <boot/trldr/mb2/boot.h>
 
-// clang-format off
-#ifdef __cplusplus
-    #define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#else
-    #define STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#endif
+namespace trunk::boot
+{
 
-#if defined(TRUNK_DEBUG) || !defined(NDEBUG)
-    #define ASSERT(condition, message)                                            \
-        do {                                                                      \
-            if (!(condition)) UNLIKELY {                                      \
-                ::trunk::kernel::kabort("ASSERTION FAILED: " message " (" #condition ")"); \
-            }                                                                     \
-        } while (false)
-#else
-    #define ASSERT(condition, message) do { (void)(condition); } while (false)
-#endif
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : bdump                                                              *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Dump BootInfo contents to serial output.                           *
+     ********************************************************************************/
+    void bdump(const BootInfo &info) noexcept;
 
-// clang-format on
+} // namespace trunk::boot

@@ -16,30 +16,35 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Global definitions                                                 *
+ *  MODULE  : Kernel abortion                                                    *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Global-level assert() macros                                       *
+ *  PURPOSE : Halts the kernel on a fatal state, equ to panic().                 *
  ********************************************************************************/
-#pragma once
-
 #include <cbk/kern/kabort.h>
+#include <drivers/serial/serial.h>
 
-// clang-format off
-#ifdef __cplusplus
-    #define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#else
-    #define STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#endif
+#include <macros.h>
 
-#if defined(TRUNK_DEBUG) || !defined(NDEBUG)
-    #define ASSERT(condition, message)                                            \
-        do {                                                                      \
-            if (!(condition)) UNLIKELY {                                      \
-                ::trunk::kernel::kabort("ASSERTION FAILED: " message " (" #condition ")"); \
-            }                                                                     \
-        } while (false)
-#else
-    #define ASSERT(condition, message) do { (void)(condition); } while (false)
-#endif
+namespace trunk::kernel
+{
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : kabort                                                             *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Halts the kernel forever and prints the message                    *
+     ********************************************************************************/
+    NO_RETURN void kabort(const char *message) noexcept
+    {
+        asm volatile("cli");
 
-// clang-format on
+        drivers::serial::serial_puts(
+            "                        KERNEL ABORTED                     \n");
+        drivers::serial::serial_puts("STOP_REASON: ");
+        drivers::serial::serial_puts(message);
+
+        asm volatile(".lockdown_loop:\n\t"
+                     "hlt\n\t"
+                     "jmp .lockdown_loop");
+        __builtin_unreachable();
+    }
+} // namespace trunk::kernel

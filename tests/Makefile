@@ -18,7 +18,7 @@ INCLUDES           := -I$(GLOBAL_INCLUDE_DIR) -I$(TKLIB_INCLUDE_DIR) -I$(MOCK_DI
 TARGET   := $(BUILD_DIR)/TESTEXEC
 
 TKLIB_DIR  := $(TEST_ROOT)/../lib/tklib/src/tklib
-MEM_DIR    := $(TEST_ROOT)/../src/trunk/tros/mem
+MEM_DIR    := $(TEST_ROOT)/../src/cbk/mem
 
 CT_SRCS    := $(wildcard $(UT_DIR)/*.cpp)
 MOCK_SRCS  := $(wildcard $(MOCK_DIR)/*.cpp)

@@ -16,30 +16,33 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Global definitions                                                 *
+ *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Global-level assert() macros                                       *
+ *  PURPOSE : Interrupt dispatcher                                               *
  ********************************************************************************/
-#pragma once
+#include <cbk/interrupts/dispatcher.h>
+#include <cbk/interrupts/interrupts.h>
 
-#include <cbk/kern/kabort.h>
+#include <drivers/hal/pic.h>
+#include <drivers/serial/serial.h>
 
-// clang-format off
-#ifdef __cplusplus
-    #define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#else
-    #define STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#endif
+namespace trunk::interrupts
+{
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : kinterrupt_dispatcher                                              *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Takes the interrupt from trap and dispatches It                    *
+     ********************************************************************************/
+    extern "C" void kinterrupt_dispatcher(InterruptFrame *frame) noexcept
+    {
+        const u8 vector = static_cast<u8>(frame->vector_number);
 
-#if defined(TRUNK_DEBUG) || !defined(NDEBUG)
-    #define ASSERT(condition, message)                                            \
-        do {                                                                      \
-            if (!(condition)) UNLIKELY {                                      \
-                ::trunk::kernel::kabort("ASSERTION FAILED: " message " (" #condition ")"); \
-            }                                                                     \
-        } while (false)
-#else
-    #define ASSERT(condition, message) do { (void)(condition); } while (false)
-#endif
+        if (vector >= drivers::pic::PIC1_OFFSET && vector < (drivers::pic::PIC1_OFFSET + 16)) {
+            const u8 irq = vector - drivers::pic::PIC1_OFFSET;
+            drivers::pic::irq_ack(irq);
+        }
 
-// clang-format on
+        execute_interrupt_handler(vector, frame);
+    }
+} // namespace trunk::interrupts

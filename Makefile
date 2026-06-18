@@ -67,11 +67,11 @@ ifeq ($(MODE),DEBUG)
     LDFLAGS += --no-gc-sections
 endif
 
-TRUNK_OBJS :=
+CBK_OBJS :=
 TKLIB_OBJS :=
 
 include lib/tklib/Makefile
-include src/trunk/Makefile
+include src/Makefile
 
 .PHONY: all
 all: _dirs $(TRUNK_ELF) $(ISO_IMAGE)
@@ -108,9 +108,9 @@ $(TKLIB_A): $(TKLIB_OBJS)
 	@$(AR) rcs $@ $^ 2>> $(LOG_BUILD_DIR)/compile.log
 	$(call _ok,tklib archived → $(TKLIB_A))
 
-$(TRUNK_ELF): $(TRUNK_OBJS) $(TKLIB_A) $(TRUNK_LD)
+$(TRUNK_ELF): $(CBK_OBJS) $(TKLIB_A) $(TRUNK_LD)
 	$(call _ld,trunk.elf)
-	@$(LD) $(LDFLAGS) $(TRUNK_OBJS) $(TKLIB_A) -o $@ 2>> $(LOG_BUILD_DIR)/link.log
+	@$(LD) $(LDFLAGS) $(CBK_OBJS) $(TKLIB_A) -o $@ 2>> $(LOG_BUILD_DIR)/link.log
 	$(call _ok,Trunk linked → $(TRUNK_ELF))
 	$(call _info_cmd,$(READELF) -h $@ | awk '/Entry point/{print $$4}',Entry)
 	$(call _info_cmd,$(NM) $@ | wc -l,Symbols)
@@ -232,5 +232,5 @@ mrproper: clean
 test:
 	@make --no-print-directory -C $(TEST_DIR)
 
--include $(TRUNK_OBJS:.o=.d)
+-include $(CBK_OBJS:.o=.d)
 -include $(TKLIB_OBJS:.o=.d)

@@ -1,7 +1,0 @@
-DRIVERS_SERIAL_DIR := $(SRC_DIR)/trunk/drivers/serial
-
-DRIVERS_SERIAL_SRCS_CXX := $(wildcard $(DRIVERS_SERIAL_DIR)/*.cpp)
-
-DRIVERS_SERIAL_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(DRIVERS_SERIAL_SRCS_CXX))
-
-TRUNK_OBJS += $(DRIVERS_SERIAL_OBJS)

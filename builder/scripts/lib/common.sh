@@ -27,10 +27,10 @@ LOG_BUILD_DIR="${LOG_DIR}/build"
 LINKER_DIR="${SETUP_DIR}/linker"
 GRUB_DIR="${SETUP_DIR}/grub"
 
-TRUNK_ELF="${ELF_DIR}/${KERNEL_NAME}.elf"
+TRUNK_ELF="${ELF_DIR}/trunk.elf"
 TKLIB_A="${LIB_DIR}/tklib.a"
-ISO_IMAGE="${ISO_DIR}/${KERNEL_NAME}.iso"
-DISK_IMAGE="${IMG_DIR}/${KERNEL_NAME}.img"
+ISO_IMAGE="${ISO_DIR}/trunk.iso"
+DISK_IMAGE="${IMG_DIR}/trunk.img"
 
 ok()   { printf "  ${GREEN}[ OK ]${RESET}  %s\n"    "$1"; }
 info() { printf "  ${CYAN}[ INFO ]${RESET}  %s\n"   "$1"; }

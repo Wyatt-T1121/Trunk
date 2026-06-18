@@ -15,31 +15,28 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
+ *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Global definitions                                                 *
+ *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Global-level assert() macros                                       *
+ *  PURPOSE : Kernel entry point file, declares TrkStartup()                     *
+ *                                                                               *
  ********************************************************************************/
+
 #pragma once
 
-#include <cbk/kern/kabort.h>
+#include <boot/trldr/mb2/boot.h>
 
-// clang-format off
-#ifdef __cplusplus
-    #define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#else
-    #define STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#endif
+#include <macros.h>
 
-#if defined(TRUNK_DEBUG) || !defined(NDEBUG)
-    #define ASSERT(condition, message)                                            \
-        do {                                                                      \
-            if (!(condition)) UNLIKELY {                                      \
-                ::trunk::kernel::kabort("ASSERTION FAILED: " message " (" #condition ")"); \
-            }                                                                     \
-        } while (false)
-#else
-    #define ASSERT(condition, message) do { (void)(condition); } while (false)
-#endif
+namespace trunk::kernel
+{
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : TrkStartup()                                                       *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Main kernel function. Called by Trkload()                          *
+     ********************************************************************************/
+    extern "C" NO_RETURN void TrkStartup(const boot::BootInfo &info) noexcept;
 
-// clang-format on
+} // namespace trunk::kernel

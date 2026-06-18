@@ -1,0 +1,7 @@
+DRIVERS_SERIAL_DIR := $(SRC_DIR)/drivers/serial
+
+DRIVERS_SERIAL_SRCS_CXX := $(wildcard $(DRIVERS_SERIAL_DIR)/*.cpp)
+
+DRIVERS_SERIAL_OBJS := $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(DRIVERS_SERIAL_SRCS_CXX))
+
+CBK_OBJS += $(DRIVERS_SERIAL_OBJS)

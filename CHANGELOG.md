@@ -12,7 +12,7 @@ So this is the first 'week'
 
 Made a powerful recursive-Makefile, high memory kernel build system.
 Every sub-dir and root-dir has a makefile, It's a whole chain.
-The makefiles collect objects and place them into 'TRUNK_OBJS'
+The makefiles collect objects and place them into 'CBK_OBJS'
 This is finally built together by the root 'Makefile'
 Then, It uses scripts and configuration files for the actual running.
 Checkout 'builder/' do see this in work

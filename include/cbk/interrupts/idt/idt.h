@@ -15,31 +15,31 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
+ *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Global definitions                                                 *
+ *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Global-level assert() macros                                       *
+ *  PURPOSE :  Populates the 256 gates and executes physical lidt instruction    *
  ********************************************************************************/
 #pragma once
 
-#include <cbk/kern/kabort.h>
+#include <assert.h>
+#include <macros.h>
+#include <types.h>
 
-// clang-format off
-#ifdef __cplusplus
-    #define STATIC_ASSERT(expr, msg) static_assert(expr, msg)
-#else
-    #define STATIC_ASSERT(expr, msg) _Static_assert(expr, msg)
-#endif
+#include <cbk/desc/descriptor.h>
 
-#if defined(TRUNK_DEBUG) || !defined(NDEBUG)
-    #define ASSERT(condition, message)                                            \
-        do {                                                                      \
-            if (!(condition)) UNLIKELY {                                      \
-                ::trunk::kernel::kabort("ASSERTION FAILED: " message " (" #condition ")"); \
-            }                                                                     \
-        } while (false)
-#else
-    #define ASSERT(condition, message) do { (void)(condition); } while (false)
-#endif
+namespace trunk::interrupts
+{
+    STATIC_ASSERT(sizeof(IdtDescriptor) == 16, "IdtDescriptor must be exactly 16 bytes!");
+    STATIC_ASSERT(sizeof(IdtrPointer) == 10, "IdtrPointer must be exactly 10 bytes!");
 
-// clang-format on
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : idt_init                                                           *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Initialize the interrupt descriptor table                          *
+     ********************************************************************************/
+    void idt_init() noexcept;
+
+} // namespace trunk::interrupts
