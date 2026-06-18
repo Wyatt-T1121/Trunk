@@ -33,11 +33,11 @@ namespace trunk::drivers::serial
     {
         /* ******************************************************************************
          *  AUTHOR  : Trollycat                                                         *
-         *  FUNC    : serial_is_transmit_ready                                          *
+         *  FUNC    : SerialIsTransmitReady                                             *
          *  DATE    : 2026                                                              *
          *  PURPOSE : Return true if the transmit buffer is empty.                      *
          * *****************************************************************************/
-        NO_DISCARD BOOL serial_is_transmit_ready() noexcept
+        NO_DISCARD BOOL SerialIsTransmitReady() noexcept
         {
             return (hal::InB(SERIAL_REG_LINE_STATUS) & SERIAL_LSR_TX_EMPTY) != 0;
         }
@@ -94,7 +94,7 @@ namespace trunk::drivers::serial
         if (c == '\n')
             SerialPutChar('\r');
 
-        while (!serial_is_transmit_ready()) {
+        while (!SerialIsTransmitReady()) {
         }
 
         // clang-format off
