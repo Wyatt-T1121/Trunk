@@ -42,114 +42,114 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_early_init                                                     *
+     *  FUNC    : MmuEarlyInit                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init to setup In boot stage(uses memblock)               *
      ********************************************************************************/
-    void mmu_early_init() noexcept;
+    void MmuEarlyInit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_init                                                           *
+     *  FUNC    : MmuInit                                                            *
      *  DATE    : 2026                                                               *
      *  PURPOSE : The true Initialization function for the memory management unit    *
      ********************************************************************************/
-    void mmu_init() noexcept;
+    void MmuInit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_early_init_percpu                                              *
+     *  FUNC    : MmuEarlyInitPerCpu                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init for each cpu core                                   *
      ********************************************************************************/
-    void mmu_early_init_percpu() noexcept;
+    void MmuEarlyInitPerCpu() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_load_cr3                                                       *
+     *  FUNC    : MmuLoadCr3                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Load a new address space into CR3                                  *
      ********************************************************************************/
-    void mmu_load_cr3(const ArchAspace *space) noexcept;
+    void MmuLoadCr3(const ArchAspace *space) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_page                                                       *
+     *  FUNC    : MmuMapPage                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a page In the MMU                                             *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_page(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept;
+    NO_DISCARD bool MmuMapPage(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_page_huge                                                  *
+     *  FUNC    : MmuMapPageHuge                                                     *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a 2MB huge page in the MMU                                    *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_page_huge(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept;
+    NO_DISCARD bool MmuMapPageHuge(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_mmio                                                       *
+     *  FUNC    : MmuMapMmio                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a memory-mapped I/O region with cache-disable flags           *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_mmio(ArchAspace *space, u64 va, u64 pa, usize size) noexcept;
+    NO_DISCARD bool MmuMapMmio(ArchAspace *space, u64 va, u64 pa, usize size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_range                                                      *
+     *  FUNC    : MmuMapRange                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a range In the MMU                                            *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_range(ArchAspace *space, MapRange range, u64 flags) noexcept;
+    NO_DISCARD bool MmuMapRange(ArchAspace *space, MapRange range, u64 flags) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_unmap_page                                                     *
+     *  FUNC    : MmuUnmapPage                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Unmaps a page In the MMU                                           *
      ********************************************************************************/
-    NO_DISCARD bool mmu_unmap_page(ArchAspace *space, u64 va) noexcept;
+    NO_DISCARD bool MmuUnmapPage(ArchAspace *space, u64 va) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_is_mapped                                                      *
+     *  FUNC    : MmuIsMapped                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if va is mapped and present in the given space.       *
      ********************************************************************************/
-    NO_DISCARD bool mmu_is_mapped(ArchAspace *space, u64 va) noexcept;
+    NO_DISCARD bool MmuIsMapped(ArchAspace *space, u64 va) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_protect                                                        *
+     *  FUNC    : MmuProtect                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Update the flags on an existing page mapping                       *
      ********************************************************************************/
-    NO_DISCARD bool mmu_protect(ArchAspace *space, u64 va, u64 new_flags) noexcept;
+    NO_DISCARD bool MmuProtect(ArchAspace *space, u64 va, u64 new_flags) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_clear_accessed                                                 *
+     *  FUNC    : MmuClearAccessed                                                   *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Clear the accessed bit on a mapped page                            *
      ********************************************************************************/
-    NO_DISCARD bool mmu_clear_accessed(ArchAspace *space, u64 va) noexcept;
+    NO_DISCARD bool MmuClearAccessed(ArchAspace *space, u64 va) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_translate                                                      *
+     *  FUNC    : MmuTranslate                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Translates a page in the mmu                                       *
      ********************************************************************************/
-    NO_DISCARD u64 mmu_translate(ArchAspace *space, u64 va) noexcept;
+    NO_DISCARD u64 MmuTranslate(ArchAspace *space, u64 va) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_query                                                          *
+     *  FUNC    : MmuQuery                                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Return the raw PTE value for va                                    *
      ********************************************************************************/
-    NO_DISCARD u64 mmu_query(ArchAspace *space, u64 va) noexcept;
+    NO_DISCARD u64 MmuQuery(ArchAspace *space, u64 va) noexcept;
 
 } // namespace trunk::mem

@@ -41,66 +41,66 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_init                                                      *
+     *  FUNC    : MemblockInit                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialization function for memblock                               *
      ********************************************************************************/
-    void memblock_init(const boot::BootInfo &boot_info) noexcept;
+    void MemblockInit(const boot::BootInfo &boot_info) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_alloc                                                     *
+     *  FUNC    : MemblockAlloc                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Allocate a new chunk inside the memblock region                    *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_alloc(u64 size, u64 alignment) noexcept;
+    NO_DISCARD u64 MemblockAlloc(u64 size, u64 alignment) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_reserve                                                   *
+     *  FUNC    : MemblockReserve                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Reserve a region inside the memblock                               *
      ********************************************************************************/
-    void memblock_reserve(u64 base, u64 size) noexcept;
+    void MemblockReserve(u64 base, u64 size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_is_reserved                                               *
+     *  FUNC    : MemblockIsReserved                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if any byte in [base, base + size) is reserved.       *
      ********************************************************************************/
-    NO_DISCARD bool memblock_is_reserved(u64 base, u64 size) noexcept;
+    NO_DISCARD bool MemblockIsReserved(u64 base, u64 size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_free                                                *
+     *  FUNC    : MemblockTotalFree                                                  *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns total free bytes remaining in the memory pool.             *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_total_free() noexcept;
+    NO_DISCARD u64 MemblockTotalFree() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_reserved                                            *
+     *  FUNC    : MemblockTotalReserved                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns total reserved bytes across all reserved regions.          *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_total_reserved() noexcept;
+    NO_DISCARD u64 MemblockTotalReserved() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_get_region_count                                          *
+     *  FUNC    : MemblockGetRegionCount                                             *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get the current region count.                                      *
      ********************************************************************************/
-    NO_DISCARD usize memblock_get_region_count() noexcept;
+    NO_DISCARD usize MemblockGetRegionCount() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_get_region                                                *
+     *  FUNC    : MemblockGetRegion                                                  *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get a region at the passed in index.                               *
      ********************************************************************************/
-    NO_DISCARD MemoryRegion memblock_get_region(usize index) noexcept;
+    NO_DISCARD MemoryRegion MemblockGetRegion(usize index) noexcept;
 
 } // namespace trunk::mem

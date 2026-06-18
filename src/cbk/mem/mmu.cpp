@@ -80,7 +80,7 @@ namespace trunk::mem
             u64 phys = 0;
 
             if (s_early_mmu) {
-                phys = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+                phys = MemblockAlloc(PAGE_SIZE, PAGE_SIZE);
             } else {
                 Page *page = pfn_alloc_pages(0);
                 if (!page)
@@ -200,35 +200,35 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_early_init                                                     *
+     *  FUNC    : MmuEarlyInit                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init to setup In boot stage(uses memblock)               *
      ********************************************************************************/
-    void mmu_early_init() noexcept
+    void MmuEarlyInit() noexcept
     {
         s_early_mmu = true;
         query_cpu_features();
-        mmu_early_init_percpu();
+        MmuEarlyInitPerCpu();
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_init                                                           *
+     *  FUNC    : MmuInit                                                            *
      *  DATE    : 2026                                                               *
      *  PURPOSE : The true Initialization function for the memory management unit    *
      ********************************************************************************/
-    void mmu_init() noexcept
+    void MmuInit() noexcept
     {
         s_early_mmu = false;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_early_init_percpu                                              *
+     *  FUNC    : MmuEarlyInitPerCpu                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init for each cpu core                                   *
      ********************************************************************************/
-    void mmu_early_init_percpu() noexcept
+    void MmuEarlyInitPerCpu() noexcept
     {
         u64 cr0  = hal::ReadCr0();
         cr0     |= trunk::cpu::CR0_WP;
@@ -248,16 +248,16 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_page                                                       *
+     *  FUNC    : MmuMapPage                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a page In the MMU                                             *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_page(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept
+    NO_DISCARD bool MmuMapPage(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept
     {
-        ASSERT(is_page_aligned(va), "mmu_map_page: va must be 4KB aligned");
-        ASSERT(is_page_aligned(pa), "mmu_map_page: pa must be 4KB aligned");
-        ASSERT(is_canonical(va), "mmu_map_page: non-canonical virtual address");
-        ASSERT(is_valid_paddr(pa), "mmu_map_page: pa exceeds physical address width");
+        ASSERT(is_page_aligned(va), "MmuMapPage: va must be 4KB aligned");
+        ASSERT(is_page_aligned(pa), "MmuMapPage: pa must be 4KB aligned");
+        ASSERT(is_canonical(va), "MmuMapPage: non-canonical virtual address");
+        ASSERT(is_valid_paddr(pa), "MmuMapPage: pa exceeds physical address width");
 
         if (!s_nx_supported)
             flags &= ~PAGE_NX;
@@ -266,7 +266,7 @@ namespace trunk::mem
         if (!pte)
             return false;
 
-        ASSERT(!(*pte & PAGE_PRESENT), "mmu_map_page: remapping already-present page");
+        ASSERT(!(*pte & PAGE_PRESENT), "MmuMapPage: remapping already-present page");
 
         *pte = PTE_ADDR(pa) | flags | PAGE_PRESENT;
         tlb_flush_page(va);
@@ -275,17 +275,17 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_page_huge                                                  *
+     *  FUNC    : MmuMapPageHuge                                                     *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a 2MB huge page in the MMU                                    *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_page_huge(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept
+    NO_DISCARD bool MmuMapPageHuge(ArchAspace *space, u64 va, u64 pa, u64 flags) noexcept
     {
-        ASSERT(s_huge_supported, "mmu_map_page_huge: CPU does not support PSE");
-        ASSERT((va & HUGE_MASK) == 0, "mmu_map_page_huge: va must be 2MB aligned");
-        ASSERT((pa & HUGE_MASK) == 0, "mmu_map_page_huge: pa must be 2MB aligned");
-        ASSERT(is_canonical(va), "mmu_map_page_huge: non-canonical virtual address");
-        ASSERT(is_valid_paddr(pa), "mmu_map_page_huge: pa exceeds physical address width");
+        ASSERT(s_huge_supported, "MmuMapPageHuge: CPU does not support PSE");
+        ASSERT((va & HUGE_MASK) == 0, "MmuMapPageHuge: va must be 2MB aligned");
+        ASSERT((pa & HUGE_MASK) == 0, "MmuMapPageHuge: pa must be 2MB aligned");
+        ASSERT(is_canonical(va), "MmuMapPageHuge: non-canonical virtual address");
+        ASSERT(is_valid_paddr(pa), "MmuMapPageHuge: pa exceeds physical address width");
 
         if (!s_nx_supported)
             flags &= ~PAGE_NX;
@@ -294,7 +294,7 @@ namespace trunk::mem
         if (!pde)
             return false;
 
-        ASSERT(!(*pde & PAGE_PRESENT), "mmu_map_page_huge: remapping already-present PDE");
+        ASSERT(!(*pde & PAGE_PRESENT), "MmuMapPageHuge: remapping already-present PDE");
 
         *pde = PTE_ADDR(pa) | flags | PAGE_PRESENT | PAGE_HUGE;
         tlb_flush_page(va);
@@ -303,43 +303,43 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_mmio                                                       *
+     *  FUNC    : MmuMapMmio                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a memory-mapped I/O region with cache-disable flags           *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_mmio(ArchAspace *space, u64 va, u64 pa, usize size) noexcept
+    NO_DISCARD bool MmuMapMmio(ArchAspace *space, u64 va, u64 pa, usize size) noexcept
     {
-        ASSERT(is_page_aligned(va), "mmu_map_mmio: va must be 4KB aligned");
-        ASSERT(is_page_aligned(pa), "mmu_map_mmio: pa must be 4KB aligned");
-        ASSERT(is_page_aligned(size), "mmu_map_mmio: size must be a multiple of 4KB");
+        ASSERT(is_page_aligned(va), "MmuMapMmio: va must be 4KB aligned");
+        ASSERT(is_page_aligned(pa), "MmuMapMmio: pa must be 4KB aligned");
+        ASSERT(is_page_aligned(size), "MmuMapMmio: size must be a multiple of 4KB");
 
         const u64 flags = PAGE_WRITABLE | PAGE_PCD | PAGE_PWT | PAGE_NX;
         const MapRange range{va, pa, size};
-        return mmu_map_range(space, range, flags);
+        return MmuMapRange(space, range, flags);
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_map_range                                                      *
+     *  FUNC    : MmuMapRange                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a range In the MMU                                            *
      ********************************************************************************/
-    NO_DISCARD bool mmu_map_range(ArchAspace *space, MapRange range, u64 flags) noexcept
+    NO_DISCARD bool MmuMapRange(ArchAspace *space, MapRange range, u64 flags) noexcept
     {
-        ASSERT(is_page_aligned(range.start_vaddr), "mmu_map_range: vaddr must be 4KB aligned");
-        ASSERT(is_page_aligned(range.start_paddr), "mmu_map_range: paddr must be 4KB aligned");
-        ASSERT(is_page_aligned(range.size), "mmu_map_range: size must be multiple of 4KB");
-        ASSERT(range.size > 0, "mmu_map_range: size must be non-zero");
+        ASSERT(is_page_aligned(range.start_vaddr), "MmuMapRange: vaddr must be 4KB aligned");
+        ASSERT(is_page_aligned(range.start_paddr), "MmuMapRange: paddr must be 4KB aligned");
+        ASSERT(is_page_aligned(range.size), "MmuMapRange: size must be multiple of 4KB");
+        ASSERT(range.size > 0, "MmuMapRange: size must be non-zero");
 
         u64 curr_va = range.start_vaddr;
         u64 curr_pa = range.start_paddr;
 
         for (usize progress = 0; progress < range.size; progress += PAGE_SIZE) {
-            if (!mmu_map_page(space, curr_va, curr_pa, flags)) {
+            if (!MmuMapPage(space, curr_va, curr_pa, flags)) {
                 u64 rollback_va = range.start_vaddr;
                 for (usize clean = 0; clean < progress; clean += PAGE_SIZE) {
-                    bool ok = mmu_unmap_page(space, rollback_va);
-                    ASSERT(ok, "mmu_map_range: unmap failed during rollback");
+                    bool ok = MmuUnmapPage(space, rollback_va);
+                    ASSERT(ok, "MmuMapRange: unmap failed during rollback");
                     rollback_va += PAGE_SIZE;
                 }
                 return false;
@@ -354,14 +354,14 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_unmap_page                                                     *
+     *  FUNC    : MmuUnmapPage                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Unmaps a page In the MMU                                           *
      ********************************************************************************/
-    NO_DISCARD bool mmu_unmap_page(ArchAspace *space, u64 va) noexcept
+    NO_DISCARD bool MmuUnmapPage(ArchAspace *space, u64 va) noexcept
     {
-        ASSERT(is_page_aligned(va), "mmu_unmap_page: va must be 4KB aligned");
-        ASSERT(is_canonical(va), "mmu_unmap_page: non-canonical virtual address");
+        ASSERT(is_page_aligned(va), "MmuUnmapPage: va must be 4KB aligned");
+        ASSERT(is_canonical(va), "MmuUnmapPage: non-canonical virtual address");
 
         u64 *pte = mmu_get_pte(space, va, false);
         if (!pte || !(*pte & PAGE_PRESENT))
@@ -374,13 +374,13 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_translate                                                      *
+     *  FUNC    : MmuTranslate                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Translates a page in the mmu                                       *
      ********************************************************************************/
-    NO_DISCARD u64 mmu_translate(ArchAspace *space, u64 va) noexcept
+    NO_DISCARD u64 MmuTranslate(ArchAspace *space, u64 va) noexcept
     {
-        ASSERT(is_canonical(va), "mmu_translate: non-canonical virtual address");
+        ASSERT(is_canonical(va), "MmuTranslate: non-canonical virtual address");
 
         u64 *pte = mmu_get_pte(space, va, false);
         if (!pte || !(*pte & PAGE_PRESENT))
@@ -391,11 +391,11 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_is_mapped                                                      *
+     *  FUNC    : MmuIsMapped                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if va is mapped and present in the given space.       *
      ********************************************************************************/
-    NO_DISCARD bool mmu_is_mapped(ArchAspace *space, u64 va) noexcept
+    NO_DISCARD bool MmuIsMapped(ArchAspace *space, u64 va) noexcept
     {
         if (!is_canonical(va))
             return false;
@@ -406,14 +406,14 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_protect                                                        *
+     *  FUNC    : MmuProtect                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Update the flags on an existing page mapping                       *
      ********************************************************************************/
-    NO_DISCARD bool mmu_protect(ArchAspace *space, u64 va, u64 new_flags) noexcept
+    NO_DISCARD bool MmuProtect(ArchAspace *space, u64 va, u64 new_flags) noexcept
     {
-        ASSERT(is_page_aligned(va), "mmu_protect: va must be 4KB aligned");
-        ASSERT(is_canonical(va), "mmu_protect: non-canonical virtual address");
+        ASSERT(is_page_aligned(va), "MmuProtect: va must be 4KB aligned");
+        ASSERT(is_canonical(va), "MmuProtect: non-canonical virtual address");
 
         u64 *pte = mmu_get_pte(space, va, false);
         if (!pte || !(*pte & PAGE_PRESENT))
@@ -429,11 +429,11 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_query                                                          *
+     *  FUNC    : MmuQuery                                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Return the raw PTE value for va                                    *
      ********************************************************************************/
-    NO_DISCARD u64 mmu_query(ArchAspace *space, u64 va) noexcept
+    NO_DISCARD u64 MmuQuery(ArchAspace *space, u64 va) noexcept
     {
         if (!is_canonical(va))
             return 0;
@@ -447,13 +447,13 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_clear_accessed                                                 *
+     *  FUNC    : MmuClearAccessed                                                   *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Clear the accessed bit on a mapped page                            *
      ********************************************************************************/
-    bool mmu_clear_accessed(ArchAspace *space, u64 va) noexcept
+    bool MmuClearAccessed(ArchAspace *space, u64 va) noexcept
     {
-        ASSERT(is_canonical(va), "mmu_clear_accessed: non-canonical virtual address");
+        ASSERT(is_canonical(va), "MmuClearAccessed: non-canonical virtual address");
 
         u64 *pte = mmu_get_pte(space, va, false);
         if (!pte || !(*pte & PAGE_PRESENT))
@@ -466,15 +466,15 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : mmu_load_cr3                                                       *
+     *  FUNC    : MmuLoadCr3                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Load a new address space into CR3                                  *
      ********************************************************************************/
-    void mmu_load_cr3(const ArchAspace *space) noexcept
+    void MmuLoadCr3(const ArchAspace *space) noexcept
     {
-        ASSERT(space != nullptr, "mmu_load_cr3: space is null");
-        ASSERT(space->pml4_phys != 0, "mmu_load_cr3: pml4_phys is zero");
-        ASSERT(is_page_aligned(space->pml4_phys), "mmu_load_cr3: pml4_phys not page aligned");
+        ASSERT(space != nullptr, "MmuLoadCr3: space is null");
+        ASSERT(space->pml4_phys != 0, "MmuLoadCr3: pml4_phys is zero");
+        ASSERT(is_page_aligned(space->pml4_phys), "MmuLoadCr3: pml4_phys not page aligned");
 
         hal::WriteCr3(space->pml4_phys);
     }

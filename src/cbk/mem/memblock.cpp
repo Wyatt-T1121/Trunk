@@ -134,11 +134,11 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_init                                                      *
+     *  FUNC    : MemblockInit                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialization function for memblock                               *
      ********************************************************************************/
-    void memblock_init(const boot::BootInfo &boot_info) noexcept
+    void MemblockInit(const boot::BootInfo &boot_info) noexcept
     {
         s_memory_count   = 0;
         s_reserved_count = 0;
@@ -156,13 +156,13 @@ namespace trunk::mem
                 s_memory_regions[s_memory_count++]  = {entry.base, entry.length};
                 s_total_free                       += entry.length;
             } else {
-                memblock_reserve(entry.base, entry.length);
+                MemblockReserve(entry.base, entry.length);
             }
         }
 
         u64 k_start = reinterpret_cast<u64>(__kernel_phys_start);
         u64 k_end   = reinterpret_cast<u64>(__kernel_phys_end);
-        memblock_reserve(k_start, k_end - k_start);
+        MemblockReserve(k_start, k_end - k_start);
 
         insertion_sort_regions(s_memory_regions, s_memory_count);
         insertion_sort_regions(s_reserved_regions, s_reserved_count);
@@ -172,18 +172,18 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_alloc                                                     *
+     *  FUNC    : MemblockAlloc                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Allocate a new chunk inside the memblock region                    *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_alloc(u64 size, u64 alignment) noexcept
+    NO_DISCARD u64 MemblockAlloc(u64 size, u64 alignment) noexcept
     {
         if (size == 0 || alignment == 0) UNLIKELY {
             return 0;
         }
 
         ASSERT(tklib::math::is_power_of_two(alignment),
-               "memblock_alloc: alignment must be a power of two");
+               "MemblockAlloc: alignment must be a power of two");
 
         for (usize i = 0; i < s_memory_count; ++i) {
             const u64 region_start = s_memory_regions[i].base;
@@ -210,7 +210,7 @@ namespace trunk::mem
 
                 if (!overlapped) {
                     carve_free_region(candidate, size);
-                    memblock_reserve(candidate, size);
+                    MemblockReserve(candidate, size);
                     return candidate;
                 }
             }
@@ -221,17 +221,17 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_reserve                                                   *
+     *  FUNC    : MemblockReserve                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Reserve a region inside the memblock                               *
      ********************************************************************************/
-    void memblock_reserve(u64 base, u64 size) noexcept
+    void MemblockReserve(u64 base, u64 size) noexcept
     {
         if (size == 0)
             return;
 
         ASSERT(!tklib::math::add_would_overflow(base, size),
-               "memblock_reserve: base + size overflows u64");
+               "MemblockReserve: base + size overflows u64");
         ASSERT(s_reserved_count < MAX_MEMBLOCK_REGIONS,
                "Reserved region count exceeds MAX_MEMBLOCK_REGIONS");
 
@@ -244,11 +244,11 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_is_reserved                                               *
+     *  FUNC    : MemblockIsReserved                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns true if any byte in [base, base + size) is reserved.       *
      ********************************************************************************/
-    NO_DISCARD bool memblock_is_reserved(u64 base, u64 size) noexcept
+    NO_DISCARD bool MemblockIsReserved(u64 base, u64 size) noexcept
     {
         if (size == 0)
             return false;
@@ -271,46 +271,46 @@ namespace trunk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_free                                                *
+     *  FUNC    : MemblockTotalFree                                                  *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns total free bytes remaining in the memory pool.             *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_total_free() noexcept
+    NO_DISCARD u64 MemblockTotalFree() noexcept
     {
         return s_total_free;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_total_reserved                                            *
+     *  FUNC    : MemblockTotalReserved                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns total reserved bytes across all reserved regions.          *
      ********************************************************************************/
-    NO_DISCARD u64 memblock_total_reserved() noexcept
+    NO_DISCARD u64 MemblockTotalReserved() noexcept
     {
         return s_total_reserved;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_get_region_count                                          *
+     *  FUNC    : MemblockGetRegionCount                                             *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get the current region count.                                      *
      ********************************************************************************/
-    NO_DISCARD usize memblock_get_region_count() noexcept
+    NO_DISCARD usize MemblockGetRegionCount() noexcept
     {
         return s_memory_count;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : memblock_get_region                                                *
+     *  FUNC    : MemblockGetRegion                                                  *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get a region at the passed in index.                               *
      ********************************************************************************/
-    NO_DISCARD MemoryRegion memblock_get_region(usize index) noexcept
+    NO_DISCARD MemoryRegion MemblockGetRegion(usize index) noexcept
     {
-        ASSERT(index < s_memory_count, "INDEX IN MEMBLOCK_GET_REGION EXCEEDS MEMORY COUNT.");
+        ASSERT(index < s_memory_count, "INDEX IN MemblockGetRegion EXCEEDS MEMORY COUNT.");
         return s_memory_regions[index];
     }
 
