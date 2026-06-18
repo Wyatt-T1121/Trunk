@@ -13,22 +13,8 @@ However, there is some rules to follow
 6. Contributing mean's your code is passed under Apache 2.0 license.
 7. You also need to add your information to CREDITS.
 
-8. PascalCase vs snake_case
+8. Naming convention
 
-So for the start of the project, I planned to use snake_case.
-However, I soon learned I prefer PascalCase.
-But it's too late to change everything.
-
-So I've established a rule, It may not be the most consistent, but this Is a hobby project, It's fine.
-
-Everything will be snake_case, EXCEPT:
-
-1. Boot functions (specifically, CbkSystemStartup, CbkLoad(), and CbkStartup())
-2. API functions (internal are snake_case, but api functions (like kmalloc()) shall be PascalCase preferably).
-
-A note on API functions:
-It's only considered an 'API function' If it's a part of a system that developers will call a lot
-For example, RegisterInterruptHandler is an 'API function' because devs call it in normal code
-But, ExecuteInterruptHandler is not, because it's called internally.
-
-Loggers such as Serial are not included.
+PascalCase - functions, structs, enums, classes
+snake_case - Variables
+CAPCASE - type aliases

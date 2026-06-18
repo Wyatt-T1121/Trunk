@@ -41,5 +41,3 @@ kinit.cpp -> Contains CbkLoad(), the final function for the kernel loading proce
 
 So that Is the boot order.
 Of course, there's many more steps to It, that's just a high level overview.
-
-As you can see, the boot process Is the only parts where we use PascalCase for function names.
