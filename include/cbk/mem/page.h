@@ -222,7 +222,7 @@ namespace trunk::mem
      ********************************************************************************/
     static inline void tlb_flush_page(u64 va) noexcept
     {
-        asm volatile("invlpg (%0)" ::"r"(va) : "memory");
+        hal::InvLpg(va);
     }
 
     /* *******************************************************************************
@@ -233,7 +233,7 @@ namespace trunk::mem
      ********************************************************************************/
     static inline void tlb_flush_all() noexcept
     {
-        u64 cr3 = hal::read_cr3();
-        hal::write_cr3(cr3);
+        u64 cr3 = hal::ReadCr3();
+        hal::WriteCr3(cr3);
     }
 } // namespace trunk::mem

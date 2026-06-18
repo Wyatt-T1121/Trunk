@@ -54,7 +54,7 @@ namespace trunk::kernel
     STARTUP_FUNC_FLAGS void CbkStartup(const boot::BootInfo &info) noexcept
     {
         CbkSetupSubsystems();
-        hal::sti();
+        hal::Sti();
 
         welcome_user();
 

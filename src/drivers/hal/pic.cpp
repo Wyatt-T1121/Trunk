@@ -47,20 +47,20 @@ namespace trunk::drivers::pic
      ********************************************************************************/
     void pic_init() noexcept
     {
-        hal::outb(PIC1_COMMAND, ICW1_INIT);
-        hal::outb(PIC2_COMMAND, ICW1_INIT);
+        hal::OutB(PIC1_COMMAND, ICW1_INIT);
+        hal::OutB(PIC2_COMMAND, ICW1_INIT);
 
-        hal::outb(PIC1_DATA, PIC1_OFFSET);
-        hal::outb(PIC2_DATA, PIC2_OFFSET);
+        hal::OutB(PIC1_DATA, PIC1_OFFSET);
+        hal::OutB(PIC2_DATA, PIC2_OFFSET);
 
-        hal::outb(PIC1_DATA, 0x04);
-        hal::outb(PIC2_DATA, 0x02);
+        hal::OutB(PIC1_DATA, 0x04);
+        hal::OutB(PIC2_DATA, 0x02);
 
-        hal::outb(PIC1_DATA, ICW4_8086);
-        hal::outb(PIC2_DATA, ICW4_8086);
+        hal::OutB(PIC1_DATA, ICW4_8086);
+        hal::OutB(PIC2_DATA, ICW4_8086);
 
-        hal::outb(PIC1_DATA, 0x00);
-        hal::outb(PIC2_DATA, 0x00);
+        hal::OutB(PIC1_DATA, 0x00);
+        hal::OutB(PIC2_DATA, 0x00);
     }
 
     /* *******************************************************************************
@@ -72,8 +72,8 @@ namespace trunk::drivers::pic
     void irq_ack(u8 irq) noexcept
     {
         if (irq >= 8)
-            hal::outb(PIC2_COMMAND, PIC_EOI);
-        hal::outb(PIC1_COMMAND, PIC_EOI);
+            hal::OutB(PIC2_COMMAND, PIC_EOI);
+        hal::OutB(PIC1_COMMAND, PIC_EOI);
     }
 
     /* *******************************************************************************
@@ -86,8 +86,8 @@ namespace trunk::drivers::pic
     {
         u16 port = 0;
         get_pic_line_properties(irq, port);
-        u8 value = hal::inb(port) | (1 << irq);
-        hal::outb(port, value);
+        u8 value = hal::InB(port) | (1 << irq);
+        hal::OutB(port, value);
     }
 
     /* *******************************************************************************
@@ -100,8 +100,8 @@ namespace trunk::drivers::pic
     {
         u16 port = 0;
         get_pic_line_properties(irq, port);
-        u8 value = hal::inb(port) & ~(1 << irq);
-        hal::outb(port, value);
+        u8 value = hal::InB(port) & ~(1 << irq);
+        hal::OutB(port, value);
     }
 
     /* *******************************************************************************
@@ -112,8 +112,8 @@ namespace trunk::drivers::pic
      ********************************************************************************/
     void pic_disable() noexcept
     {
-        hal::outb(PIC1_DATA, 0xFF);
-        hal::outb(PIC2_DATA, 0xFF);
+        hal::OutB(PIC1_DATA, 0xFF);
+        hal::OutB(PIC2_DATA, 0xFF);
     }
 
 }; // namespace trunk::drivers::pic

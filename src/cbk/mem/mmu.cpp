@@ -178,21 +178,21 @@ namespace trunk::mem
          *  AUTHOR  : Trollycat                                                          *
          *  FUNC    : query_cpu_features                                                 *
          *  DATE    : 2026                                                               *
-         *  PURPOSE : Query CPUID for paging CPU features and address widths             *
+         *  PURPOSE : Query Cpuid for paging CPU features and address widths             *
          ********************************************************************************/
         void query_cpu_features() noexcept
         {
             u32 eax, ebx, ecx, edx;
 
-            hal::cpuid(0x1, eax, ebx, ecx, edx);
+            hal::Cpuid(0x1, eax, ebx, ecx, edx);
             s_huge_supported    = (edx >> 3) & 1;
             s_pcid_supported    = (ecx >> 17) & 1;
             s_invpcid_supported = (ebx >> 10) & 1;
 
-            hal::cpuid(0x80000001, eax, ebx, ecx, edx);
+            hal::Cpuid(0x80000001, eax, ebx, ecx, edx);
             s_nx_supported = (edx >> 20) & 1;
 
-            hal::cpuid(0x80000008, eax, ebx, ecx, edx);
+            hal::Cpuid(0x80000008, eax, ebx, ecx, edx);
             s_paddr_width = static_cast<u8>(eax & 0xFF);
             s_vaddr_width = static_cast<u8>((eax >> 8) & 0xFF);
         }
@@ -230,13 +230,13 @@ namespace trunk::mem
      ********************************************************************************/
     void mmu_early_init_percpu() noexcept
     {
-        u64 cr0  = hal::read_cr0();
+        u64 cr0  = hal::ReadCr0();
         cr0     |= trunk::cpu::CR0_WP;
-        hal::write_cr0(cr0);
+        hal::WriteCr0(cr0);
 
-        u64 cr4  = hal::read_cr4();
+        u64 cr4  = hal::ReadCr4();
         cr4     |= cpu::CR4_PGE;
-        hal::write_cr4(cr4);
+        hal::WriteCr4(cr4);
 
         if (s_nx_supported) {
             u32 efer_lo, efer_hi;
@@ -476,7 +476,7 @@ namespace trunk::mem
         ASSERT(space->pml4_phys != 0, "mmu_load_cr3: pml4_phys is zero");
         ASSERT(is_page_aligned(space->pml4_phys), "mmu_load_cr3: pml4_phys not page aligned");
 
-        hal::write_cr3(space->pml4_phys);
+        hal::WriteCr3(space->pml4_phys);
     }
 
 } // namespace trunk::mem
