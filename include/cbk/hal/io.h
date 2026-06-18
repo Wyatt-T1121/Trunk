@@ -34,7 +34,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write a byte to an I/O port.                                       *
      ********************************************************************************/
-    inline void OutB(WORD port, BYTE value) noexcept
+    inline VOID OutB(WORD port, BYTE value) noexcept
     {
         asm volatile("outb %0, %1" : : "a"(value), "Nd"(port) : "memory");
     }
@@ -45,7 +45,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write a word (2 bytes) to an I/O port.                             *
      ********************************************************************************/
-    inline void OutW(WORD port, WORD value) noexcept
+    inline VOID OutW(WORD port, WORD value) noexcept
     {
         asm volatile("outw %0, %1" : : "a"(value), "Nd"(port) : "memory");
     }
@@ -56,7 +56,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write a dword (4 bytes) to an I/O port.                            *
      ********************************************************************************/
-    inline void OutL(WORD port, DWORD value) noexcept
+    inline VOID OutL(WORD port, DWORD value) noexcept
     {
         asm volatile("outl %0, %1" : : "a"(value), "Nd"(port) : "memory");
     }
@@ -109,7 +109,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Brief I/O delay by writing to an unused port.                      *
      ********************************************************************************/
-    inline void IoWait() noexcept
+    inline VOID IoWait() noexcept
     {
         OutB(0x80, 0x00);
     }
@@ -134,7 +134,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write a Model Specific Register.                                   *
      ********************************************************************************/
-    inline void WrMsr(DWORD msr, QWORD value) noexcept
+    inline VOID WrMsr(DWORD msr, QWORD value) noexcept
     {
         DWORD low  = static_cast<DWORD>(value);
         DWORD high = static_cast<DWORD>(value >> 32);
@@ -161,7 +161,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write control register CR0.                                        *
      ********************************************************************************/
-    inline void WriteCr0(QWORD value) noexcept
+    inline VOID WriteCr0(QWORD value) noexcept
     {
         asm volatile("mov %0, %%cr0" : : "r"(value) : "memory");
     }
@@ -200,7 +200,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write control register CR3.                                        *
      ********************************************************************************/
-    inline void WriteCr3(QWORD value) noexcept
+    inline VOID WriteCr3(QWORD value) noexcept
     {
         asm volatile("mov %0, %%cr3" : : "r"(value) : "memory");
     }
@@ -225,7 +225,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Write control register CR4.                                        *
      ********************************************************************************/
-    inline void WriteCr4(QWORD value) noexcept
+    inline VOID WriteCr4(QWORD value) noexcept
     {
         asm volatile("mov %0, %%cr4" : : "r"(value) : "memory");
     }
@@ -236,7 +236,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Invalidate a single TLB entry for the given virtual address.       *
      ********************************************************************************/
-    inline void InvLpg(ULONG_PTR vaddr) noexcept
+    inline VOID InvLpg(ULONG_PTR vaddr) noexcept
     {
         asm volatile("invlpg (%0)" : : "r"(vaddr) : "memory");
     }
@@ -247,7 +247,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Halt the CPU until the next interrupt.                             *
      ********************************************************************************/
-    inline void Hlt() noexcept
+    inline VOID Hlt() noexcept
     {
         asm volatile("hlt");
     }
@@ -258,7 +258,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Disable hardware interrupts.                                       *
      ********************************************************************************/
-    inline void Cli() noexcept
+    inline VOID Cli() noexcept
     {
         asm volatile("cli" : : : "memory");
     }
@@ -269,7 +269,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Enable hardware interrupts.                                        *
      ********************************************************************************/
-    inline void Sti() noexcept
+    inline VOID Sti() noexcept
     {
         asm volatile("sti" : : : "memory");
     }
@@ -280,7 +280,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Hint to the CPU that this is a spin-wait loop.                     *
      ********************************************************************************/
-    inline void Pause() noexcept
+    inline VOID Pause() noexcept
     {
         asm volatile("pause");
     }
@@ -291,7 +291,7 @@ namespace trunk::hal
      *  DATE    : 2026                                                               *
      *  PURPOSE : Execute Cpuid instruction.                                         *
      ********************************************************************************/
-    inline void Cpuid(DWORD leaf, DWORD &eax, DWORD &ebx, DWORD &ecx, DWORD &edx) noexcept
+    inline VOID Cpuid(DWORD leaf, DWORD &eax, DWORD &ebx, DWORD &ecx, DWORD &edx) noexcept
     {
         asm volatile("cpuid" : "=a"(eax), "=b"(ebx), "=c"(ecx), "=d"(edx) : "a"(leaf), "c"(0));
     }

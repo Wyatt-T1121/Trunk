@@ -34,7 +34,7 @@ namespace trunk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Sets a new IDT gate with parameters                                *
      ********************************************************************************/
-    void SetGate(BYTE vector, QWORD handler_address, WORD selector, BYTE privilege,
+    VOID SetGate(BYTE vector, QWORD handler_address, WORD selector, BYTE privilege,
                  BYTE ist) noexcept
     {
         g_IdtEntries[vector].offset_low  = static_cast<WORD>(handler_address & 0xFFFF);
@@ -57,7 +57,7 @@ namespace trunk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initializes the interrupt descriptor table                         *
      ********************************************************************************/
-    void IdtInit() noexcept
+    VOID IdtInit() noexcept
     {
         const WORD kernel_code_selector = 0x08;
 

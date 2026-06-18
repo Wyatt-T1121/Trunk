@@ -32,5 +32,5 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Welcomes the user to Trunk                                         *
      ********************************************************************************/
-    void MUWelcome() noexcept;
+    VOID MUWelcome() noexcept;
 } // namespace trunk::kernel

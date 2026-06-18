@@ -34,6 +34,6 @@ namespace trunk::boot
      *  DATE    : 2026                                                               *
      *  PURPOSE : Dump BootInfo contents to serial output.                           *
      ********************************************************************************/
-    void BDump(const BootInfo &info) noexcept;
+    VOID BDump(const BootInfo &info) noexcept;
 
 } // namespace trunk::boot

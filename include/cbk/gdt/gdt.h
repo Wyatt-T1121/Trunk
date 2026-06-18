@@ -43,7 +43,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initializes the global descriptor table                            *
      ********************************************************************************/
-    void GdtInit() noexcept;
+    VOID GdtInit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -51,7 +51,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Flushes/Reloads the global descriptor table (external assembly)    *
      ********************************************************************************/
-    extern "C" void GdtFlush(ULONG_PTR gdt_ptr_addr) noexcept;
+    extern "C" VOID GdtFlush(ULONG_PTR gdt_ptr_addr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

@@ -29,12 +29,12 @@
 
 namespace trunk::interrupts
 {
-    using InterruptHandler = void (*)(InterruptFrame *frame, void *ctx);
+    using InterruptHandler = VOID (*)(InterruptFrame *frame, PVOID ctx);
 
     struct RegisteredHandler
     {
         InterruptHandler handler = nullptr;
-        void *context            = nullptr;
+        PVOID context            = nullptr;
     };
 
     /* *******************************************************************************
@@ -43,8 +43,8 @@ namespace trunk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Assigns a custom C++ driver function to an IDT slot                *
      ********************************************************************************/
-    void RegisterInterruptHandler(BYTE vector, InterruptHandler handler,
-                                  void *context = nullptr) noexcept;
+    VOID RegisterInterruptHandler(BYTE vector, InterruptHandler handler,
+                                  PVOID context = nullptr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -52,6 +52,6 @@ namespace trunk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Invoked to route traffic or detect unhandled traps                 *
      ********************************************************************************/
-    void ExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept;
+    VOID ExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept;
 
 } // namespace trunk::interrupts

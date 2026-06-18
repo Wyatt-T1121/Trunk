@@ -49,6 +49,7 @@ using LONG_PTR  = intptr_t;
 
 using BOOL = bool;
 
+using VOID    = void;
 using PVOID   = void *;
 using LPCVOID = const void *;
 

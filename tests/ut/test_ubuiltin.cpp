@@ -78,14 +78,14 @@ TEST(Ubuiltin, IsIntegral)
     EXPECT_TRUE(tklib::is_integral_v<BOOL>);
     EXPECT_FALSE(tklib::is_integral_v<float>);
     EXPECT_FALSE(tklib::is_integral_v<double>);
-    EXPECT_FALSE(tklib::is_integral_v<void *>);
+    EXPECT_FALSE(tklib::is_integral_v<PVOID>);
 }
 
 TEST(Ubuiltin, IsPointer)
 {
     EXPECT_TRUE(tklib::is_pointer_v<int *>);
     EXPECT_TRUE(tklib::is_pointer_v<const int *>);
-    EXPECT_TRUE(tklib::is_pointer_v<void *>);
+    EXPECT_TRUE(tklib::is_pointer_v<PVOID>);
     EXPECT_FALSE(tklib::is_pointer_v<int>);
     EXPECT_FALSE(tklib::is_pointer_v<int &>);
 }

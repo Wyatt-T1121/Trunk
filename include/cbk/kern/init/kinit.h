@@ -37,6 +37,6 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Main kernel function. Called by CbkLoad()                          *
      ********************************************************************************/
-    extern "C" NO_RETURN void CbkStartup(const boot::BootInfo &info) noexcept;
+    extern "C" NO_RETURN VOID CbkStartup(const boot::BootInfo &info) noexcept;
 
 } // namespace trunk::kernel

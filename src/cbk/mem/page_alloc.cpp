@@ -35,7 +35,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the PFN allocator(buddy)                                *
      ********************************************************************************/
-    void PfnAllocatorInit(Page *dbMemory, SIZE_T max) noexcept
+    VOID PfnAllocatorInit(Page *dbMemory, SIZE_T max) noexcept
     {
         ASSERT(dbMemory != nullptr, "PfnAllocatorInit: NULL DATABASE");
         ASSERT(max > 0, "PfnAllocatorInit: ZERO MAX_FRAMES");
@@ -107,7 +107,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Free pages                                                         *
      ********************************************************************************/
-    void PfnFreePages(Page *page, BYTE order) noexcept
+    VOID PfnFreePages(Page *page, BYTE order) noexcept
     {
         ASSERT(page != nullptr, "PfnFreePages: NULL PAGE");
         ASSERT(order < BUDDY_MAX_ORDER, "PfnFreePages: ORDER EXCEEDS BUDDY_MAX_ORDER");

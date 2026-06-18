@@ -45,7 +45,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initializes the Task State Segment                                 *
      ********************************************************************************/
-    void TssInit() noexcept
+    VOID TssInit() noexcept
     {
         s_tss.iopb_offset = sizeof(Tss);
         s_tss.ist[0]      = reinterpret_cast<QWORD>(s_ist1_stack + IST_STACK_SIZE);
@@ -63,7 +63,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Set the RSP0 field for ring mode                                   *
      ********************************************************************************/
-    void TssSetRsp0(QWORD rsp) noexcept
+    VOID TssSetRsp0(QWORD rsp) noexcept
     {
         ASSERT(rsp == reinterpret_cast<QWORD>(__stack_top), "RSP0 DOES NOT MATCH KERNEL STACK TOP");
         ASSERT(tklib::math::is_aligned(rsp, 16), "RSP0 IS NOT 16-BYTE ALIGNED");

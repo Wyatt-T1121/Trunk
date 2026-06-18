@@ -73,7 +73,7 @@ namespace trunk::boot
          *  DATE    : 2026                                                              *
          *  PURPOSE : Walk MB2 memory map entries and copy them into BootInfo.          *
          * *****************************************************************************/
-        static void ParseMmap(const MB2MmapTag *tag, BootInfo &info) noexcept
+        static VOID ParseMmap(const MB2MmapTag *tag, BootInfo &info) noexcept
         {
             const ULONG_PTR end = reinterpret_cast<ULONG_PTR>(tag) + tag->size;
             const auto *entry   = tag->entries;
@@ -114,7 +114,7 @@ namespace trunk::boot
      *  DATE    : 2026                                                              *
      *  PURPOSE : Walk all MB2 tags and populate BootInfo with the memory map       *
      * *****************************************************************************/
-    void ParseMb2(ULONG_PTR mb2_phys, BootInfo &info) noexcept
+    VOID ParseMb2(ULONG_PTR mb2_phys, BootInfo &info) noexcept
     {
         const ULONG_PTR end = mb2_phys + *reinterpret_cast<const DWORD *>(mb2_phys);
         const auto *tag     = reinterpret_cast<const MB2Tag *>(mb2_phys + 8);

@@ -28,7 +28,7 @@ namespace trunk::drivers::pic
 {
     namespace
     {
-        static void GetPicLineProperties(BYTE &irq, WORD &out_port) noexcept
+        static VOID GetPicLineProperties(BYTE &irq, WORD &out_port) noexcept
         {
             if (irq < 8)
                 out_port = PIC1_DATA;
@@ -45,7 +45,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the PIC driver                                          *
      ********************************************************************************/
-    void PicInit() noexcept
+    VOID PicInit() noexcept
     {
         hal::OutB(PIC1_COMMAND, ICW1_INIT);
         hal::OutB(PIC2_COMMAND, ICW1_INIT);
@@ -69,7 +69,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Signals that an interrupt is being processed                       *
      ********************************************************************************/
-    void IrqAck(BYTE irq) noexcept
+    VOID IrqAck(BYTE irq) noexcept
     {
         if (irq >= 8)
             hal::OutB(PIC2_COMMAND, PIC_EOI);
@@ -82,7 +82,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Mask an IRQ (interrupt request)                                    *
      ********************************************************************************/
-    void PicMask(BYTE irq) noexcept
+    VOID PicMask(BYTE irq) noexcept
     {
         WORD port = 0;
         GetPicLineProperties(irq, port);
@@ -96,7 +96,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Unmask an IRQ (interrupt request)                                  *
      ********************************************************************************/
-    void PicUnmask(BYTE irq) noexcept
+    VOID PicUnmask(BYTE irq) noexcept
     {
         WORD port = 0;
         GetPicLineProperties(irq, port);
@@ -110,7 +110,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Disable the PIC driver                                             *
      ********************************************************************************/
-    void PicDisable() noexcept
+    VOID PicDisable() noexcept
     {
         hal::OutB(PIC1_DATA, 0xFF);
         hal::OutB(PIC2_DATA, 0xFF);

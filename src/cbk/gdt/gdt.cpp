@@ -38,7 +38,7 @@ namespace trunk::gdt
          *  DATE    : 2026                                                               *
          *  PURPOSE : Utility to write a GDT segment                                     *
          ********************************************************************************/
-        static void write_segment(GdtEntry *entry, WORD limit, DWORD base, BYTE access,
+        static VOID write_segment(GdtEntry *entry, WORD limit, DWORD base, BYTE access,
                                   BYTE flags) noexcept
         {
             entry->limit_low        = limit & 0xFFFF;
@@ -56,7 +56,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Creates standard GDT entries                                       *
      ********************************************************************************/
-    void gdt_create_entries() noexcept
+    VOID gdt_create_entries() noexcept
     {
         tklib::memset(&gdt, 0, sizeof(GdtLayout));
 
@@ -113,7 +113,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initializes the global descriptor table subsystem                  *
      ********************************************************************************/
-    void GdtInit() noexcept
+    VOID GdtInit() noexcept
     {
         gdt_create_entries();
         TssInit();

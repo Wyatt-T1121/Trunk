@@ -48,8 +48,8 @@ namespace trunk::drivers::serial
          * DATE    : 2026                                                               *
          * PURPOSE : Handles incoming characters from the serial port asynchronously    *
          * *****************************************************************************/
-        void SerialInterruptHandler(MAYBE_UNUSED interrupts::InterruptFrame *frame,
-                                    MAYBE_UNUSED void *context) noexcept
+        VOID SerialInterruptHandler(MAYBE_UNUSED interrupts::InterruptFrame *frame,
+                                    MAYBE_UNUSED PVOID context) noexcept
         {
             while (hal::InB(SERIAL_REG_LINE_STATUS) & 0x01) {
                 BYTE incoming_byte = hal::InB(SERIAL_REG_DATA);
@@ -64,7 +64,7 @@ namespace trunk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled                 *
      * *****************************************************************************/
-    void SerialInit() noexcept
+    VOID SerialInit() noexcept
     {
         hal::OutB(SERIAL_REG_INT_ENABLE, 0x00);
         hal::OutB(SERIAL_REG_LINE_CTRL, SERIAL_LCR_DLAB);
@@ -89,7 +89,7 @@ namespace trunk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write one character to COM1.                                      *
      * *****************************************************************************/
-    void SerialPutChar(char c) noexcept
+    VOID SerialPutChar(char c) noexcept
     {
         if (c == '\n')
             SerialPutChar('\r');
@@ -101,7 +101,7 @@ namespace trunk::drivers::serial
         #ifdef TRUNK_DEBUG
                 hal::OutB(SERIAL_REG_DATA, static_cast<BYTE>(c));
         #else
-                (void)c;
+                (VOID )c;
         #endif
         // clang-format on
     }
@@ -112,7 +112,7 @@ namespace trunk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write a null-terminated string to COM1.                           *
      * *****************************************************************************/
-    void SerialPuts(const char *s) noexcept
+    VOID SerialPuts(const char *s) noexcept
     {
         while (*s)
             SerialPutChar(*s++);

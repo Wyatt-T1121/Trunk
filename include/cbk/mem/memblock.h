@@ -45,7 +45,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialization function for memblock                               *
      ********************************************************************************/
-    void MemblockInit(const boot::BootInfo &boot_info) noexcept;
+    VOID MemblockInit(const boot::BootInfo &boot_info) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -61,7 +61,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Reserve a region inside the memblock                               *
      ********************************************************************************/
-    void MemblockReserve(QWORD base, QWORD size) noexcept;
+    VOID MemblockReserve(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

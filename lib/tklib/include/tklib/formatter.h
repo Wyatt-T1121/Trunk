@@ -35,7 +35,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Format val as a zero-padded 16-digit hex string into buf.          *
      ********************************************************************************/
-    void fmt_hex(char *buf, SIZE_T size, QWORD val) noexcept;
+    VOID fmt_hex(char *buf, SIZE_T size, QWORD val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -43,7 +43,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Format val as a zero-padded 8-digit hex string into buf.           *
      ********************************************************************************/
-    void fmt_hex32(char *buf, SIZE_T size, DWORD val) noexcept;
+    VOID fmt_hex32(char *buf, SIZE_T size, DWORD val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -51,7 +51,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Format val as a decimal string into buf.                           *
      ********************************************************************************/
-    void fmt_dec(char *buf, SIZE_T size, QWORD val) noexcept;
+    VOID fmt_dec(char *buf, SIZE_T size, QWORD val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -59,7 +59,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Format val as a signed decimal string into buf.                    *
      ********************************************************************************/
-    void fmt_dec_signed(char *buf, SIZE_T size, LONGLONG val) noexcept;
+    VOID fmt_dec_signed(char *buf, SIZE_T size, LONGLONG val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -67,7 +67,7 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Format val as a zero-padded 64-bit binary string into buf.         *
      ********************************************************************************/
-    void fmt_bin(char *buf, SIZE_T size, QWORD val) noexcept;
+    VOID fmt_bin(char *buf, SIZE_T size, QWORD val) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -75,6 +75,6 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Format val as a human-readable size string (KB, MB, GB).           *
      ********************************************************************************/
-    void fmt_size(char *buf, SIZE_T size, QWORD val) noexcept;
+    VOID fmt_size(char *buf, SIZE_T size, QWORD val) noexcept;
 
 } // namespace tklib

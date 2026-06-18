@@ -47,7 +47,7 @@ static trunk::boot::BootInfo make_fake_boot_info()
 class MemblockTest : public ::testing::Test
 {
   protected:
-    void SetUp() override
+    VOID SetUp() override
     {
         auto info = make_fake_boot_info();
         trunk::mem::MemblockInit(info);

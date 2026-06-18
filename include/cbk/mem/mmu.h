@@ -46,7 +46,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init to setup In boot stage(uses memblock)               *
      ********************************************************************************/
-    void MmuEarlyInit() noexcept;
+    VOID MmuEarlyInit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -54,7 +54,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : The true Initialization function for the memory management unit    *
      ********************************************************************************/
-    void MmuInit() noexcept;
+    VOID MmuInit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -62,7 +62,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init for each cpu core                                   *
      ********************************************************************************/
-    void MmuEarlyInitPerCpu() noexcept;
+    VOID MmuEarlyInitPerCpu() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -70,7 +70,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Load a new address space into CR3                                  *
      ********************************************************************************/
-    void MmuLoadCr3(const ArchAspace *space) noexcept;
+    VOID MmuLoadCr3(const ArchAspace *space) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

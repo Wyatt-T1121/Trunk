@@ -52,7 +52,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the PIC driver                                          *
      ********************************************************************************/
-    void PicInit() noexcept;
+    VOID PicInit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -60,7 +60,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Signals that an interrupt is being processed                       *
      ********************************************************************************/
-    void IrqAck(BYTE irq) noexcept;
+    VOID IrqAck(BYTE irq) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -68,7 +68,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Mask an IRQ (interrupt request)                                    *
      ********************************************************************************/
-    void PicMask(BYTE irq) noexcept;
+    VOID PicMask(BYTE irq) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -76,7 +76,7 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Unmask an IRQ (interrupt request)                                  *
      ********************************************************************************/
-    void PicUnmask(BYTE irq) noexcept;
+    VOID PicUnmask(BYTE irq) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -84,5 +84,5 @@ namespace trunk::drivers::pic
      *  DATE    : 2026                                                               *
      *  PURPOSE : Disable the PIC driver                                             *
      ********************************************************************************/
-    void PicDisable() noexcept;
+    VOID PicDisable() noexcept;
 }; // namespace trunk::drivers::pic

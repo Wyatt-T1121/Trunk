@@ -33,7 +33,7 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Halts the kernel forever and prints the message                    *
      ********************************************************************************/
-    NO_RETURN void KAbort(const char *message) noexcept
+    NO_RETURN VOID KAbort(const char *message) noexcept
     {
         asm volatile("cli");
 

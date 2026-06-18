@@ -34,7 +34,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Copy n bytes from src to dst. Regions must not overlap.           *
      * *****************************************************************************/
-    void *memcpy(void *dst, const void *src, SIZE_T n) noexcept;
+    PVOID memcpy(PVOID dst, LPCVOID src, SIZE_T n) noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -42,7 +42,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Fill n bytes of dst with value.                                   *
      * *****************************************************************************/
-    void *memset(void *dst, BYTE value, SIZE_T n) noexcept;
+    PVOID memset(PVOID dst, BYTE value, SIZE_T n) noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -50,7 +50,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Copy n bytes from src to dst. Regions may overlap.                *
      * *****************************************************************************/
-    void *memmove(void *dst, const void *src, SIZE_T n) noexcept;
+    PVOID memmove(PVOID dst, LPCVOID src, SIZE_T n) noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -58,7 +58,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Compare n bytes of a and b.                                       *
      * *****************************************************************************/
-    NO_DISCARD LONG memcmp(const void *a, const void *b, SIZE_T n) noexcept;
+    NO_DISCARD LONG memcmp(LPCVOID a, LPCVOID b, SIZE_T n) noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -66,7 +66,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Find first occurrence of value in first n bytes of ptr.           *
      * *****************************************************************************/
-    NO_DISCARD const void *memchr(const void *ptr, BYTE value, SIZE_T n) noexcept;
+    NO_DISCARD LPCVOID memchr(LPCVOID ptr, BYTE value, SIZE_T n) noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *

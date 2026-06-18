@@ -46,7 +46,7 @@ namespace trunk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Sort regions by base address                                       *
          ********************************************************************************/
-        void InsertionSortRegions(MemoryRegion *regions, SIZE_T count) noexcept
+        VOID InsertionSortRegions(MemoryRegion *regions, SIZE_T count) noexcept
         {
             for (SIZE_T i = 1; i < count; ++i) {
                 MemoryRegion key = regions[i];
@@ -68,7 +68,7 @@ namespace trunk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Merge overlapping reserved regions into one entry                  *
          ********************************************************************************/
-        void MergeReservedRegions() noexcept
+        VOID MergeReservedRegions() noexcept
         {
             if (s_reserved_count < 2)
                 return;
@@ -139,7 +139,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialization function for memblock                               *
      ********************************************************************************/
-    void MemblockInit(const boot::BootInfo &boot_info) noexcept
+    VOID MemblockInit(const boot::BootInfo &boot_info) noexcept
     {
         s_memory_count   = 0;
         s_reserved_count = 0;
@@ -226,7 +226,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Reserve a region inside the memblock                               *
      ********************************************************************************/
-    void MemblockReserve(QWORD base, QWORD size) noexcept
+    VOID MemblockReserve(QWORD base, QWORD size) noexcept
     {
         if (size == 0)
             return;

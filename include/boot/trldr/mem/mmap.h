@@ -43,6 +43,6 @@ namespace trunk::boot
      *  DATE    : 2026                                                              *
      *  PURPOSE : Walk all MB2 tags from mb2_phys                                   *
      * *****************************************************************************/
-    void ParseMb2(ULONG_PTR mb2_phys, BootInfo &info) noexcept;
+    VOID ParseMb2(ULONG_PTR mb2_phys, BootInfo &info) noexcept;
 
 } // namespace trunk::boot

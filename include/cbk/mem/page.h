@@ -198,9 +198,9 @@ namespace trunk::mem
      * DATE    : 2026                                                                *
      * PURPOSE : Converts a physical address to a virtual address                    *
      ********************************************************************************/
-    NO_DISCARD static inline void *PaddrToKvaddr(QWORD paddr) noexcept
+    NO_DISCARD static inline PVOID PaddrToKvaddr(QWORD paddr) noexcept
     {
-        return reinterpret_cast<void *>(paddr + 0xFFFFFFFF80000000ULL);
+        return reinterpret_cast<PVOID>(paddr + 0xFFFFFFFF80000000ULL);
     }
 
     /* *******************************************************************************
@@ -209,9 +209,9 @@ namespace trunk::mem
      * DATE    : 2026                                                                *
      * PURPOSE : Converts a virtual address to a physical adddress                   *
      ********************************************************************************/
-    NO_DISCARD static inline void *KvaddrToPaddr(QWORD kvaddr) noexcept
+    NO_DISCARD static inline PVOID KvaddrToPaddr(QWORD kvaddr) noexcept
     {
-        return reinterpret_cast<void *>(kvaddr - 0xFFFFFFFF80000000ULL);
+        return reinterpret_cast<PVOID>(kvaddr - 0xFFFFFFFF80000000ULL);
     }
 
     /* *******************************************************************************
@@ -220,7 +220,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Flush the TLB entry for a single virtual address on this CPU       *
      ********************************************************************************/
-    static inline void TlbFlushPage(QWORD va) noexcept
+    static inline VOID TlbFlushPage(QWORD va) noexcept
     {
         hal::InvLpg(va);
     }
@@ -231,7 +231,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Flush the entire TLB by reloading CR3                              *
      ********************************************************************************/
-    static inline void TlbFlushAll() noexcept
+    static inline VOID TlbFlushAll() noexcept
     {
         QWORD cr3 = hal::ReadCr3();
         hal::WriteCr3(cr3);

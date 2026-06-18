@@ -34,7 +34,7 @@ namespace trunk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Takes the interrupt from trap and dispatches It                    *
      ********************************************************************************/
-    extern "C" void KInterruptDispatcher(InterruptFrame *frame) noexcept
+    extern "C" VOID KInterruptDispatcher(InterruptFrame *frame) noexcept
     {
         const BYTE vector = static_cast<BYTE>(frame->vector_number);
 

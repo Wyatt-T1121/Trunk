@@ -40,6 +40,6 @@ namespace trunk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the interrupt descriptor table                          *
      ********************************************************************************/
-    void IdtInit() noexcept;
+    VOID IdtInit() noexcept;
 
 } // namespace trunk::interrupts

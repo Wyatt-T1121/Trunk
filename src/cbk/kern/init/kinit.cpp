@@ -38,7 +38,7 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Setup all subsystems of the Trunk kernel                           *
      ********************************************************************************/
-    void CbkSetupSubsystems() noexcept
+    VOID CbkSetupSubsystems() noexcept
     {
         gdt::GdtInit();
         interrupts::IdtInit();
@@ -51,14 +51,14 @@ namespace trunk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Top-level kernel entry.                                            *
      ********************************************************************************/
-    STARTUP_FUNC_FLAGS void CbkStartup(const boot::BootInfo &info) noexcept
+    STARTUP_FUNC_FLAGS VOID CbkStartup(const boot::BootInfo &info) noexcept
     {
         CbkSetupSubsystems();
         hal::Sti();
 
         MUWelcome();
 
-        (void)info;
+        (VOID) info;
         for (;;) {
             asm volatile("sti; hlt");
         }

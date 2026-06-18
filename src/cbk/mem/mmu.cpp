@@ -180,7 +180,7 @@ namespace trunk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Query Cpuid for paging CPU features and address widths             *
          ********************************************************************************/
-        void QueryCpuFeatures() noexcept
+        VOID QueryCpuFeatures() noexcept
         {
             DWORD eax, ebx, ecx, edx;
 
@@ -204,7 +204,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init to setup In boot stage(uses memblock)               *
      ********************************************************************************/
-    void MmuEarlyInit() noexcept
+    VOID MmuEarlyInit() noexcept
     {
         s_early_mmu = true;
         QueryCpuFeatures();
@@ -217,7 +217,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : The true Initialization function for the memory management unit    *
      ********************************************************************************/
-    void MmuInit() noexcept
+    VOID MmuInit() noexcept
     {
         s_early_mmu = false;
     }
@@ -228,7 +228,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Early MMU init for each cpu core                                   *
      ********************************************************************************/
-    void MmuEarlyInitPerCpu() noexcept
+    VOID MmuEarlyInitPerCpu() noexcept
     {
         QWORD cr0  = hal::ReadCr0();
         cr0       |= trunk::cpu::CR0_WP;
@@ -470,7 +470,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Load a new address space into CR3                                  *
      ********************************************************************************/
-    void MmuLoadCr3(const ArchAspace *space) noexcept
+    VOID MmuLoadCr3(const ArchAspace *space) noexcept
     {
         ASSERT(space != nullptr, "MmuLoadCr3: space is null");
         ASSERT(space->pml4_phys != 0, "MmuLoadCr3: pml4_phys is zero");

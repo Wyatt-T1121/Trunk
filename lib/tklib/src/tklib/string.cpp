@@ -32,7 +32,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Copy n bytes from src to dst. Regions must not overlap.           *
      * *****************************************************************************/
-    void *memcpy(void *dst, const void *src, SIZE_T n) noexcept
+    PVOID memcpy(PVOID dst, LPCVOID src, SIZE_T n) noexcept
     {
         auto *d       = static_cast<BYTE *>(dst);
         const auto *s = static_cast<const BYTE *>(src);
@@ -47,7 +47,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Fill n bytes of dst with value.                                   *
      * *****************************************************************************/
-    void *memset(void *dst, BYTE value, SIZE_T n) noexcept
+    PVOID memset(PVOID dst, BYTE value, SIZE_T n) noexcept
     {
         auto *d = static_cast<BYTE *>(dst);
         for (SIZE_T i = 0; i < n; ++i)
@@ -61,7 +61,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Copy n bytes from src to dst. Regions may overlap.                *
      * *****************************************************************************/
-    void *memmove(void *dst, const void *src, SIZE_T n) noexcept
+    PVOID memmove(PVOID dst, LPCVOID src, SIZE_T n) noexcept
     {
         auto *d       = static_cast<BYTE *>(dst);
         const auto *s = static_cast<const BYTE *>(src);
@@ -82,7 +82,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Compare n bytes of a and b.                                       *
      * *****************************************************************************/
-    LONG memcmp(const void *a, const void *b, SIZE_T n) noexcept
+    LONG memcmp(LPCVOID a, LPCVOID b, SIZE_T n) noexcept
     {
         const auto *pa = static_cast<const BYTE *>(a);
         const auto *pb = static_cast<const BYTE *>(b);
@@ -99,7 +99,7 @@ namespace tklib
      *  DATE    : 2026                                                              *
      *  PURPOSE : Find first occurrence of value in first n bytes of ptr.           *
      * *****************************************************************************/
-    const void *memchr(const void *ptr, BYTE value, SIZE_T n) noexcept
+    LPCVOID memchr(LPCVOID ptr, BYTE value, SIZE_T n) noexcept
     {
         const auto *p = static_cast<const BYTE *>(ptr);
         for (SIZE_T i = 0; i < n; ++i)

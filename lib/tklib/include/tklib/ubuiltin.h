@@ -195,7 +195,7 @@ namespace tklib
     template <BOOL Cond, typename A, typename B>
     using conditional_t = typename conditional<Cond, A, B>::type;
 
-    template <BOOL Cond, typename T = void> struct enable_if
+    template <BOOL Cond, typename T = VOID> struct enable_if
     {
     };
     template <typename T> struct enable_if<true, T>
@@ -203,5 +203,5 @@ namespace tklib
         using type = T;
     };
 
-    template <BOOL Cond, typename T = void> using enable_if_t = typename enable_if<Cond, T>::type;
+    template <BOOL Cond, typename T = VOID> using enable_if_t = typename enable_if<Cond, T>::type;
 } // namespace tklib

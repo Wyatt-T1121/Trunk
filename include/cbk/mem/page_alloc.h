@@ -45,7 +45,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the PFN allocator(buddy)                                *
      ********************************************************************************/
-    void PfnAllocatorInit(Page *dbMemory, SIZE_T max) noexcept;
+    VOID PfnAllocatorInit(Page *dbMemory, SIZE_T max) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -61,5 +61,5 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Free pages                                                         *
      ********************************************************************************/
-    void PfnFreePages(Page *page, BYTE order) noexcept;
+    VOID PfnFreePages(Page *page, BYTE order) noexcept;
 } // namespace trunk::mem

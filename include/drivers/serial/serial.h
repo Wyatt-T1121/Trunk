@@ -56,7 +56,7 @@ namespace trunk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled                 *
      * *****************************************************************************/
-    void SerialInit() noexcept;
+    VOID SerialInit() noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -64,7 +64,7 @@ namespace trunk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write one character to COM1.                                      *
      * *****************************************************************************/
-    void SerialPutChar(char c) noexcept;
+    VOID SerialPutChar(char c) noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -72,6 +72,6 @@ namespace trunk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write a null-terminated string to COM1.                           *
      * *****************************************************************************/
-    void SerialPuts(const char *s) noexcept;
+    VOID SerialPuts(const char *s) noexcept;
 
 } // namespace trunk::drivers::serial

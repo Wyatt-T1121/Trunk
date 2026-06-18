@@ -39,7 +39,7 @@
             }                                                                     \
         } while (false)
 #else
-    #define ASSERT(condition, message) do { (void)(condition); } while (false)
+    #define ASSERT(condition, message) do { (VOID )(condition); } while (false)
 #endif
 
 // clang-format on

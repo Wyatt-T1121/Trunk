@@ -37,7 +37,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initializes the Task State Segment                                 *
      ********************************************************************************/
-    void TssInit() noexcept;
+    VOID TssInit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -45,7 +45,7 @@ namespace trunk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Set the RSP0 field for ring mode                                   *
      ********************************************************************************/
-    void TssSetRsp0(QWORD rsp) noexcept;
+    VOID TssSetRsp0(QWORD rsp) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

@@ -43,7 +43,7 @@ asm(".data\n"
 namespace trunk::kernel
 {
 
-    NO_RETURN void KAbort()(const char *message) noexcept
+    NO_RETURN VOID KAbort()(const char *message) noexcept
     {
         std::printf("\n[ KERNEL PANIC ]: %s\n\n", message ? message : "No message provided");
         ADD_FAILURE() << "Kernel panicked: " << (message ? message : "");
