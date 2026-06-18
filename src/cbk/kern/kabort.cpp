@@ -37,10 +37,10 @@ namespace trunk::kernel
     {
         asm volatile("cli");
 
-        drivers::serial::serial_puts(
+        drivers::serial::SerialPuts(
             "                        KERNEL ABORTED                     \n");
-        drivers::serial::serial_puts("STOP_REASON: ");
-        drivers::serial::serial_puts(message);
+        drivers::serial::SerialPuts("STOP_REASON: ");
+        drivers::serial::SerialPuts(message);
 
         asm volatile(".lockdown_loop:\n\t"
                      "hlt\n\t"

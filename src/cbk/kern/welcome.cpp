@@ -37,12 +37,12 @@ namespace trunk::kernel
      ********************************************************************************/
     void MUWelcome() noexcept
     {
-        serial::serial_puts("Welcome to Trunk!\n");
-        serial::serial_puts("The Hobby C++ operating system.\n");
-        serial::serial_puts("Copyright (c) ALL CONTRIBUTERS TO TRUNK.\n");
-        serial::serial_puts("You are likely a developer, as you have built Trunk In DEBUG mode!\n");
+        serial::SerialPuts("Welcome to Trunk!\n");
+        serial::SerialPuts("The Hobby C++ operating system.\n");
+        serial::SerialPuts("Copyright (c) ALL CONTRIBUTERS TO TRUNK.\n");
+        serial::SerialPuts("You are likely a developer, as you have built Trunk In DEBUG mode!\n");
 
-        serial::serial_puts("VERSION: ");
-        serial::serial_puts(TrGetVersion().build_string);
+        serial::SerialPuts("VERSION: ");
+        serial::SerialPuts(TrGetVersion().build_string);
     }
 } // namespace trunk::kernel

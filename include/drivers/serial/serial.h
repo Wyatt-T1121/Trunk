@@ -52,26 +52,26 @@ namespace trunk::drivers::serial
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_init                                                       *
+     *  FUNC    : SerialInit                                                        *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled                 *
      * *****************************************************************************/
-    void serial_init() noexcept;
+    void SerialInit() noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_putchar                                                    *
+     *  FUNC    : SerialPutChar                                                     *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write one character to COM1.                                      *
      * *****************************************************************************/
-    void serial_putchar(char c) noexcept;
+    void SerialPutChar(char c) noexcept;
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_puts                                                       *
+     *  FUNC    : SerialPuts                                                        *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write a null-terminated string to COM1.                           *
      * *****************************************************************************/
-    void serial_puts(const char *s) noexcept;
+    void SerialPuts(const char *s) noexcept;
 
 } // namespace trunk::drivers::serial

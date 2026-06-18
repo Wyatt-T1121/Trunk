@@ -41,30 +41,30 @@ namespace trunk::drivers::serial
         {
             return (hal::InB(SERIAL_REG_LINE_STATUS) & SERIAL_LSR_TX_EMPTY) != 0;
         }
+
+        /* ******************************************************************************
+         * AUTHOR  : Trollycat                                                          *
+         * FUNC    : SerialInterruptHandler                                             *
+         * DATE    : 2026                                                               *
+         * PURPOSE : Handles incoming characters from the serial port asynchronously    *
+         * *****************************************************************************/
+        void SerialInterruptHandler(MAYBE_UNUSED interrupts::InterruptFrame *frame,
+                                    MAYBE_UNUSED void *context) noexcept
+        {
+            while (hal::InB(SERIAL_REG_LINE_STATUS) & 0x01) {
+                u8 incoming_byte = hal::InB(SERIAL_REG_DATA);
+                SerialPutChar(static_cast<char>(incoming_byte));
+            }
+        }
     } // namespace
 
     /* ******************************************************************************
-     * AUTHOR  : Trollycat                                                          *
-     * FUNC    : serial_interrupt_handler                                           *
-     * DATE    : 2026                                                               *
-     * PURPOSE : Handles incoming characters from the serial port asynchronously    *
-     * *****************************************************************************/
-    void serial_interrupt_handler(MAYBE_UNUSED interrupts::InterruptFrame *frame,
-                                  MAYBE_UNUSED void *context) noexcept
-    {
-        while (hal::InB(SERIAL_REG_LINE_STATUS) & 0x01) {
-            u8 incoming_byte = hal::InB(SERIAL_REG_DATA);
-            serial_putchar(static_cast<char>(incoming_byte));
-        }
-    }
-
-    /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_init                                                       *
+     *  FUNC    : SerialInit                                                        *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled                 *
      * *****************************************************************************/
-    void serial_init() noexcept
+    void SerialInit() noexcept
     {
         hal::OutB(SERIAL_REG_INT_ENABLE, 0x00);
         hal::OutB(SERIAL_REG_LINE_CTRL, SERIAL_LCR_DLAB);
@@ -79,20 +79,20 @@ namespace trunk::drivers::serial
 
         hal::OutB(SERIAL_REG_INT_ENABLE, 0x01);
 
-        interrupts::RegisterInterruptHandler(36, serial_interrupt_handler, nullptr);
-        drivers::pic::pic_unmask(4);
+        interrupts::RegisterInterruptHandler(36, SerialInterruptHandler, nullptr);
+        drivers::pic::PicMask(4);
     }
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_putchar                                                    *
+     *  FUNC    : SerialPutChar                                                     *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write one character to COM1.                                      *
      * *****************************************************************************/
-    void serial_putchar(char c) noexcept
+    void SerialPutChar(char c) noexcept
     {
         if (c == '\n')
-            serial_putchar('\r');
+            SerialPutChar('\r');
 
         while (!serial_is_transmit_ready()) {
         }
@@ -108,14 +108,14 @@ namespace trunk::drivers::serial
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : serial_puts                                                       *
+     *  FUNC    : SerialPuts                                                        *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write a null-terminated string to COM1.                           *
      * *****************************************************************************/
-    void serial_puts(const char *s) noexcept
+    void SerialPuts(const char *s) noexcept
     {
         while (*s)
-            serial_putchar(*s++);
+            SerialPutChar(*s++);
     }
 
 } // namespace trunk::drivers::serial

@@ -42,7 +42,7 @@ namespace trunk::kernel
     {
         gdt::GdtInit();
         interrupts::IdtInit();
-        drivers::pic::pic_init();
+        drivers::pic::PicInit();
     }
 
     /* *******************************************************************************

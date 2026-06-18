@@ -41,11 +41,11 @@ namespace trunk::drivers::pic
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : pic_init                                                           *
+     *  FUNC    : PicInit                                                            *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the PIC driver                                          *
      ********************************************************************************/
-    void pic_init() noexcept
+    void PicInit() noexcept
     {
         hal::OutB(PIC1_COMMAND, ICW1_INIT);
         hal::OutB(PIC2_COMMAND, ICW1_INIT);
@@ -65,11 +65,11 @@ namespace trunk::drivers::pic
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : irq_ack                                                            *
+     *  FUNC    : IrqAck                                                             *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Signals that an interrupt is being processed                       *
      ********************************************************************************/
-    void irq_ack(u8 irq) noexcept
+    void IrqAck(u8 irq) noexcept
     {
         if (irq >= 8)
             hal::OutB(PIC2_COMMAND, PIC_EOI);
@@ -78,11 +78,11 @@ namespace trunk::drivers::pic
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : pic_mask                                                           *
+     *  FUNC    : PicMask                                                            *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Mask an IRQ (interrupt request)                                    *
      ********************************************************************************/
-    void pic_mask(u8 irq) noexcept
+    void PicMask(u8 irq) noexcept
     {
         u16 port = 0;
         get_pic_line_properties(irq, port);
@@ -92,11 +92,11 @@ namespace trunk::drivers::pic
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : pic_mask                                                           *
+     *  FUNC    : PicUnmask                                                          *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Unmask an IRQ (interrupt request)                                  *
      ********************************************************************************/
-    void pic_unmask(u8 irq) noexcept
+    void PicUnmask(u8 irq) noexcept
     {
         u16 port = 0;
         get_pic_line_properties(irq, port);
@@ -106,11 +106,11 @@ namespace trunk::drivers::pic
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : pic_disable                                                        *
+     *  FUNC    : PicDisable                                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Disable the PIC driver                                             *
      ********************************************************************************/
-    void pic_disable() noexcept
+    void PicDisable() noexcept
     {
         hal::OutB(PIC1_DATA, 0xFF);
         hal::OutB(PIC2_DATA, 0xFF);

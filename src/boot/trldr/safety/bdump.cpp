@@ -41,33 +41,33 @@ namespace trunk::boot
      ********************************************************************************/
     void BDump(const BootInfo &info) noexcept
     {
-        serial::serial_puts("Bootloader: ");
-        serial::serial_puts(info.bootloader_name[0] ? info.bootloader_name : "(unknown)");
-        serial::serial_puts("\n");
+        serial::SerialPuts("Bootloader: ");
+        serial::SerialPuts(info.bootloader_name[0] ? info.bootloader_name : "(unknown)");
+        serial::SerialPuts("\n");
 
-        serial::serial_puts("Memory map (");
+        serial::SerialPuts("Memory map (");
         tklib::fmt_dec(s_buf, sizeof(s_buf), info.mmap_count);
-        serial::serial_puts(s_buf);
-        serial::serial_puts(" entries):\n");
+        serial::SerialPuts(s_buf);
+        serial::SerialPuts(" entries):\n");
 
         for (usize i = 0; i < info.mmap_count; ++i) {
             const auto &region = info.mmap[i];
 
-            serial::serial_puts("  ");
+            serial::SerialPuts("  ");
             tklib::fmt_hex(s_buf, sizeof(s_buf), region.base);
-            serial::serial_puts(s_buf);
-            serial::serial_puts(" - ");
+            serial::SerialPuts(s_buf);
+            serial::SerialPuts(" - ");
             tklib::fmt_hex(s_buf, sizeof(s_buf), region.End());
-            serial::serial_puts(s_buf);
-            serial::serial_puts("  ");
-            serial::serial_puts(MemoryTypeString(region.type));
-            serial::serial_puts("\n");
+            serial::SerialPuts(s_buf);
+            serial::SerialPuts("  ");
+            serial::SerialPuts(MemoryTypeString(region.type));
+            serial::SerialPuts("\n");
         }
 
-        serial::serial_puts("Total available: ");
+        serial::SerialPuts("Total available: ");
         tklib::fmt_size(s_buf, sizeof(s_buf), info.TotalAvailableBytes());
-        serial::serial_puts(s_buf);
-        serial::serial_puts("\n");
+        serial::SerialPuts(s_buf);
+        serial::SerialPuts("\n");
     }
 
 } // namespace trunk::boot

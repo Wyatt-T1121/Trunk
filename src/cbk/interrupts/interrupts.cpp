@@ -42,7 +42,7 @@ namespace trunk::interrupts
         ASSERT(vector < 256, "VECTOR OUT OF BOUNDS IN REGISTER_INTERRUPT_HANDLER");
 
         if (g_InterruptHandlers[vector].handler != nullptr && vector >= 32)
-            drivers::serial::serial_puts("WARNING: OVERRIDING INTERRUPT VECTOR\n");
+            drivers::serial::SerialPuts("WARNING: OVERRIDING INTERRUPT VECTOR\n");
 
         g_InterruptHandlers[vector].handler = handler;
         g_InterruptHandlers[vector].context = context;
