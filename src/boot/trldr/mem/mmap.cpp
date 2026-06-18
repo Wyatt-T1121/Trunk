@@ -51,59 +51,62 @@ namespace trunk::boot
         MB2MmapEntry entries[1];
     };
 
-    /* ******************************************************************************
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : next_tag                                                          *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Advance to the next MB2 tag.                                      *
-     * *****************************************************************************/
-    NO_DISCARD
-    static const MB2Tag *next_tag(const MB2Tag *tag) noexcept
+    namespace
     {
-        uptr addr = reinterpret_cast<uptr>(tag) + tag->size;
-        addr      = (addr + 7) & ~uptr{7};
-        return reinterpret_cast<const MB2Tag *>(addr);
-    }
-
-    /* ******************************************************************************
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : parse_mmap                                                        *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Walk MB2 memory map entries and copy them into BootInfo.          *
-     * *****************************************************************************/
-    static void parse_mmap(const MB2MmapTag *tag, BootInfo &info) noexcept
-    {
-        const uptr end    = reinterpret_cast<uptr>(tag) + tag->size;
-        const auto *entry = tag->entries;
-
-        while (reinterpret_cast<uptr>(entry) < end &&
-               info.mmap_count < BootInfo::MAX_MMAP_ENTRIES) {
-            auto &out  = info.mmap[info.mmap_count++];
-            out.base   = entry->base;
-            out.length = entry->length;
-
-            switch (entry->type) {
-            case MMAP_AVAILABLE:
-                out.type = MemoryType::Available;
-                break;
-            case MMAP_ACPI:
-                out.type = MemoryType::AcpiReclaimable;
-                break;
-            case MMAP_NVS:
-                out.type = MemoryType::AcpiNvs;
-                break;
-            case MMAP_BADRAM:
-                out.type = MemoryType::BadRam;
-                break;
-            default:
-                out.type = MemoryType::Reserved;
-                break;
-            }
-
-            entry = reinterpret_cast<const MB2MmapEntry *>(reinterpret_cast<uptr>(entry) +
-                                                           tag->entry_size);
+        /* ******************************************************************************
+         *  AUTHOR  : Trollycat                                                         *
+         *  FUNC    : NextTag                                                           *
+         *  DATE    : 2026                                                              *
+         *  PURPOSE : Advance to the next MB2 tag.                                      *
+         * *****************************************************************************/
+        NO_DISCARD
+        static const MB2Tag *NextTag(const MB2Tag *tag) noexcept
+        {
+            uptr addr = reinterpret_cast<uptr>(tag) + tag->size;
+            addr      = (addr + 7) & ~uptr{7};
+            return reinterpret_cast<const MB2Tag *>(addr);
         }
-    }
+
+        /* ******************************************************************************
+         *  AUTHOR  : Trollycat                                                         *
+         *  FUNC    : ParseMmap                                                         *
+         *  DATE    : 2026                                                              *
+         *  PURPOSE : Walk MB2 memory map entries and copy them into BootInfo.          *
+         * *****************************************************************************/
+        static void ParseMmap(const MB2MmapTag *tag, BootInfo &info) noexcept
+        {
+            const uptr end    = reinterpret_cast<uptr>(tag) + tag->size;
+            const auto *entry = tag->entries;
+
+            while (reinterpret_cast<uptr>(entry) < end &&
+                   info.mmap_count < BootInfo::MAX_MMAP_ENTRIES) {
+                auto &out  = info.mmap[info.mmap_count++];
+                out.base   = entry->base;
+                out.length = entry->length;
+
+                switch (entry->type) {
+                case MMAP_AVAILABLE:
+                    out.type = MemoryType::Available;
+                    break;
+                case MMAP_ACPI:
+                    out.type = MemoryType::AcpiReclaimable;
+                    break;
+                case MMAP_NVS:
+                    out.type = MemoryType::AcpiNvs;
+                    break;
+                case MMAP_BADRAM:
+                    out.type = MemoryType::BadRam;
+                    break;
+                default:
+                    out.type = MemoryType::Reserved;
+                    break;
+                }
+
+                entry = reinterpret_cast<const MB2MmapEntry *>(reinterpret_cast<uptr>(entry) +
+                                                               tag->entry_size);
+            }
+        }
+    } // namespace
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
@@ -119,7 +122,7 @@ namespace trunk::boot
         while (reinterpret_cast<uptr>(tag) < end && tag->type != TAG_END) {
             switch (tag->type) {
             case TAG_MMAP:
-                parse_mmap(reinterpret_cast<const MB2MmapTag *>(tag), info);
+                ParseMmap(reinterpret_cast<const MB2MmapTag *>(tag), info);
                 break;
 
             case TAG_BOOTLOADER: {
@@ -132,7 +135,7 @@ namespace trunk::boot
                 break;
             }
 
-            tag = next_tag(tag);
+            tag = NextTag(tag);
         }
     }
 

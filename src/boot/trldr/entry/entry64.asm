@@ -33,33 +33,33 @@ extern __stack_top
 extern __init_array_start
 extern __init_array_end
 
-extern mb2_magic_store
-extern mb2_info_store
+extern Mb2MagicStore
+extern Mb2InfoStore
 
-extern tr_early_fault_lockdown
+extern CbkEarlyFaultLockdown
 
-global entry64
+global Entry64
 
 section .text
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : load_mb2_from_memory                                             *
+; *  FUNC    : LoadMb2FromMemory                                                *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Loads MB2 values saved by entry32.asm before the mode switch.    *
 ; *******************************************************************************
-load_mb2_from_memory:
-    mov r12d, dword [mb2_magic_store]
-    mov r13d, dword [mb2_info_store]
+LoadMb2FromMemory:
+    mov r12d, dword [Mb2MagicStore]
+    mov r13d, dword [Mb2InfoStore]
     ret
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : load_64b_data_segments                                           *
+; *  FUNC    : Load64bDataSegments                                              *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Loads 64-bit data segments                                       *
 ; *******************************************************************************
-load_64b_data_segments:
+Load64bDataSegments:
     mov ax, 16
     mov ds, ax
     mov es, ax
@@ -70,11 +70,11 @@ load_64b_data_segments:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : zero_bss                                                         *
+; *  FUNC    : ZeroBss                                                          *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Zeros the BSS section                                            *
 ; *******************************************************************************
-zero_bss:
+ZeroBss:
     mov rdi, __bss_start
     mov rcx, __bss_end
     sub rcx, rdi
@@ -84,41 +84,41 @@ zero_bss:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : entry64                                                          *
+; *  FUNC    : Entry64                                                          *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : 64-bit entry level code, sets up the stack, calls C++ global con *
 ; *******************************************************************************
-entry64:
+Entry64:
     cli
     cld
     
-    call load_mb2_from_memory
-    call load_64b_data_segments
+    call LoadMb2FromMemory
+    call Load64bDataSegments
 
     mov rsp, __stack_top
     and rsp, ~0XF
     xor rbp, rbp
 
-    call zero_bss
+    call ZeroBss
 
     mov rbx, __init_array_start
 
 ; ***************************************************************************
 ; *  AUTHOR  : Trollycat                                                    *
-; *  FUNC    : ctor_loop                                                    *
+; *  FUNC    : .CtorLoop                                                    *
 ; *  DATE    : 2026                                                         *
 ; *  PURPOSE : Iterates __init_array_start to __init_array_end, calling     *
 ; *            each 8-byte function pointer in sequence.                    *
 ; ***************************************************************************
-.ctor_loop:
+.CtorLoop:
     cmp rbx, __init_array_end
-    jge .ctor_done
+    jge .CtorDone
     call qword [rbx]
     add rbx, 8
-    jmp .ctor_loop
-.ctor_done:
+    jmp .CtorLoop
+.CtorDone:
     mov edi, r12d
     mov esi, r13d
     call CbkSystemStartup
 
-    jmp tr_early_fault_lockdown
+    jmp CbkEarlyFaultLockdown

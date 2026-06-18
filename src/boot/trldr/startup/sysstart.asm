@@ -24,7 +24,7 @@ bits 64
 
 extern CbkLoad
 
-extern tr_early_fault_lockdown
+extern CbkEarlyFaultLockdown
 
 section .text
 
@@ -38,4 +38,4 @@ section .text
 global CbkSystemStartup
 CbkSystemStartup:
     call CbkLoad
-    jmp tr_early_fault_lockdown
+    jmp CbkEarlyFaultLockdown

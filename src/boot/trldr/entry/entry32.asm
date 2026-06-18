@@ -18,27 +18,25 @@
 ; *  AUTHOR  : Trollycat                                                        *
 ; *  MODULE  : Bootstrapping                                                    *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Saves MB2 magic + info ptr,                                      *
-; *                  loads a minimal 64-bit GDT, jumps to entry64.              *
+; *  PURPOSE : Saves MB2 magic + info ptr                                       *
 ; *******************************************************************************
-
 bits 32
 section .boot.text
 
-extern setup_page_tables
-extern enable_long_mode
+extern SetupPageTables
+extern EnableLongMode
 
-global _start
+global _Start
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : save_mb2_to_memory                                               *
+; *  FUNC    : SaveMb2ToMemory                                                  *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Stores MB2 values to memory in boot section so they can survive  *
 ; *******************************************************************************
-save_mb2_to_memory:
-    mov dword [mb2_magic_store], eax
-    mov dword [mb2_info_store], ebx
+SaveMb2ToMemory:
+    mov dword [Mb2MagicStore], eax
+    mov dword [Mb2InfoStore], ebx
     
     mov edi, eax
     mov esi, ebx
@@ -47,67 +45,67 @@ save_mb2_to_memory:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : _start                                                           *
+; *  FUNC    : _Start                                                           *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : GRUB entry. The 32-64 bit switch.                                *
 ; *******************************************************************************
-_start:
+_Start:
     cli
     
-    call save_mb2_to_memory
+    call SaveMb2ToMemory
 
     mov esp, 0x7C00
     
-    call setup_page_tables
-    call enable_long_mode
+    call SetupPageTables
+    call EnableLongMode
 
-    lgdt [gdt64_ptr]
+    lgdt [Gdt64Ptr]
 
-    jmp 0x08:trampoline64
+    jmp 0x08:Trampoline64
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : trampoline64                                                     *
+; *  FUNC    : Trampoline64                                                     *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Tiny 64-bit stub that lives in the physical boot region.         *
 ; *******************************************************************************
 bits 64
-trampoline64:
-    mov rax, [entry64_vaddr]
+Trampoline64:
+    mov rax, [Entry64Vaddr]
     jmp rax
-    jmp tr_early_fault_lockdown
+    jmp CbkEarlyFaultLockdown
 
 align 16
-gdt64:
+Gdt64:
     dq 0
     dq (1 << 43) | (1 << 44) | (1 << 47) | (1 << 53)
     dq (1 << 41) | (1 << 44) | (1 << 47)
-gdt64_ptr:
-    dw gdt64_ptr - gdt64 - 1
-    dd gdt64
-extern entry64
+Gdt64Ptr:
+    dw Gdt64Ptr - Gdt64 - 1
+    dd Gdt64
+extern Entry64
 align 8
-entry64_vaddr:
-    dq entry64
+Entry64Vaddr:
+    dq Entry64
 
 align 8
-global mb2_magic_store
-global mb2_info_store
+global Mb2MagicStore
+global Mb2InfoStore
 
-mb2_magic_store:
+Mb2MagicStore:
     dd 0
 
-mb2_info_store:
+Mb2InfoStore:
     dd 0
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : tr_early_fault_lockdown                                          *
+; *  FUNC    : CbkEarlyFaultLockdown                                            *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : halt loop incase any assembly code fails                         *
 ; *******************************************************************************
-global tr_early_fault_lockdown
-tr_early_fault_lockdown:
+global CbkEarlyFaultLockdown
+CbkEarlyFaultLockdown:
     cli
 .lock_loop:
     hlt

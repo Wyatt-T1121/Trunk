@@ -40,11 +40,11 @@ section .boot.text
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : zero_page_tables                                                 *
+; *  FUNC    : ZeroPageTables                                                   *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Zeroes the four page-table pages                                 *
 ; *******************************************************************************
-zero_page_tables:
+ZeroPageTables:
     mov edi, PML4_ADDR
     xor eax, eax
     mov ecx, (0x4000 / 4)
@@ -53,11 +53,11 @@ zero_page_tables:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : populate_page_tables                                             *
+; *  FUNC    : PopulatePageTables                                               *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Populates the page tables with mappings                          *
 ; *******************************************************************************
-populate_page_tables:
+PopulatePageTables:
     mov dword [PML4_ADDR],                   PDPT_ID | PTE_FLAGS
     mov dword [PML4_ADDR + 511 * 8],         PDPT_HH | PTE_FLAGS
     mov dword [PDPT_ID], PD_ADDR |           PTE_FLAGS
@@ -66,34 +66,34 @@ populate_page_tables:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : setup_page_tables                                                *
+; *  FUNC    : SetupPageTables                                                  *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Setup the page tables                                            *
 ; *******************************************************************************
-global setup_page_tables
-setup_page_tables:
-    call zero_page_tables
-    call populate_page_tables
+global SetupPageTables
+SetupPageTables:
+    call ZeroPageTables
+    call PopulatePageTables
 
     mov edi, PD_ADDR
     mov eax, PTE_HUGE_FLAGS
     mov ecx, 512
 
-.fill_pd:
+.FillPd:
     mov dword [edi], eax
     add eax, 0x200000
     add edi, 8
-    loop .fill_pd
+    loop .FillPd
     ret
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : enable_long_mode                                                 *
+; *  FUNC    : EnableLongMode                                                   *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Enables long mode                                                *
 ; *******************************************************************************
-global enable_long_mode
-enable_long_mode:
+global EnableLongMode
+EnableLongMode:
     mov eax, PML4_ADDR
     mov cr3, eax
 
