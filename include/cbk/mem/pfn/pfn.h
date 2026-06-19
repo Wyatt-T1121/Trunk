@@ -29,8 +29,8 @@
 #include <cbk/kern/kabort.h>
 
 #include <cbk/mem/arch/mmarch.h>
-#include <cbk/mem/list/list.h>
 #include <cbk/mem/types/mmtypes.h>
+#include <cbk/mem/util/list.h>
 
 #define ASSERT_IS_CBK_PFN(pfn_num)                                                                 \
     ASSERT((pfn_num) != 0 && (pfn_num) <= mm_highest_physical_page, "Invalid PFN provided")

@@ -28,6 +28,7 @@
 namespace trunk::mem
 {
     inline constexpr SIZE_T MM_PFN_STATE_COUNT = 7;
+
     // TODO: THIS IS A FORWARD DECL, NOT DEFINED YET.
     // TO BE DEFINED DURING PS.
     struct EProcess;
@@ -63,5 +64,4 @@ namespace trunk::mem
         CACHE      = 5,
         CONTIGUOUS = 6
     };
-
 } // namespace trunk::mem
