@@ -35,6 +35,8 @@ namespace trunk::mem
     extern PFN_NUM mm_resident_available_pages;
     extern PFN_NUM mm_resident_available_at_init;
 
+    extern PFN_NUM mm_highest_physical_page;
+
     extern SIZE_T mm_total_committed_pages;
     extern SIZE_T mm_shared_commit;
     extern SIZE_T mm_driver_commit;
@@ -43,8 +45,8 @@ namespace trunk::mem
     extern SIZE_T mm_peak_commitment;
     extern SIZE_T mm_total_commit_limit_maximum;
 
-    extern PMMPFN first_user_lrupfn;
-    extern PMMPFN last_user_lrupfn;
+    extern ListEntry mm_active_user_list;
+    extern ListEntry mm_page_location_list_head[];
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

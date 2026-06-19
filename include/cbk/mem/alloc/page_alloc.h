@@ -34,7 +34,7 @@ namespace trunk::mem
     {
         MMPFN *mm_pfn_database;
         SIZE_T max_frames;
-        FreeAreaNode *free_lists[BUDDY_MAX_ORDER];
+        ListEntry free_lists[BUDDY_MAX_ORDER];
     };
 
     extern PfnAllocatorState g_PfnAllocator;

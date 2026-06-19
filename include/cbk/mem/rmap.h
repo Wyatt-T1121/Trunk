@@ -16,52 +16,22 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Memory types                                                       *
+ *  MODULE  : RMap                                                               *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Stores common memory types and handlers                            *
+ *  PURPOSE : Stores MmRMapEntry                                                 *
  ********************************************************************************/
 #pragma once
 
-#include <macros.h>
+#include <cbk/mem/types/mmtypes.h>
+
 #include <types.h>
 
 namespace trunk::mem
 {
-    inline constexpr SIZE_T MM_PFN_STATE_COUNT = 7;
-    // TODO: THIS IS A FORWARD DECL, NOT DEFINED YET.
-    // TO BE DEFINED DURING PS.
-    struct EProcess;
-    using PEPROCESS = EProcess *;
-
-    struct ListEntry;
-    using LIST_ENTRY  = ListEntry;
-    using PLIST_ENTRY = ListEntry *;
-
-    struct MmRmapEntry;
-    using PMM_RMAP_ENTRY = MmRmapEntry *;
-
-    struct MmPfn;
-    using MMPFN   = MmPfn;
-    using PMMPFN  = MmPfn *;
-    using PPMMPFN = MmPfn **;
-
-    using PFN_NUM = QWORD;
-
-    enum class MM_PFN_STATE : BYTE
+    struct MmRmapEntry
     {
-        ZEROED_PAGE_LIST = 0,
-        FREE_PAGE_LIST   = 1,
-        ACTIVE_AND_VALID = 6
+        MmRmapEntry *next;
+        PEPROCESS process;
+        PVOID virtual_address;
     };
-
-    enum class MC_TYPE : ULONG
-    {
-        SYSTEM     = 1,
-        USER       = 2,
-        NPPOOL     = 3,
-        PPOOL      = 4,
-        CACHE      = 5,
-        CONTIGUOUS = 6
-    };
-
 } // namespace trunk::mem

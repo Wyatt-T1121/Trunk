@@ -29,6 +29,8 @@ namespace trunk::mem
 {
     PfnAllocatorState g_PfnAllocator{};
 
+    PMMPFN g_MmPfnDatabase = nullptr;
+
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : PfnAllocatorInit                                                   *
@@ -41,15 +43,18 @@ namespace trunk::mem
         ASSERT(max > 0, "PfnAllocatorInit: ZERO MAX_FRAMES");
 
         g_PfnAllocator.mm_pfn_database = dbMemory;
+        g_MmPfnDatabase                = dbMemory;
         g_PfnAllocator.max_frames      = max;
 
         for (BYTE i = 0; i < BUDDY_MAX_ORDER; ++i)
-            g_PfnAllocator.free_lists[i] = nullptr;
+            InitializeListHead(&g_PfnAllocator.free_lists[i]);
 
         for (SIZE_T i = 0; i < max; ++i) {
             g_PfnAllocator.mm_pfn_database[i].order         = 0;
             g_PfnAllocator.mm_pfn_database[i].page_location = MM_PFN_STATE::FREE_PAGE_LIST;
-            g_PfnAllocator.mm_pfn_database[i].node.next     = nullptr;
+
+            g_PfnAllocator.mm_pfn_database[i].list_entry.flink = nullptr;
+            g_PfnAllocator.mm_pfn_database[i].list_entry.blink = nullptr;
         }
     }
 
@@ -63,14 +68,14 @@ namespace trunk::mem
     {
         ASSERT(order < BUDDY_MAX_ORDER, "PfnAllocPages: ORDER EXCEEDS BUDDY_MAX_ORDER");
 
-        for (SIZE_T i = order; i < BUDDY_MAX_ORDER; ++i)
-            if (g_PfnAllocator.free_lists[i] != nullptr) {
-                FreeAreaNode *allocated_node = g_PfnAllocator.free_lists[i];
-                g_PfnAllocator.free_lists[i] = allocated_node->next;
+        for (SIZE_T i = order; i < BUDDY_MAX_ORDER; ++i) {
+            PLIST_ENTRY list_head = &g_PfnAllocator.free_lists[i];
 
-                MMPFN *page = reinterpret_cast<MMPFN *>(
-                    reinterpret_cast<ULONG_PTR>(allocated_node) - OFFSET_OF(MMPFN, node));
+            if (!(IsListEmpty(list_head))) {
+                PLIST_ENTRY allocated_node = list_head->flink;
+                RemoveEntryList(allocated_node);
 
+                MMPFN *page          = CONTAINING_RECORD(allocated_node, MMPFN, list_entry);
                 SIZE_T current_order = i;
 
                 while (current_order > order) {
@@ -87,16 +92,18 @@ namespace trunk::mem
                     buddy_page->order         = current_order;
                     buddy_page->page_location = MM_PFN_STATE::FREE_PAGE_LIST;
 
-                    buddy_page->node.next = g_PfnAllocator.free_lists[current_order];
-                    g_PfnAllocator.free_lists[current_order] = &buddy_page->node;
+                    InsertHeadList(&g_PfnAllocator.free_lists[current_order],
+                                   &buddy_page->list_entry);
                 }
 
-                page->order         = order;
-                page->page_location = MM_PFN_STATE::ACTIVE_AND_VALID;
-                page->node.next     = nullptr;
+                page->order            = order;
+                page->page_location    = MM_PFN_STATE::ACTIVE_AND_VALID;
+                page->list_entry.flink = nullptr;
+                page->list_entry.blink = nullptr;
 
                 return page;
             }
+        }
 
         return nullptr;
     }
@@ -130,12 +137,7 @@ namespace trunk::mem
                 buddy_page->order != order)
                 break;
 
-            FreeAreaNode **prev = &g_PfnAllocator.free_lists[order];
-
-            while (*prev != nullptr && *prev != &buddy_page->node)
-                prev = &((*prev)->next);
-            if (*prev == &buddy_page->node)
-                *prev = buddy_page->node.next;
+            RemoveEntryList(&buddy_page->list_entry);
 
             if (buddy_pfn < pfn) {
                 pfn  = buddy_pfn;
@@ -148,7 +150,6 @@ namespace trunk::mem
         page->order         = order;
         page->page_location = MM_PFN_STATE::FREE_PAGE_LIST;
 
-        page->node.next                  = g_PfnAllocator.free_lists[order];
-        g_PfnAllocator.free_lists[order] = &page->node;
+        InsertHeadList(&g_PfnAllocator.free_lists[order], &page->list_entry);
     }
 } // namespace trunk::mem

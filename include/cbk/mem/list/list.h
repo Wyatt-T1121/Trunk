@@ -16,82 +16,93 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Page frame number                                                  *
+ *  MODULE  : ListEntry                                                          *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Assigns each page(4kb) a unique number for easy tracking.          *
+ *  PURPOSE : Stores the ListEntry structure for linked-lists                    *
  ********************************************************************************/
 #pragma once
 
-#include <assert.h>
-#include <macros.h>
+#include <cbk/mem/types/mmtypes.h>
 #include <types.h>
 
-#include <cbk/kern/kabort.h>
-
-#include <cbk/mem/arch/mmarch.h>
-#include <cbk/mem/list/list.h>
-#include <cbk/mem/types/mmtypes.h>
-
-#define ASSERT_IS_CBK_PFN(pfn_num)                                                                 \
-    ASSERT((pfn_num) != 0 && (pfn_num) <= mm_highest_physical_page, "Invalid PFN provided")
+#ifndef CONTAINING_RECORD
+#define CONTAINING_RECORD(address, type, field)                                                    \
+    ((type *)((CHAR *)(address) - (SIZE_T)(&((type *)0)->field)))
+#endif
 
 namespace trunk::mem
 {
-    inline constexpr SIZE_T BUDDY_MAX_ORDER = 11;
-
-    extern PMMPFN g_MmPfnDatabase;
-
-    struct MmPfn
+    struct ListEntry
     {
-        BYTE order;
-        MM_PFN_STATE page_location;
-        ListEntry list_entry;
-        PMM_RMAP_ENTRY rmap_list_head;
-        ULONG reference_count;
+        ListEntry *flink;
+        ListEntry *blink;
     };
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : AddrToPfn                                                          *
+     *  FUNC    : InitializeListHead                                                 *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Shift address to Page frame number                                 *
+     *  PURPOSE : Initializes a list head to point to itself                         *
      ********************************************************************************/
-    NO_DISCARD inline constexpr QWORD AddrToPfn(QWORD addr) noexcept
+    inline VOID InitializeListHead(PLIST_ENTRY list_head) noexcept
     {
-        return addr >> PAGE_SHIFT;
+        list_head->flink = list_head;
+        list_head->blink = list_head;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : PfnToAddr                                                          *
+     *  FUNC    : IsListEmpty                                                        *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Shift Page frame number to address                                 *
+     *  PURPOSE : Checks If a doubly-linked list is empty                            *
      ********************************************************************************/
-    NO_DISCARD inline constexpr QWORD PfnToAddr(QWORD pfn) noexcept
+    NO_DISCARD inline BOOL IsListEmpty(PLIST_ENTRY list_head) noexcept
     {
-        return pfn << PAGE_SHIFT;
+        return (BOOL)(list_head->flink == list_head);
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : GetPfnEntry                                                        *
+     *  FUNC    : InsertHeadList                                                     *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Translates a raw PFN index into its metadata structure pointer     *
+     *  PURPOSE : Inserts an entry at the beginning of the list                      *
      ********************************************************************************/
-    NO_DISCARD inline PMMPFN GetPfnEntry(PFN_NUM pfn_num) noexcept
+    inline VOID InsertHeadList(PLIST_ENTRY list_head, PLIST_ENTRY entry) noexcept
     {
-        return &g_MmPfnDatabase[pfn_num];
+        PLIST_ENTRY flink = list_head->flink;
+        entry->flink      = flink;
+        entry->blink      = list_head;
+        flink->blink      = entry;
+        list_head->flink  = entry;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : GetPfnEntryIndex                                                   *
+     *  FUNC    : InsertTailList                                                     *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Translates a raw PFN index into its metadata structure pointer     *
+     *  PURPOSE : Inserts an entry at the beginning of the list                      *
      ********************************************************************************/
-    NO_DISCARD inline PFN_NUM GetPfnEntryIndex(PMMPFN pfn_entry) noexcept
+    inline VOID InsertTailList(PLIST_ENTRY list_head, PLIST_ENTRY entry) noexcept
     {
-        return (PFN_NUM)(pfn_entry - g_MmPfnDatabase);
+        PLIST_ENTRY blink = list_head->blink;
+        entry->flink      = list_head;
+        entry->blink      = blink;
+        blink->flink      = entry;
+        list_head->blink  = entry;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : RemoveEntryList                                                    *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Removes an entry from anywhere in the list in 0(1) time            *
+     ********************************************************************************/
+    inline VOID RemoveEntryList(PLIST_ENTRY entry) noexcept
+    {
+        PLIST_ENTRY flink = entry->flink;
+        PLIST_ENTRY blink = entry->blink;
+        blink->flink      = flink;
+        flink->blink      = blink;
     }
 
 } // namespace trunk::mem
