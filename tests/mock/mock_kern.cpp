@@ -24,7 +24,10 @@
 
 #include <cstdio>
 #include <cstdlib>
+
 #include <gtest/gtest.h>
+
+#include <types.h>
 
 asm(".data\n"
     ".global __kernel_phys_start\n"
@@ -43,7 +46,7 @@ asm(".data\n"
 namespace trunk::kernel
 {
 
-    NO_RETURN VOID KAbort()(const char *message) noexcept
+    NO_RETURN VOID KAbort(const char *message) noexcept
     {
         std::printf("\n[ KERNEL PANIC ]: %s\n\n", message ? message : "No message provided");
         ADD_FAILURE() << "Kernel panicked: " << (message ? message : "");

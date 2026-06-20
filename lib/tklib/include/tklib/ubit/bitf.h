@@ -34,14 +34,13 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the number of set bits in value.                           *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD popcount(DWORD value) noexcept
+    template <typename T> NO_DISCARD constexpr DWORD popcount(T value) noexcept
     {
-        return static_cast<DWORD>(__builtin_popcount(value));
-    }
-
-    NO_DISCARD constexpr DWORD popcount(QWORD value) noexcept
-    {
-        return static_cast<DWORD>(__builtin_popcountll(value));
+        static_assert(std::is_integral_v<T>, "popcount requires an integral type");
+        if constexpr (sizeof(T) <= 4) {
+            return static_cast<DWORD>(__builtin_popcount(static_cast<unsigned int>(value)));
+        } else
+            return static_cast<DWORD>(__builtin_popcountll(static_cast<unsigned long long>(value)));
     }
 
     /* *******************************************************************************
@@ -50,14 +49,16 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Count leading zero bits.                                           *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD clz(DWORD value) noexcept
+    template <typename T> NO_DISCARD constexpr DWORD clz(T value) noexcept
     {
-        return static_cast<DWORD>(__builtin_clz(value));
-    }
-
-    NO_DISCARD constexpr DWORD clz(QWORD value) noexcept
-    {
-        return static_cast<DWORD>(__builtin_clzll(value));
+        static_assert(std::is_integral_v<T>, "clz requires an integral type");
+        if constexpr (sizeof(T) <= 4) {
+            return static_cast<DWORD>(__builtin_clz(static_cast<unsigned int>(value)));
+        } else {
+            constexpr DWORD delta = 64u - (sizeof(T) * 8u);
+            return static_cast<DWORD>(__builtin_clzll(static_cast<unsigned long long>(value))) -
+                   delta;
+        }
     }
 
     /* *******************************************************************************
@@ -66,14 +67,14 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Count trailing zero bits.                                          *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD ctz(DWORD value) noexcept
+    template <typename T> NO_DISCARD constexpr DWORD ctz(T value) noexcept
     {
-        return static_cast<DWORD>(__builtin_ctz(value));
-    }
-
-    NO_DISCARD constexpr DWORD ctz(QWORD value) noexcept
-    {
-        return static_cast<DWORD>(__builtin_ctzll(value));
+        static_assert(std::is_integral_v<T>, "ctz requires an integral type");
+        if constexpr (sizeof(T) <= 4) {
+            return static_cast<DWORD>(__builtin_ctz(static_cast<unsigned int>(value)));
+        } else {
+            return static_cast<DWORD>(__builtin_ctzll(static_cast<unsigned long long>(value)));
+        }
     }
 
     /* *******************************************************************************
@@ -82,14 +83,10 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the number of bits needed to represent value.              *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD bit_width(DWORD value) noexcept
+    template <typename T> NO_DISCARD constexpr DWORD bit_width(T value) noexcept
     {
-        return value == 0 ? 0u : 32u - clz(value);
-    }
-
-    NO_DISCARD constexpr DWORD bit_width(QWORD value) noexcept
-    {
-        return value == 0 ? 0u : 64u - clz(value);
+        static_assert(std::is_integral_v<T>, "bit_width requires an integral type");
+        return value == 0 ? 0u : (static_cast<DWORD>(sizeof(T) * 8u)) - clz(value);
     }
 
     /* *******************************************************************************
@@ -98,14 +95,10 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the largest power of two not greater than value.           *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD bit_floor(DWORD value) noexcept
+    template <typename T> NO_DISCARD constexpr T bit_floor(T value) noexcept
     {
-        return value == 0 ? 0u : 1u << (bit_width(value) - 1u);
-    }
-
-    NO_DISCARD constexpr QWORD bit_floor(QWORD value) noexcept
-    {
-        return value == 0 ? 0ull : 1ull << (bit_width(value) - 1u);
+        static_assert(std::is_integral_v<T>, "bit_floor requires an integral type");
+        return value == 0 ? T{0} : T{1} << (bit_width(value) - 1u);
     }
 
     /* *******************************************************************************
@@ -114,18 +107,12 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns the smallest power of two not less than value.             *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD bit_ceil(DWORD value) noexcept
+    template <typename T> NO_DISCARD constexpr T bit_ceil(T value) noexcept
     {
+        static_assert(std::is_integral_v<T>, "bit_ceil requires an integral type");
         if (value <= 1)
-            return 1u;
-        return 1u << bit_width(value - 1u);
-    }
-
-    NO_DISCARD constexpr QWORD bit_ceil(QWORD value) noexcept
-    {
-        if (value <= 1)
-            return 1ull;
-        return 1ull << bit_width(value - 1ull);
+            return T{1};
+        return T{1} << bit_width(static_cast<T>(value - 1u));
     }
 
     /* *******************************************************************************
@@ -189,16 +176,14 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Rotate value left by shift bits.                                   *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD rotl(DWORD value, DWORD shift) noexcept
+    template <typename T> NO_DISCARD constexpr T rotl(T value, DWORD shift) noexcept
     {
-        shift &= 31u;
-        return (value << shift) | (value >> (32u - shift));
-    }
-
-    NO_DISCARD constexpr QWORD rotl(QWORD value, DWORD shift) noexcept
-    {
-        shift &= 63u;
-        return (value << shift) | (value >> (64u - shift));
+        static_assert(std::is_integral_v<T>, "rotl requires an integral type");
+        constexpr DWORD width  = sizeof(T) * 8u;
+        shift                 &= (width - 1u);
+        if (shift == 0)
+            return value;
+        return (value << shift) | (value >> (width - shift));
     }
 
     /* *******************************************************************************
@@ -207,16 +192,14 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Rotate value right by shift bits.                                  *
      ********************************************************************************/
-    NO_DISCARD constexpr DWORD rotr(DWORD value, DWORD shift) noexcept
+    template <typename T> NO_DISCARD constexpr T rotr(T value, DWORD shift) noexcept
     {
-        shift &= 31u;
-        return (value >> shift) | (value << (32u - shift));
-    }
-
-    NO_DISCARD constexpr QWORD rotr(QWORD value, DWORD shift) noexcept
-    {
-        shift &= 63u;
-        return (value >> shift) | (value << (64u - shift));
+        static_assert(std::is_integral_v<T>, "rotr requires an integral type");
+        constexpr DWORD width  = sizeof(T) * 8u;
+        shift                 &= (width - 1u);
+        if (shift == 0)
+            return value;
+        return (value >> shift) | (value << (width - shift));
     }
 
     /* *******************************************************************************
@@ -225,19 +208,18 @@ namespace tklib
      *  DATE    : 2026                                                               *
      *  PURPOSE : Reverse the byte order of value.                                   *
      ********************************************************************************/
-    NO_DISCARD constexpr WORD byteswap(WORD value) noexcept
+    template <typename T> NO_DISCARD constexpr T byteswap(T value) noexcept
     {
-        return static_cast<WORD>(__builtin_bswap16(value));
-    }
-
-    NO_DISCARD constexpr DWORD byteswap(DWORD value) noexcept
-    {
-        return __builtin_bswap32(value);
-    }
-
-    NO_DISCARD constexpr QWORD byteswap(QWORD value) noexcept
-    {
-        return __builtin_bswap64(value);
+        static_assert(std::is_integral_v<T>, "byteswap requires an integral type");
+        if constexpr (sizeof(T) == 2) {
+            return static_cast<T>(__builtin_bswap16(static_cast<WORD>(value)));
+        } else if constexpr (sizeof(T) == 4) {
+            return static_cast<T>(__builtin_bswap32(static_cast<DWORD>(value)));
+        } else if constexpr (sizeof(T) == 8) {
+            return static_cast<T>(__builtin_bswap64(static_cast<QWORD>(value)));
+        } else {
+            return value;
+        }
     }
 
     /* *******************************************************************************

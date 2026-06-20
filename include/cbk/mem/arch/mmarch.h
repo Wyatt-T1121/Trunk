@@ -76,6 +76,7 @@ namespace trunk::mem
     constexpr QWORD PTE_USER  = PTE_AVAIL | PAGE_PRESENT | PAGE_WRITABLE | PAGE_USER;
 
     constexpr QWORD NO_OF_PT_ENTRIES = 512;
+
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
      * FUNC    : PPN                                                                 *

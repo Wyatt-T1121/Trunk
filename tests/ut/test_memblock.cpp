@@ -21,7 +21,7 @@
  *  PURPOSE : Unit tests for memblock                                            *
  ********************************************************************************/
 
-#include <cbk/mem/memblock.h>
+#include <cbk/mem/alloc/memblock.h>
 #include <gtest/gtest.h>
 
 static trunk::boot::BootInfo make_fake_boot_info()
