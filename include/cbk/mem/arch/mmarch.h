@@ -29,6 +29,7 @@
 
 namespace trunk::mem
 {
+
     constexpr QWORD KB = 1024ULL;
     constexpr QWORD MB = 1024ULL * KB;
     constexpr QWORD GB = 1024ULL * MB;
@@ -55,11 +56,26 @@ namespace trunk::mem
     constexpr QWORD PAGE_GLOBAL   = (1ULL << 8);
     constexpr QWORD PAGE_NX       = (1ULL << 63);
 
+    constexpr ULONG PAGE_NOACCESS          = 0x00000001;
+    constexpr ULONG PAGE_READONLY          = 0x00000002;
+    constexpr ULONG PAGE_READWRITE         = 0x00000004;
+    constexpr ULONG PAGE_WRITECOPY         = 0x00000008;
+    constexpr ULONG PAGE_EXECUTE           = 0x00000010;
+    constexpr ULONG PAGE_EXECUTE_READ      = 0x00000020;
+    constexpr ULONG PAGE_EXECUTE_READWRITE = 0x00000040;
+    constexpr ULONG PAGE_EXECUTE_WRITECOPY = 0x00000080;
+    constexpr ULONG PAGE_GUARD             = 0x00000100;
+    constexpr ULONG PAGE_NOCACHE           = 0x00000200;
+    constexpr ULONG PAGE_WRITECOMBINE      = 0x00000400;
+
+    constexpr ULONG VAD_STATE_FREE      = 0x00;
+    constexpr ULONG VAD_STATE_RESERVED  = 0x01;
+    constexpr ULONG VAD_STATE_COMMITTED = 0x02;
+
     constexpr QWORD PTE_AVAIL = 0xE00;
     constexpr QWORD PTE_USER  = PTE_AVAIL | PAGE_PRESENT | PAGE_WRITABLE | PAGE_USER;
 
     constexpr QWORD NO_OF_PT_ENTRIES = 512;
-
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
      * FUNC    : PPN                                                                 *

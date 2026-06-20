@@ -22,6 +22,8 @@
  ********************************************************************************/
 #include <cbk/mem/alloc/memblock.h>
 
+#include <cbk/mem/alloc/freelist.h>
+
 #include <assert.h>
 #include <kmlayout.h>
 
@@ -92,6 +94,33 @@ namespace trunk::mem
         }
 
         /* *******************************************************************************
+         * AUTHOR  : Trollycat                                                           *
+         * FUNC    : MergeMemoryRegions                                                  *
+         * DATE    : 2026                                                                *
+         * PURPOSE : Merge contiguous available free memory regions                      *
+         ********************************************************************************/
+        VOID MergeMemoryRegions() noexcept
+        {
+            if (s_memory_count < 2)
+                return;
+
+            SIZE_T write = 0;
+            for (SIZE_T read = 1; read < s_memory_count; ++read) {
+                const QWORD cur_end = s_memory_regions[write].base + s_memory_regions[write].size;
+                const QWORD next_start = s_memory_regions[read].base;
+                const QWORD next_end   = next_start + s_memory_regions[read].size;
+
+                if (next_start == cur_end) {
+                    s_memory_regions[write].size = next_end - s_memory_regions[write].base;
+                } else {
+                    ++write;
+                    s_memory_regions[write] = s_memory_regions[read];
+                }
+            }
+            s_memory_count = write + 1;
+        }
+
+        /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
          *  FUNC    : CarveFreeRegion                                                    *
          *  DATE    : 2026                                                               *
@@ -131,6 +160,46 @@ namespace trunk::mem
             return false;
         }
 
+        /* *******************************************************************************
+         * AUTHOR  : Trollycat                                                           *
+         * FUNC    : CarveReservedRegion                                                 *
+         * DATE    : 2026                                                                *
+         * PURPOSE : Remove [base, base + size) from the reserved tracking array.        *
+         ********************************************************************************/
+        BOOL CarveReservedRegion(QWORD base, QWORD size) noexcept
+        {
+            const QWORD end = base + size;
+
+            for (SIZE_T i = 0; i < s_reserved_count; ++i) {
+                const QWORD region_start = s_reserved_regions[i].base;
+                const QWORD region_end   = region_start + s_reserved_regions[i].size;
+
+                if (base < region_start || end > region_end)
+                    continue;
+
+                const QWORD left_size  = base - region_start;
+                const QWORD right_size = region_end - end;
+
+                if (left_size > 0 && right_size > 0) {
+                    s_reserved_regions[i].size = left_size;
+                    if (s_reserved_count < MAX_MEMBLOCK_REGIONS)
+                        s_reserved_regions[s_reserved_count++] = {end, right_size};
+                } else if (left_size > 0) {
+                    s_reserved_regions[i].size = left_size;
+                } else if (right_size > 0) {
+                    s_reserved_regions[i].base = end;
+                    s_reserved_regions[i].size = right_size;
+                } else {
+                    s_reserved_regions[i] = s_reserved_regions[--s_reserved_count];
+                }
+
+                s_total_reserved -= size;
+                return true;
+            }
+
+            return false;
+        }
+
     } // namespace
 
     /* *******************************************************************************
@@ -147,8 +216,13 @@ namespace trunk::mem
         s_total_free     = 0;
         s_total_reserved = 0;
 
+        QWORD max_phys_addr = 0;
+
         for (SIZE_T i = 0; i < boot_info.mmap_count; ++i) {
             const auto &entry = boot_info.mmap[i];
+
+            if (entry.base + entry.length > max_phys_addr)
+                max_phys_addr = entry.base + entry.length;
 
             if (entry.Available()) {
                 ASSERT(s_memory_count < MAX_MEMBLOCK_REGIONS,
@@ -160,6 +234,9 @@ namespace trunk::mem
                 MemblockReserve(entry.base, entry.length);
             }
         }
+
+        if (max_phys_addr > 0)
+            mm_highest_physical_page = (max_phys_addr - 1) >> 12;
 
         QWORD k_start = reinterpret_cast<QWORD>(__kernel_phys_start);
         QWORD k_end   = reinterpret_cast<QWORD>(__kernel_phys_end);
@@ -179,9 +256,8 @@ namespace trunk::mem
      ********************************************************************************/
     NO_DISCARD QWORD MemblockAlloc(QWORD size, QWORD alignment) noexcept
     {
-        if (size == 0 || alignment == 0) UNLIKELY {
+        if (size == 0 || alignment == 0) UNLIKELY
             return 0;
-        }
 
         ASSERT(tklib::math::is_power_of_two(alignment),
                "MemblockAlloc: alignment must be a power of two");
@@ -218,6 +294,31 @@ namespace trunk::mem
         }
 
         return 0;
+    }
+
+    /* *******************************************************************************
+     * AUTHOR  : Trollycat                                                           *
+     * FUNC    : MemblockFree                                                        *
+     * DATE    : 2026                                                                *
+     * PURPOSE : Free / unreserve a previously allocated chunk inside memblock       *
+     ********************************************************************************/
+    VOID MemblockFree(QWORD base, QWORD size) noexcept
+    {
+        if (size == 0)
+            return;
+
+        BOOL carved = CarveReservedRegion(base, size);
+
+        ASSERT(carved, "MemblockFree: Target region was not found in the reserved array!");
+        ASSERT(s_memory_count < MAX_MEMBLOCK_REGIONS,
+               "Memory region count exceeds MAX_MEMBLOCK_REGIONS during free");
+
+        s_memory_regions[s_memory_count++]  = {base, size};
+        s_total_free                       += size;
+
+        InsertionSortRegions(s_memory_regions, s_memory_count);
+        MergeMemoryRegions();
+        InsertionSortRegions(s_reserved_regions, s_reserved_count);
     }
 
     /* *******************************************************************************
@@ -264,6 +365,30 @@ namespace trunk::mem
                 break;
 
             if (base < res_end && end > res_start)
+                return true;
+        }
+
+        return false;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : MemblockIsPageFree                                                 *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Checks if a specific physical PFN is available for the free lists  *
+     ********************************************************************************/
+    NO_DISCARD BOOL MemblockIsPageFree(PFN_NUM pfn) noexcept
+    {
+        QWORD byte_addr = static_cast<QWORD>(pfn) << 12;
+
+        if (MemblockIsReserved(byte_addr, 4096))
+            return false;
+
+        for (SIZE_T i = 0; i < s_memory_count; ++i) {
+            QWORD start = s_memory_regions[i].base;
+            QWORD end   = start + s_memory_regions[i].size;
+
+            if (byte_addr >= start && (byte_addr + 4096) <= end)
                 return true;
         }
 

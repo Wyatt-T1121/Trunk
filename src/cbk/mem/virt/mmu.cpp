@@ -24,9 +24,11 @@
 
 #include <cbk/mem/virt/aspace.h>
 
+#include <cbk/mem/alloc/freelist.h>
 #include <cbk/mem/alloc/memblock.h>
 #include <cbk/mem/alloc/page_alloc.h>
 #include <cbk/mem/pfn/pfn.h>
+#include <cbk/mem/types/mmtypes.h>
 
 #include <cbk/hal/io.h>
 
@@ -83,10 +85,12 @@ namespace trunk::mem
             if (s_early_mmu) {
                 phys = MemblockAlloc(PAGE_SIZE, PAGE_SIZE);
             } else {
-                MMPFN *page = PfnAllocPages(0);
-                if (!page)
+                PFN_NUM pfn = MmAllocPage(static_cast<ULONG>(MC_TYPE::SYSTEM));
+
+                if (pfn == 0)
                     return 0;
-                phys = static_cast<QWORD>(page - g_PfnAllocator.mm_pfn_database) * PAGE_SIZE;
+
+                phys = pfn * PAGE_SIZE;
             }
 
             if (!phys)
@@ -106,7 +110,7 @@ namespace trunk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Walk one level of the page table                                   *
          ********************************************************************************/
-        NO_DISCARD QWORD *GetOrAllocTable(QWORD *entry, BOOL alloc) noexcept
+        NO_DISCARD QWORD *GetOrAllocTable(QWORD *entry, BOOL alloc, QWORD flags) noexcept
         {
             if (!(*entry & PAGE_PRESENT)) {
                 if (!alloc)
@@ -116,7 +120,11 @@ namespace trunk::mem
                 if (!new_phys)
                     return nullptr;
 
-                *entry = new_phys | PAGE_PRESENT | PAGE_WRITABLE;
+                QWORD table_flags = PAGE_PRESENT | PAGE_WRITABLE;
+                if (flags & PAGE_USER)
+                    table_flags |= PAGE_USER;
+
+                *entry = new_phys | table_flags;
             }
 
             return reinterpret_cast<QWORD *>(PaddrToKvaddr(PTE_ADDR(*entry)));
@@ -128,24 +136,25 @@ namespace trunk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Walk the page table for va                                         *
          ********************************************************************************/
-        NO_DISCARD QWORD *MmuGetPte(ArchAspace *space, QWORD va, BOOL alloc) noexcept
+        NO_DISCARD QWORD *MmuGetPte(ArchAspace *space, QWORD va, BOOL alloc,
+                                    QWORD flags = 0) noexcept
         {
             ASSERT(space != nullptr, "MmuGetPte: space is null");
             ASSERT(space->pml4_virt != nullptr, "MmuGetPte: pml4_virt is null");
             ASSERT(IsCanonical(va), "MmuGetPte: non virtual address");
 
-            QWORD *pdpt = GetOrAllocTable(&space->pml4_virt[PML4X(va)], alloc);
+            QWORD *pdpt = GetOrAllocTable(&space->pml4_virt[PML4X(va)], alloc, flags);
             if (!pdpt)
                 return nullptr;
 
-            QWORD *pd = GetOrAllocTable(&pdpt[PDPTX(va)], alloc);
+            QWORD *pd = GetOrAllocTable(&pdpt[PDPTX(va)], alloc, flags);
             if (!pd)
                 return nullptr;
 
-            if (pd[PDX(va)] & PAGE_PRESENT && pd[PDX(va)] & (QWORD{1} << 7))
+            if (pd[PDX(va)] & PAGE_PRESENT && pd[PDX(va)] & PAGE_HUGE)
                 return nullptr;
 
-            QWORD *pt = GetOrAllocTable(&pd[PDX(va)], alloc);
+            QWORD *pt = GetOrAllocTable(&pd[PDX(va)], alloc, flags);
             if (!pt)
                 return nullptr;
 
@@ -158,17 +167,18 @@ namespace trunk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Walk to the PDE level for va                                       *
          ********************************************************************************/
-        NO_DISCARD QWORD *MmuGetPde(ArchAspace *space, QWORD va, BOOL alloc) noexcept
+        NO_DISCARD QWORD *MmuGetPde(ArchAspace *space, QWORD va, BOOL alloc,
+                                    QWORD flags = 0) noexcept
         {
             ASSERT(space != nullptr, "MmuGetPde: space is null");
             ASSERT(space->pml4_virt != nullptr, "MmuGetPde: pml4_virt is null");
             ASSERT(IsCanonical(va), "MmuGetPde: non-canonical virtual address");
 
-            QWORD *pdpt = GetOrAllocTable(&space->pml4_virt[PML4X(va)], alloc);
+            QWORD *pdpt = GetOrAllocTable(&space->pml4_virt[PML4X(va)], alloc, flags);
             if (!pdpt)
                 return nullptr;
 
-            QWORD *pd = GetOrAllocTable(&pdpt[PDPTX(va)], alloc);
+            QWORD *pd = GetOrAllocTable(&pdpt[PDPTX(va)], alloc, flags);
             if (!pd)
                 return nullptr;
 
@@ -196,6 +206,23 @@ namespace trunk::mem
             hal::Cpuid(0x80000008, eax, ebx, ecx, edx);
             s_paddr_width = static_cast<BYTE>(eax & 0xFF);
             s_vaddr_width = static_cast<BYTE>((eax >> 8) & 0xFF);
+        }
+
+        NO_DISCARD QWORD ConvertProtectToHardwareFlags(ULONG protect) noexcept
+        {
+            QWORD hw_flags = 0;
+
+            if (protect & PAGE_READWRITE || protect & PAGE_EXECUTE_READWRITE)
+                hw_flags |= PAGE_WRITABLE;
+
+            if (protect & PAGE_NOCACHE)
+                hw_flags |= PAGE_PCD | PAGE_PWT;
+
+            if (s_nx_supported)
+                if (!(protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+                    hw_flags |= PAGE_NX;
+
+            return hw_flags;
         }
     } // namespace
 
@@ -253,15 +280,14 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a page In the MMU                                             *
      ********************************************************************************/
-    NO_DISCARD BOOL MmuMapPage(ArchAspace *space, QWORD va, QWORD pa, QWORD flags) noexcept
+    NO_DISCARD BOOL MmuMapPage(ArchAspace *space, QWORD va, QWORD pa, ULONG protect) noexcept
     {
         ASSERT(IsPageAligned(va), "MmuMapPage: va must be 4KB aligned");
         ASSERT(IsPageAligned(pa), "MmuMapPage: pa must be 4KB aligned");
         ASSERT(IsCanonical(va), "MmuMapPage: non-canonical virtual address");
         ASSERT(IsValidPaddr(pa), "MmuMapPage: pa exceeds physical address width");
 
-        if (!s_nx_supported)
-            flags &= ~PAGE_NX;
+        QWORD hw_flags = ConvertProtectToHardwareFlags(protect);
 
         QWORD *pte = MmuGetPte(space, va, true);
         if (!pte)
@@ -269,7 +295,7 @@ namespace trunk::mem
 
         ASSERT(!(*pte & PAGE_PRESENT), "MmuMapPage: remapping already-present page");
 
-        *pte = PTE_ADDR(pa) | flags | PAGE_PRESENT;
+        *pte = PTE_ADDR(pa) | hw_flags | PAGE_PRESENT;
         TlbFlushPage(va);
         return true;
     }
@@ -332,25 +358,53 @@ namespace trunk::mem
         ASSERT(IsPageAligned(range.size), "MmuMapRange: size must be multiple of 4KB");
         ASSERT(range.size > 0, "MmuMapRange: size must be non-zero");
 
-        QWORD curr_va = range.start_vaddr;
-        QWORD curr_pa = range.start_paddr;
+        QWORD curr_va    = range.start_vaddr;
+        QWORD curr_pa    = range.start_paddr;
+        SIZE_T remaining = range.size;
+        BOOL status      = true;
 
-        for (SIZE_T progress = 0; progress < range.size; progress += PAGE_SIZE) {
-            if (!MmuMapPage(space, curr_va, curr_pa, flags)) {
-                QWORD rollback_va = range.start_vaddr;
-                for (SIZE_T clean = 0; clean < progress; clean += PAGE_SIZE) {
-                    BOOL ok = MmuUnmapPage(space, rollback_va);
-                    ASSERT(ok, "MmuMapRange: unmap failed during rollback");
-                    rollback_va += PAGE_SIZE;
+        while (remaining > 0 && status) {
+            if (s_huge_supported && remaining >= HUGE_PAGE_SIZE && (curr_va & HUGE_MASK) == 0 &&
+                (curr_pa & HUGE_MASK) == 0) {
+
+                if (!MmuMapPageHuge(space, curr_va, curr_pa, flags)) {
+                    status = false;
+                } else {
+                    curr_va   += HUGE_PAGE_SIZE;
+                    curr_pa   += HUGE_PAGE_SIZE;
+                    remaining -= HUGE_PAGE_SIZE;
                 }
-                return false;
+            } else {
+                if (!MmuMapPage(space, curr_va, curr_pa, flags)) {
+                    status = false;
+                } else {
+                    curr_va   += PAGE_SIZE;
+                    curr_pa   += PAGE_SIZE;
+                    remaining -= PAGE_SIZE;
+                }
             }
-
-            curr_va += PAGE_SIZE;
-            curr_pa += PAGE_SIZE;
         }
 
-        return true;
+        if (!status) {
+            QWORD rollback_va = range.start_vaddr;
+            SIZE_T progress   = range.size - remaining;
+            SIZE_T cleaned    = 0;
+            while (cleaned < progress) {
+                QWORD *pde = MmuGetPde(space, rollback_va, false);
+                if (pde && (*pde & PAGE_PRESENT) && (*pde & PAGE_HUGE)) {
+                    *pde = 0;
+                    TlbFlushPage(rollback_va);
+                    rollback_va += HUGE_PAGE_SIZE;
+                    cleaned     += HUGE_PAGE_SIZE;
+                } else {
+                    MmuUnmapPage(space, rollback_va);
+                    rollback_va += PAGE_SIZE;
+                    cleaned     += PAGE_SIZE;
+                }
+            }
+        }
+
+        return status;
     }
 
     /* *******************************************************************************
@@ -383,6 +437,11 @@ namespace trunk::mem
     {
         ASSERT(IsCanonical(va), "MmuTranslate: non-canonical virtual address");
 
+        QWORD *pde = MmuGetPde(space, va, false);
+        if (pde && (*pde & PAGE_PRESENT) && (*pde & PAGE_HUGE)) {
+            return (PTE_ADDR(*pde) & ~HUGE_MASK) | (va & HUGE_MASK);
+        }
+
         QWORD *pte = MmuGetPte(space, va, false);
         if (!pte || !(*pte & PAGE_PRESENT))
             return 0;
@@ -401,6 +460,10 @@ namespace trunk::mem
         if (!IsCanonical(va))
             return false;
 
+        QWORD *pde = MmuGetPde(space, va, false);
+        if (pde && (*pde & PAGE_PRESENT) && (*pde & PAGE_HUGE))
+            return true;
+
         QWORD *pte = MmuGetPte(space, va, false);
         return pte != nullptr && (*pte & PAGE_PRESENT);
     }
@@ -416,12 +479,19 @@ namespace trunk::mem
         ASSERT(IsPageAligned(va), "MmuProtect: va must be 4KB aligned");
         ASSERT(IsCanonical(va), "MmuProtect: non-canonical virtual address");
 
+        if (!s_nx_supported)
+            new_flags &= ~PAGE_NX;
+
+        QWORD *pde = MmuGetPde(space, va, false);
+        if (pde && (*pde & PAGE_PRESENT) && (*pde & PAGE_HUGE)) {
+            *pde = PTE_ADDR(*pde) | new_flags | PAGE_PRESENT | PAGE_HUGE;
+            TlbFlushPage(va);
+            return true;
+        }
+
         QWORD *pte = MmuGetPte(space, va, false);
         if (!pte || !(*pte & PAGE_PRESENT))
             return false;
-
-        if (!s_nx_supported)
-            new_flags &= ~PAGE_NX;
 
         *pte = PTE_ADDR(*pte) | new_flags | PAGE_PRESENT;
         TlbFlushPage(va);
@@ -439,6 +509,10 @@ namespace trunk::mem
         if (!IsCanonical(va))
             return 0;
 
+        QWORD *pde = MmuGetPde(space, va, false);
+        if (pde && (*pde & PAGE_PRESENT) && (*pde & PAGE_HUGE))
+            return *pde;
+
         QWORD *pte = MmuGetPte(space, va, false);
         if (!pte)
             return 0;
@@ -452,9 +526,16 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Clear the accessed bit on a mapped page                            *
      ********************************************************************************/
-    BOOL MmuClearAccessed(ArchAspace *space, QWORD va) noexcept
+    NO_DISCARD BOOL MmuClearAccessed(ArchAspace *space, QWORD va) noexcept
     {
         ASSERT(IsCanonical(va), "MmuClearAccessed: non-canonical virtual address");
+
+        QWORD *pde = MmuGetPde(space, va, false);
+        if (pde && (*pde & PAGE_PRESENT) && (*pde & PAGE_HUGE)) {
+            *pde &= ~PAGE_ACCESSED;
+            TlbFlushPage(va);
+            return true;
+        }
 
         QWORD *pte = MmuGetPte(space, va, false);
         if (!pte || !(*pte & PAGE_PRESENT))

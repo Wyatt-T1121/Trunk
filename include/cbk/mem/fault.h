@@ -16,36 +16,37 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Architecture address space                                         *
+ *  MODULE  : Page fault handler                                                 *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Holds ArchAspace                                                   *
+ *  PURPOSE : Page fault handler, registered to interrupt #14                    *
  ********************************************************************************/
 #pragma once
 
-#include <types.h>
+#include <cbk/interrupts/trap_frame.h>
 
-#include <cbk/mem/types/mmtypes.h>
-#include <cbk/mem/util/list.h>
+#include <macros.h>
+#include <types.h>
 
 namespace trunk::mem
 {
-    struct MmVad
-    {
-        LIST_ENTRY entry;
-        QWORD starting_address;
-        SIZE_T size;
-        ULONG state;
-        ULONG protect;
-    };
+    constexpr LONG STATUS_SUCCESS          = 0x00000000L;
+    constexpr LONG STATUS_ACCESS_VIOLATION = 0xC0000005L;
 
-    struct ArchAspace
-    {
-        QWORD *pml4_virt;
-        QWORD pml4_phys;
-        QWORD base;
-        SIZE_T size;
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : HandlePageFault                                                    *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Raw ISR entry hook for Vector 14 (#PF)                             *
+     ********************************************************************************/
+    VOID HandlePageFault(interrupts::TrapFrame *frame) noexcept;
 
-        LIST_ENTRY vad_list_head;
-    };
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : MmAccessFault                                                      *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Evaluates why the CPU faulted                                      *
+     ********************************************************************************/
+    NO_DISCARD LONG MmAccessFault(ULONG_PTR faulting_address,
+                                  interrupts::TrapFrame *frame) noexcept;
 
 } // namespace trunk::mem

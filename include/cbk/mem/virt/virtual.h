@@ -15,110 +15,105 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Memory block                                                       *
+ *  MODULE  : Virtual memory manager                                             *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Memory allocator for early boot stage.                             *
+ *  PURPOSE : Virtual memory management                                          *
  ********************************************************************************/
 #pragma once
 
-#include <assert.h>
+// KERNEL DOES NOT SUPPPORT PROCESSES OR SCHEDULING RIGHT NOW
+// THIS VMM IS VERY SIMPLE, NO PROCESS SUPPORT
+// LATER WILL BE IMPROVED
+
+// TODO: ADD PROCESS SUPPORT AND AREA MAPPINGS
+
+#include <cbk/mem/arch/mmarch.h>
+#include <cbk/mem/virt/aspace.h>
+
 #include <macros.h>
 #include <types.h>
 
-#include <cbk/mem/types/mmtypes.h>
-
-#include <boot/trldr/mb2/boot.h>
-
 namespace trunk::mem
 {
-    inline constexpr SIZE_T MAX_MEMBLOCK_REGIONS = 128;
-
-    struct GNU_PACKED MemoryRegion
-    {
-        QWORD base;
-        QWORD size;
-    };
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockInit                                                       *
+     *  FUNC    : VadFind                                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Initialization function for memblock                               *
+     *  PURPOSE : Search the VAD list of space for the entry covering address        *
      ********************************************************************************/
-    VOID MemblockInit(const boot::BootInfo &boot_info) noexcept;
+    NO_DISCARD PMMVAD VadFind(ArchAspace *space, QWORD address) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAlloc                                                      *
+     *  FUNC    : VadInsert                                                          *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Allocate a new chunk inside the memblock region                    *
+     *  PURPOSE : Insert a new VAD into the address space VAD list                   *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockAlloc(QWORD size, QWORD alignment) noexcept;
-
-    /* *******************************************************************************
-     * AUTHOR  : Trollycat                                                           *
-     * FUNC    : MemblockFree                                                        *
-     * DATE    : 2026                                                                *
-     * PURPOSE : Free / unreserve a previously allocated chunk inside memblock       *
-     ********************************************************************************/
-    VOID MemblockFree(QWORD base, QWORD size) noexcept;
+    VOID VadInsert(ArchAspace *space, PMMVAD vad) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockReserve                                                    *
+     *  FUNC    : VadRemove                                                          *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Reserve a region inside the memblock                               *
+     *  PURPOSE : Remove a VAD from the address space VAD list                       *
      ********************************************************************************/
-    VOID MemblockReserve(QWORD base, QWORD size) noexcept;
+    VOID VadRemove(ArchAspace *space, PMMVAD vad) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockIsReserved                                                 *
+     *  FUNC    : AllocateVirtualMemory                                              *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns true if any byte in [base, base + size) is reserved.       *
+     *  PURPOSE : Reserve and commit a virtual memory region in space                *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockIsReserved(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL AllocateVirtualMemory(ArchAspace *space, PVOID *base_address,
+                                          PSIZE_T region_size, ULONG allocation_type,
+                                          ULONG protect) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockIsPageFree                                                 *
+     *  FUNC    : FreeVirtualMemory                                                  *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Checks if a specific physical PFN is available for the free lists  *
+     *  PURPOSE : Unmap and release a previously allocated virtual memory region     *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockIsPageFree(PFN_NUM pfn) noexcept;
+    NO_DISCARD BOOL FreeVirtualMemory(ArchAspace *space, PVOID *base_address,
+                                      PSIZE_T region_size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockTotalFree                                                  *
+     *  FUNC    : ProtectVirtualMemory                                               *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns total free bytes remaining in the memory pool.             *
+     *  PURPOSE : Change the protection flags on a mapped virtual memory region      *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockTotalFree() noexcept;
+    NO_DISCARD BOOL ProtectVirtualMemory(ArchAspace *space, PVOID *base_address,
+                                         PSIZE_T number_of_bytes, ULONG new_protect,
+                                         PULONG old_protect) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockTotalReserved                                              *
+     *  FUNC    : QueryVirtualMemory                                                 *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Returns total reserved bytes across all reserved regions.          *
+     *  PURPOSE : Return information about the VAD covering address in space         *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockTotalReserved() noexcept;
+    NO_DISCARD BOOL QueryVirtualMemory(ArchAspace *space, QWORD address, PVOID *base_address,
+                                       PSIZE_T region_size, PULONG state, PULONG protect) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockGetRegionCount                                             *
+     *  FUNC    : CalculatePageCommitment                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Get the current region count.                                      *
+     *  PURPOSE : Count committed pages in [starting_address, ending_address)        *
      ********************************************************************************/
-    NO_DISCARD SIZE_T MemblockGetRegionCount() noexcept;
+    NO_DISCARD ULONG CalculatePageCommitment(QWORD starting_address, QWORD ending_address,
+                                             PMMVAD vad, ArchAspace *space) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockGetRegion                                                  *
+     *  FUNC    : DeleteVirtualAddresses                                             *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Get a region at the passed in index.                               *
+     *  PURPOSE : Unmap all pages in [va, ending_address) and remove their VADs      *
      ********************************************************************************/
-    NO_DISCARD MemoryRegion MemblockGetRegion(SIZE_T index) noexcept;
+    VOID DeleteVirtualAddresses(QWORD va, QWORD ending_address, ArchAspace *space) noexcept;
 
 } // namespace trunk::mem

@@ -22,6 +22,9 @@
  ********************************************************************************/
 #include <cbk/mem/alloc/page_alloc.h>
 
+#include <cbk/mem/alloc/freelist.h>
+#include <cbk/mem/alloc/memblock.h>
+
 #include <assert.h>
 #include <macros.h>
 
@@ -46,15 +49,23 @@ namespace trunk::mem
         g_MmPfnDatabase                = dbMemory;
         g_PfnAllocator.max_frames      = max;
 
+        mm_available_pages = 0;
+
         for (BYTE i = 0; i < BUDDY_MAX_ORDER; ++i)
             InitializeListHead(&g_PfnAllocator.free_lists[i]);
 
         for (SIZE_T i = 0; i < max; ++i) {
-            g_PfnAllocator.mm_pfn_database[i].order         = 0;
-            g_PfnAllocator.mm_pfn_database[i].page_location = MM_PFN_STATE::FREE_PAGE_LIST;
+            MMPFN &page_entry           = g_PfnAllocator.mm_pfn_database[i];
+            page_entry.order            = 0;
+            page_entry.list_entry.flink = nullptr;
+            page_entry.list_entry.blink = nullptr;
 
-            g_PfnAllocator.mm_pfn_database[i].list_entry.flink = nullptr;
-            g_PfnAllocator.mm_pfn_database[i].list_entry.blink = nullptr;
+            if (MemblockIsPageFree(static_cast<PFN_NUM>(i))) {
+                page_entry.page_location = MM_PFN_STATE::FREE_PAGE_LIST;
+                InsertTailList(&g_PfnAllocator.free_lists[0], &page_entry.list_entry);
+                mm_available_pages++;
+            } else
+                page_entry.page_location = MM_PFN_STATE::ACTIVE_AND_VALID;
         }
     }
 
@@ -101,6 +112,12 @@ namespace trunk::mem
                 page->list_entry.flink = nullptr;
                 page->list_entry.blink = nullptr;
 
+                SIZE_T pages_allocated = SIZE_T{1} << order;
+                ASSERT(mm_available_pages >= pages_allocated,
+                       "PfnAllocPages: Available tracker underflow");
+
+                mm_available_pages -= pages_allocated;
+
                 return page;
             }
         }
@@ -124,6 +141,8 @@ namespace trunk::mem
         ASSERT(pfn < g_PfnAllocator.max_frames, "PfnFreePages: PFN OUT OF BOUNDS");
         ASSERT(page->page_location == MM_PFN_STATE::ACTIVE_AND_VALID,
                "PfnFreePages: DOUBLE FREE DETECTED");
+
+        SIZE_T pages_to_return = SIZE_T{1} << order;
 
         while (order < BUDDY_MAX_ORDER - 1) {
             SIZE_T buddy_pfn = pfn ^ (SIZE_T{1} << order);
@@ -151,5 +170,7 @@ namespace trunk::mem
         page->page_location = MM_PFN_STATE::FREE_PAGE_LIST;
 
         InsertHeadList(&g_PfnAllocator.free_lists[order], &page->list_entry);
+
+        mm_available_pages += pages_to_return;
     }
 } // namespace trunk::mem

@@ -39,6 +39,11 @@ namespace trunk::mem
         QWORD size;
     };
 
+    struct MmPte
+    {
+        QWORD hard;
+    };
+
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : MmuEarlyInit                                                       *
@@ -77,7 +82,7 @@ namespace trunk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps a page In the MMU                                             *
      ********************************************************************************/
-    NO_DISCARD BOOL MmuMapPage(ArchAspace *space, QWORD va, QWORD pa, QWORD flags) noexcept;
+    NO_DISCARD BOOL MmuMapPage(ArchAspace *space, QWORD va, QWORD pa, ULONG protect) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

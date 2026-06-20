@@ -44,10 +44,12 @@ using ULONG     = uint32_t;
 using ULONGLONG = uint64_t;
 
 using SIZE_T    = size_t;
+using PSIZE_T   = size_t *;
 using ULONG_PTR = uintptr_t;
 using LONG_PTR  = intptr_t;
 
-using BOOL = bool;
+using BOOL  = bool;
+using PBOOL = bool *;
 
 using VOID    = void;
 using PVOID   = void *;
@@ -55,20 +57,35 @@ using LPCVOID = const void *;
 
 using PBYTE = BYTE *;
 
-using PWORD  = WORD *;
-using PDWORD = DWORD *;
-using PQWORD = QWORD *;
-using PCHAR  = CHAR *;
-using PLONG  = LONG *;
-using PULONG = ULONG *;
-using PCSTR  = const char *;
-using PWSTR  = wchar_t *;
-using PCWSTR = const wchar_t *;
+using PWORD      = WORD *;
+using PDWORD     = DWORD *;
+using PQWORD     = QWORD *;
+using PCHAR      = CHAR *;
+using PLONG      = LONG *;
+using PULONG     = ULONG *;
+using PULONG_PTR = ULONG **;
+using PCSTR      = const char *;
+using PWSTR      = wchar_t *;
+using PCWSTR     = const wchar_t *;
 
 using HANDLE  = void *;
 using PHANDLE = HANDLE *;
 
 inline constexpr ULONG_PTR INVALID_HANDLE_VALUE = ~ULONG_PTR{0};
+
+struct EProcess;
+using PEPROCESS = EProcess *;
+
+struct ExceptionRecord;
+using PEXCEPTION_RECORD = ExceptionRecord *;
+
+struct ExceptionPointers;
+using PEXCEPTION_POINTERS = ExceptionPointers *;
+
+using PFN_NUM  = QWORD;
+using PPFN_NUM = QWORD *;
+
+using PFN_COUNT = QWORD;
 
 namespace limits
 {
@@ -95,5 +112,28 @@ namespace limits
     inline constexpr LONG_PTR LONG_PTR_min   = INTPTR_MIN;
     inline constexpr LONG_PTR LONG_PTR_max   = INTPTR_MAX;
 } // namespace limits
+
+namespace trunk::mem
+{
+    struct ListEntry;
+    using LIST_ENTRY  = ListEntry;
+    using PLIST_ENTRY = ListEntry *;
+
+    struct MmRmapEntry;
+    using PMM_RMAP_ENTRY = MmRmapEntry *;
+
+    struct MmPfn;
+    using MMPFN   = MmPfn;
+    using PMMPFN  = MmPfn *;
+    using PPMMPFN = MmPfn **;
+
+    struct MmVad;
+    using MMVAD  = MmVad;
+    using PMMVAD = MmVad *;
+
+    struct MmPte;
+    using MMPTE  = MmPte;
+    using PMMPTE = MmPte *;
+} // namespace trunk::mem
 
 #pragma GCC diagnostic pop

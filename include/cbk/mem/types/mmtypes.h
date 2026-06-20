@@ -27,26 +27,15 @@
 
 namespace trunk::mem
 {
-    inline constexpr SIZE_T MM_PFN_STATE_COUNT = 7;
-
-    // TODO: THIS IS A FORWARD DECL, NOT DEFINED YET.
-    // TO BE DEFINED DURING PS.
-    struct EProcess;
-    using PEPROCESS = EProcess *;
-
-    struct ListEntry;
-    using LIST_ENTRY  = ListEntry;
-    using PLIST_ENTRY = ListEntry *;
-
-    struct MmRmapEntry;
-    using PMM_RMAP_ENTRY = MmRmapEntry *;
-
-    struct MmPfn;
-    using MMPFN   = MmPfn;
-    using PMMPFN  = MmPfn *;
-    using PPMMPFN = MmPfn **;
-
-    using PFN_NUM = QWORD;
+    inline constexpr ULONG MEM_COMMIT              = 0x00001000;
+    inline constexpr ULONG MEM_RESERVE             = 0x00002000;
+    inline constexpr ULONG MEM_REPLACE_PLACEHOLDER = 0x00004000;
+    inline constexpr ULONG MEM_RELEASE             = 0x00008000;
+    inline constexpr ULONG MEM_FREE                = 0x00010000;
+    inline constexpr ULONG MEM_RESET               = 0x00080000;
+    inline constexpr ULONG MEM_TOP_DOWN            = 0x00100000;
+    inline constexpr ULONG MEM_LARGE_PAGES         = 0x20000000;
+    inline constexpr SIZE_T MM_PFN_STATE_COUNT     = 7;
 
     enum class MM_PFN_STATE : BYTE
     {

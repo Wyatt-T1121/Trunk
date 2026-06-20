@@ -16,36 +16,31 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Architecture address space                                         *
+ *  MODULE  : Exception pointer                                                  *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Holds ArchAspace                                                   *
+ *  PURPOSE : Stores ExceptionRecord                                             *
  ********************************************************************************/
 #pragma once
 
 #include <types.h>
 
-#include <cbk/mem/types/mmtypes.h>
-#include <cbk/mem/util/list.h>
+#include <cbk/interrupts/trap_frame.h>
 
-namespace trunk::mem
+namespace trunk::kernel
 {
-    struct MmVad
+    struct ExceptionRecord
     {
-        LIST_ENTRY entry;
-        QWORD starting_address;
-        SIZE_T size;
-        ULONG state;
-        ULONG protect;
+        DWORD exception_code;
+        DWORD exception_flags;
+        ExceptionRecord *exception_record;
+        PVOID exception_address;
+        DWORD number_parameters;
+        ULONG_PTR exception_information[15];
     };
 
-    struct ArchAspace
+    struct ExceptionPointers
     {
-        QWORD *pml4_virt;
-        QWORD pml4_phys;
-        QWORD base;
-        SIZE_T size;
-
-        LIST_ENTRY vad_list_head;
+        ExceptionRecord *exception_record;
+        interrupts::TrapFrame *context_record;
     };
-
-} // namespace trunk::mem
+} // namespace trunk::kernel
