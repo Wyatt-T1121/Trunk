@@ -32,15 +32,6 @@ Although the GUI will be Console-Based, the operating system won't be as restric
 
 There will still be a Terminal, a Task manager, and more.
 
-It's hard to draw it out in markdown format, but this is a basic drawing:
-
-| -----------------------------------------------------------------------------------------------------------
-| MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU  
-| DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER
-| APP APP APP APP APP APP APP APP APP APP APP APP APP APP APP APP APP APP
-| DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER DIVIDER
-| MENU MENU MENU MENU MENU MENU MENU MENU MENU MENU
-
 You will start in the 'apps' section, with a simple left to right selection of applications
 Scrolling up will bring you to a menu selection (for basic stuff, like 'Settings' or 'Account')
 Then scrolling down will bring you to an applications information
