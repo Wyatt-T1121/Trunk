@@ -1,8 +1,8 @@
-# Grand design for Trunk
+# Design for Trunk
 
-This document covers the design guide for Trunk.
+This document covers the design for Trunk.
 
-It explains how Trunk is going to be made, the plans for the future, etc...
+It explains how Trunk Is designed, future plans for design, etc..
 
 ## Table of contents
 
