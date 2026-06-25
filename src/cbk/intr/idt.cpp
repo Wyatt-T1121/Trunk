@@ -16,53 +16,64 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Core kernel                                                        *
+ *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Kernel entry point (CbkStartup)                                    *
+ *  PURPOSE : Populates the 256 IDT gates.                                       *
  ********************************************************************************/
-#include <cbk/kern/init/kinit.h>
-#include <cbk/kern/welcome.h>
+#include <cbk/intr/idt.h>
 
-#include <cbk/gdt/gdt.h>
-#include <cbk/hal/io.h>
+extern "C" CONST QWORD g_InterruptVectorTable[256];
 
-#include <cbk/interrupts/idt/idt.h>
-
-#include <drivers/hal/pic.h>
-
-#define STARTUP_FUNC_FLAGS extern "C" NO_RETURN __attribute__((section(".text")))
-
-namespace cbk::kernel
+namespace cbk::interrupts
 {
+    static IdtDescriptor g_IdtEntries[256] ALIGNED(16);
+
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : CbkSetupSubsystems                                                 *
+     *  FUNC    : SetGate                                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Setup all subsystems of the Trunk kernel                           *
+     *  PURPOSE : Sets a new IDT gate with parameters                                *
      ********************************************************************************/
-    VOID CbkSetupSubsystems(CONST boot::BootInfo &info) noexcept
+    VOID SetGate(BYTE vector, QWORD handler_address, WORD selector, BYTE privilege,
+                 BYTE ist) noexcept
     {
-        gdt::GdtInit();
-        interrupts::IdtInit();
-        drivers::pic::PicInit();
+        g_IdtEntries[vector].offset_low  = static_cast<WORD>(handler_address & 0xFFFF);
+        g_IdtEntries[vector].offset_mid  = static_cast<WORD>((handler_address >> 16) & 0xFFFF);
+        g_IdtEntries[vector].offset_high = static_cast<DWORD>((handler_address >> 32) & 0xFFFFFFFF);
+
+        g_IdtEntries[vector].segment_selector = selector;
+        g_IdtEntries[vector].ist_index        = ist;
+        g_IdtEntries[vector].gate_type        = 0xE;
+        g_IdtEntries[vector].privilege        = privilege;
+        g_IdtEntries[vector].present          = 1;
+        g_IdtEntries[vector].reserved_0       = 0;
+        g_IdtEntries[vector].reserved_1       = 0;
+        g_IdtEntries[vector].reserved_2       = 0;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : CbkStartup                                                         *
+     *  FUNC    : IdtInit                                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Top-level kernel entry.                                            *
+     *  PURPOSE : Initializes the interrupt descriptor table                         *
      ********************************************************************************/
-    STARTUP_FUNC_FLAGS VOID CbkStartup(CONST boot::BootInfo &info) noexcept
+    VOID IdtInit() noexcept
     {
-        CbkSetupSubsystems(info);
-        hal::Sti();
+        CONST WORD kernel_code_selector = 0x08;
 
-        MUWelcome();
+        for (int i = 0; i < 256; ++i)
+            SetGate(static_cast<BYTE>(i), g_InterruptVectorTable[i], kernel_code_selector, 0, 0);
 
-        (VOID) info;
-        for (;;) {
-            asm volatile("sti; hlt");
-        }
+        SetGate(8, g_InterruptVectorTable[8], kernel_code_selector, 0, 1);
+        SetGate(2, g_InterruptVectorTable[2], kernel_code_selector, 0, 2);
+        SetGate(1, g_InterruptVectorTable[1], kernel_code_selector, 0, 3);
+        SetGate(18, g_InterruptVectorTable[18], kernel_code_selector, 0, 4);
+
+        IdtrPointer idtr;
+        idtr.limit        = (sizeof(IdtDescriptor) * 256) - 1;
+        idtr.base_address = reinterpret_cast<QWORD>(&g_IdtEntries);
+
+        asm volatile("lidt %0" : : "m"(idtr));
     }
-} // namespace cbk::kernel
+
+} // namespace cbk::interrupts

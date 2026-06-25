@@ -20,9 +20,9 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Alloc layer between MMU and Physical allocators                    *
  ********************************************************************************/
-#include <cbk/mem/freelist.h>
+#include <cbk/mm/freelist.h>
 
-#include <cbk/mem/pfn.h>
+#include <cbk/mm/pfn.h>
 
 #include <assert.h>
 

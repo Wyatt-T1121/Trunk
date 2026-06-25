@@ -15,39 +15,55 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
+ *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Page fault handler                                                 *
+ *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Page fault handler, registered to interrupt #14                    *
+ *  PURPOSE : Implements registration array logic and exception translation      *
  ********************************************************************************/
-#pragma once
+#include <cbk/intr/interrupts.h>
 
-#include <cbk/interrupts/interrupts.h>
-#include <cbk/interrupts/trap_frame.h>
+#include <drivers/serial/serial.h>
 
-#include <macros.h>
-#include <types.h>
+#include <cbk/bgchk/bug.h>
 
-namespace cbk::mem
+namespace cbk::interrupts
 {
-    CONSTEXPR LONG STATUS_SUCCESS          = 0x00000000L;
-    CONSTEXPR LONG STATUS_ACCESS_VIOLATION = static_cast<LONG>(0xC0000005UL);
+    static RegisteredHandler g_InterruptHandlers[256] = {};
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : HandlePageFault                                                    *
+     *  FUNC    : RegisterInterruptHandler                                           *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Raw ISR entry hook for Vector 14 (#PF)                             *
+     *  PURPOSE : Assigns a custom C++ driver function to an IDT slot                *
      ********************************************************************************/
-    VOID HandlePageFault(interrupts::InterruptFrame *frame, MAYBE_UNUSED PVOID context) noexcept;
+    VOID RegisterInterruptHandler(BYTE vector, InterruptHandler handler, PVOID context) noexcept
+    {
+        ASSERT(vector < 256, "VECTOR OUT OF BOUNDS IN REGISTER_INTERRUPT_HANDLER");
+
+        if (g_InterruptHandlers[vector].handler != nullptr && vector >= 32)
+            drivers::serial::SerialPuts("WARNING: OVERRIDING INTERRUPT VECTOR\n");
+
+        g_InterruptHandlers[vector].handler = handler;
+        g_InterruptHandlers[vector].context = context;
+    }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MmAccessFault                                                      *
+     *  FUNC    : ExecuteInterruptHandler                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Evaluates why the CPU faulted                                      *
+     *  PURPOSE : called to route interrupts                                         *
      ********************************************************************************/
-    NO_DISCARD LONG MmAccessFault(ULONG_PTR faulting_address,
-                                  interrupts::InterruptFrame *frame) noexcept;
+    VOID ExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept
+    {
+        RegisteredHandler target = g_InterruptHandlers[vector];
 
-} // namespace cbk::mem
+        if (target.handler != nullptr)
+            target.handler(frame, target.context);
+        else {
+            if (vector < 32)
+                kernel::KAbort("KERNEL PANIC!!! UNHANDLED EXCEPTION.");
+        }
+    }
+
+} // namespace cbk::interrupts

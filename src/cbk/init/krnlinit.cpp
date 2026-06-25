@@ -16,33 +16,50 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Interrupt subsystem                                                *
+ *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Interrupt dispatcher                                               *
+ *  PURPOSE : Kernel entry point (CbkStartup)                                    *
  ********************************************************************************/
-#include <cbk/interrupts/dispatcher.h>
-#include <cbk/interrupts/interrupts.h>
+#include <cbk/init/krnlinit.h>
+
+#include <cbk/gdt/gdt.h>
+#include <cbk/hal/io.h>
+
+#include <cbk/intr/idt.h>
 
 #include <drivers/hal/pic.h>
-#include <drivers/serial/serial.h>
 
-namespace cbk::interrupts
+#define STARTUP_FUNC_FLAGS extern "C" NO_RETURN __attribute__((section(".text")))
+
+namespace cbk::kernel
 {
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : KInterruptDispatcher                                               *
+     *  FUNC    : CbkSetupSubsystems                                                 *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Takes the interrupt from trap and dispatches It                    *
+     *  PURPOSE : Setup all subsystems of the Trunk kernel                           *
      ********************************************************************************/
-    extern "C" VOID KInterruptDispatcher(InterruptFrame *frame) noexcept
+    VOID CbkSetupSubsystems(CONST boot::BootInfo &info) noexcept
     {
-        CONST BYTE vector = static_cast<BYTE>(frame->vector_number);
-
-        if (vector >= drivers::pic::PIC1_OFFSET && vector < (drivers::pic::PIC1_OFFSET + 16)) {
-            CONST BYTE irq = vector - drivers::pic::PIC1_OFFSET;
-            drivers::pic::IrqAck(irq);
-        }
-
-        ExecuteInterruptHandler(vector, frame);
+        gdt::GdtInit();
+        interrupts::IdtInit();
+        drivers::pic::PicInit();
     }
-} // namespace cbk::interrupts
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : CbkStartup                                                         *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Top-level kernel entry.                                            *
+     ********************************************************************************/
+    STARTUP_FUNC_FLAGS VOID CbkStartup(CONST boot::BootInfo &info) noexcept
+    {
+        CbkSetupSubsystems(info);
+        hal::Sti();
+
+        (VOID) info;
+        for (;;) {
+            asm volatile("sti; hlt");
+        }
+    }
+} // namespace cbk::kernel

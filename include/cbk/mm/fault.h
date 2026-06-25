@@ -16,33 +16,38 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : User welcome                                                       *
+ *  MODULE  : Page fault handler                                                 *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Welcome information for the user                                   *
+ *  PURPOSE : Page fault handler, registered to interrupt #14                    *
  ********************************************************************************/
-#include <cbk/kern/welcome.h>
-#include <drivers/serial/serial.h>
+#pragma once
 
-#include <version.h>
+#include <cbk/intr/interrupts.h>
+#include <cbk/intr/trap_frame.h>
 
-namespace serial = cbk::drivers::serial;
+#include <macros.h>
+#include <types.h>
 
-namespace cbk::kernel
+namespace cbk::mem
 {
+    CONSTEXPR LONG STATUS_SUCCESS          = 0x00000000L;
+    CONSTEXPR LONG STATUS_ACCESS_VIOLATION = static_cast<LONG>(0xC0000005UL);
+
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MUWelcome                                                          *
+     *  FUNC    : HandlePageFault                                                    *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Welcomes the user to Trunk                                         *
+     *  PURPOSE : Raw ISR entry hook for Vector 14 (#PF)                             *
      ********************************************************************************/
-    VOID MUWelcome() noexcept
-    {
-        serial::SerialPuts("Welcome to Trunk!\n");
-        serial::SerialPuts("The Hobby C++ operating system.\n");
-        serial::SerialPuts("Copyright (c) ALL CONTRIBUTERS TO TRUNK.\n");
-        serial::SerialPuts("You are likely a developer, as you have built Trunk In DEBUG mode!\n");
+    VOID HandlePageFault(interrupts::InterruptFrame *frame, MAYBE_UNUSED PVOID context) noexcept;
 
-        serial::SerialPuts("VERSION: ");
-        serial::SerialPuts(TrGetVersion().build_string);
-    }
-} // namespace cbk::kernel
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : MmAccessFault                                                      *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Evaluates why the CPU faulted                                      *
+     ********************************************************************************/
+    NO_DISCARD LONG MmAccessFault(ULONG_PTR faulting_address,
+                                  interrupts::InterruptFrame *frame) noexcept;
+
+} // namespace cbk::mem

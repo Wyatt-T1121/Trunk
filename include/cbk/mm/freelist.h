@@ -22,7 +22,7 @@
  ********************************************************************************/
 #pragma once
 
-#include <cbk/mem/mmtypes.h>
+#include <cbk/mm/mmtypes.h>
 
 #include <macros.h>
 #include <types.h>

@@ -22,7 +22,7 @@
  ********************************************************************************/
 #pragma once
 
-#include <cbk/mem/mmtypes.h>
+#include <cbk/mm/mmtypes.h>
 #include <types.h>
 
 #ifndef CONTAINING_RECORD

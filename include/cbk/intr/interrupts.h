@@ -15,65 +15,43 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
+ *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Populates the 256 IDT gates.                                       *
+ *  PURPOSE : Implements registration array logic and exception translation      *
  ********************************************************************************/
-#include <cbk/interrupts/idt/idt.h>
+#pragma once
 
-extern "C" CONST QWORD g_InterruptVectorTable[256];
+#include <types.h>
+
+#include <cbk/intr/dispatcher.h>
 
 namespace cbk::interrupts
 {
-    static IdtDescriptor g_IdtEntries[256] ALIGNED(16);
+    using InterruptHandler = VOID (*)(InterruptFrame *frame, PVOID ctx);
+
+    struct RegisteredHandler
+    {
+        InterruptHandler handler = nullptr;
+        PVOID context            = nullptr;
+    };
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : SetGate                                                            *
+     *  FUNC    : RegisterInterruptHandler                                           *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Sets a new IDT gate with parameters                                *
+     *  PURPOSE : Assigns a custom C++ driver function to an IDT slot                *
      ********************************************************************************/
-    VOID SetGate(BYTE vector, QWORD handler_address, WORD selector, BYTE privilege,
-                 BYTE ist) noexcept
-    {
-        g_IdtEntries[vector].offset_low  = static_cast<WORD>(handler_address & 0xFFFF);
-        g_IdtEntries[vector].offset_mid  = static_cast<WORD>((handler_address >> 16) & 0xFFFF);
-        g_IdtEntries[vector].offset_high = static_cast<DWORD>((handler_address >> 32) & 0xFFFFFFFF);
-
-        g_IdtEntries[vector].segment_selector = selector;
-        g_IdtEntries[vector].ist_index        = ist;
-        g_IdtEntries[vector].gate_type        = 0xE;
-        g_IdtEntries[vector].privilege        = privilege;
-        g_IdtEntries[vector].present          = 1;
-        g_IdtEntries[vector].reserved_0       = 0;
-        g_IdtEntries[vector].reserved_1       = 0;
-        g_IdtEntries[vector].reserved_2       = 0;
-    }
+    VOID RegisterInterruptHandler(BYTE vector, InterruptHandler handler,
+                                  PVOID context = nullptr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IdtInit                                                            *
+     *  FUNC    : ExecuteInterruptHandler                                            *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Initializes the interrupt descriptor table                         *
+     *  PURPOSE : Invoked to route traffic or detect unhandled traps                 *
      ********************************************************************************/
-    VOID IdtInit() noexcept
-    {
-        CONST WORD kernel_code_selector = 0x08;
-
-        for (int i = 0; i < 256; ++i)
-            SetGate(static_cast<BYTE>(i), g_InterruptVectorTable[i], kernel_code_selector, 0, 0);
-
-        SetGate(8, g_InterruptVectorTable[8], kernel_code_selector, 0, 1);
-        SetGate(2, g_InterruptVectorTable[2], kernel_code_selector, 0, 2);
-        SetGate(1, g_InterruptVectorTable[1], kernel_code_selector, 0, 3);
-        SetGate(18, g_InterruptVectorTable[18], kernel_code_selector, 0, 4);
-
-        IdtrPointer idtr;
-        idtr.limit        = (sizeof(IdtDescriptor) * 256) - 1;
-        idtr.base_address = reinterpret_cast<QWORD>(&g_IdtEntries);
-
-        asm volatile("lidt %0" : : "m"(idtr));
-    }
+    VOID ExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept;
 
 } // namespace cbk::interrupts

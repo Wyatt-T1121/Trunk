@@ -23,7 +23,7 @@
 #include <drivers/hal/pic.h>
 #include <drivers/serial/serial.h>
 
-#include <cbk/interrupts/interrupts.h>
+#include <cbk/intr/interrupts.h>
 
 #include <macros.h>
 

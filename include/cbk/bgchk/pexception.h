@@ -16,35 +16,31 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : Kernel abortion                                                    *
+ *  MODULE  : Exception pointer                                                  *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Halts the kernel on a fatal state, equ to panic().                 *
+ *  PURPOSE : Stores ExceptionRecord                                             *
  ********************************************************************************/
-#include <cbk/kern/kabort.h>
-#include <drivers/serial/serial.h>
+#pragma once
 
-#include <macros.h>
+#include <types.h>
+
+#include <cbk/intr/trap_frame.h>
 
 namespace cbk::kernel
 {
-    /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : KAbort()                                                           *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Halts the kernel forever and prints the message                    *
-     ********************************************************************************/
-    NO_RETURN VOID KAbort(PCSTR message) noexcept
+    struct ExceptionRecord
     {
-        asm volatile("cli");
+        DWORD exception_code;
+        DWORD exception_flags;
+        ExceptionRecord *exception_record;
+        PVOID exception_address;
+        DWORD number_parameters;
+        ULONG_PTR exception_information[15];
+    };
 
-        drivers::serial::SerialPuts(
-            "                        KERNEL ABORTED                     \n");
-        drivers::serial::SerialPuts("STOP_REASON: ");
-        drivers::serial::SerialPuts(message);
-
-        asm volatile(".lockdown_loop:\n\t"
-                     "hlt\n\t"
-                     "jmp .lockdown_loop");
-        __builtin_unreachable();
-    }
+    struct ExceptionPointers
+    {
+        ExceptionRecord *exception_record;
+        interrupts::TrapFrame *context_record;
+    };
 } // namespace cbk::kernel

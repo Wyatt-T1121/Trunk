@@ -26,7 +26,7 @@
 #include <boot/trldr/safety/bdump.h>
 #include <boot/trldr/safety/verify.h>
 
-#include <cbk/kern/kabort.h>
+#include <cbk/bgchk/bug.h>
 #include <drivers/serial/serial.h>
 
 #include <assert.h>

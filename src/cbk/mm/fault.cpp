@@ -20,10 +20,10 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Page fault handler, registered to interrupt #14                    *
  ********************************************************************************/
-#include <cbk/mem/fault.h>
+#include <cbk/mm/fault.h>
 
+#include <cbk/bgchk/bug.h>
 #include <cbk/hal/io.h>
-#include <cbk/kern/kabort.h>
 
 // Instead of a page fault being thrown, it calls this
 // Because we don't have any checks, it currently will just fail

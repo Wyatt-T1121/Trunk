@@ -25,10 +25,10 @@
 #include <assert.h>
 #include <types.h>
 
-#include <cbk/mem/freelist.h>
-#include <cbk/mem/list.h>
-#include <cbk/mem/mmarch.h>
-#include <cbk/mem/pfn.h>
+#include <cbk/mm/freelist.h>
+#include <cbk/mm/list.h>
+#include <cbk/mm/mmarch.h>
+#include <cbk/mm/pfn.h>
 
 #include <boot/trldr/mb2/boot.h>
 

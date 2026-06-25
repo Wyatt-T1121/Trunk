@@ -15,43 +15,34 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Interrupt subsystem                                                *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Implements registration array logic and exception translation      *
+ *  PURPOSE : Interrupt dispatcher                                               *
  ********************************************************************************/
-#pragma once
+#include <cbk/intr/dispatcher.h>
+#include <cbk/intr/interrupts.h>
 
-#include <types.h>
-
-#include <cbk/interrupts/dispatcher.h>
+#include <drivers/hal/pic.h>
+#include <drivers/serial/serial.h>
 
 namespace cbk::interrupts
 {
-    using InterruptHandler = VOID (*)(InterruptFrame *frame, PVOID ctx);
-
-    struct RegisteredHandler
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : KInterruptDispatcher                                               *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Takes the interrupt from trap and dispatches It                    *
+     ********************************************************************************/
+    extern "C" VOID KInterruptDispatcher(InterruptFrame *frame) noexcept
     {
-        InterruptHandler handler = nullptr;
-        PVOID context            = nullptr;
-    };
+        CONST BYTE vector = static_cast<BYTE>(frame->vector_number);
 
-    /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : RegisterInterruptHandler                                           *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Assigns a custom C++ driver function to an IDT slot                *
-     ********************************************************************************/
-    VOID RegisterInterruptHandler(BYTE vector, InterruptHandler handler,
-                                  PVOID context = nullptr) noexcept;
+        if (vector >= drivers::pic::PIC1_OFFSET && vector < (drivers::pic::PIC1_OFFSET + 16)) {
+            CONST BYTE irq = vector - drivers::pic::PIC1_OFFSET;
+            drivers::pic::IrqAck(irq);
+        }
 
-    /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : ExecuteInterruptHandler                                            *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Invoked to route traffic or detect unhandled traps                 *
-     ********************************************************************************/
-    VOID ExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept;
-
+        ExecuteInterruptHandler(vector, frame);
+    }
 } // namespace cbk::interrupts

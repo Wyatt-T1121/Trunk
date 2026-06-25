@@ -22,7 +22,7 @@
  ********************************************************************************/
 #pragma once
 
-#include <cbk/kern/kabort.h>
+#include <cbk/bgchk/bug.h>
 
 // clang-format off
 #ifdef __cplusplus

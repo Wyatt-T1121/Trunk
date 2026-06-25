@@ -20,7 +20,7 @@
  *  DATE    : 2026                                                               *
  *  PURPOSE : Early boot-stage allocator, PFN is not available at this time      *
  ********************************************************************************/
-#include <cbk/mem/memblock.h>
+#include <cbk/mm/memblock.h>
 
 namespace cbk::mem
 {

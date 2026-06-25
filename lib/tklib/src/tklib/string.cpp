@@ -20,7 +20,6 @@
  *  DATE    : 2026                                                              *
  *  PURPOSE : String and memory manipulation utilities                          *
  * *****************************************************************************/
-
 #include <tklib/string.h>
 
 namespace tklib

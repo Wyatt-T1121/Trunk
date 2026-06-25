@@ -16,21 +16,35 @@
  *                                                                               *
  *********************************************************************************
  *  AUTHOR  : Trollycat                                                          *
- *  MODULE  : User welcome                                                       *
+ *  MODULE  : Kernel abortion                                                    *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Welcome information for the user                                   *
+ *  PURPOSE : Halts the kernel on a fatal state, equ to panic().                 *
  ********************************************************************************/
-#pragma once
+#include <cbk/bgchk/bug.h>
+#include <drivers/serial/serial.h>
 
-#include <version.h>
+#include <macros.h>
 
 namespace cbk::kernel
 {
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MUWelcome                                                          *
+     *  FUNC    : KAbort()                                                           *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Welcomes the user to Trunk                                         *
+     *  PURPOSE : Halts the kernel forever and prints the message                    *
      ********************************************************************************/
-    VOID MUWelcome() noexcept;
+    NO_RETURN VOID KAbort(PCSTR message) noexcept
+    {
+        asm volatile("cli");
+
+        drivers::serial::SerialPuts(
+            "                        KERNEL ABORTED                     \n");
+        drivers::serial::SerialPuts("STOP_REASON: ");
+        drivers::serial::SerialPuts(message);
+
+        asm volatile(".lockdown_loop:\n\t"
+                     "hlt\n\t"
+                     "jmp .lockdown_loop");
+        __builtin_unreachable();
+    }
 } // namespace cbk::kernel
