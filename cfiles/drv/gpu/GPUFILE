@@ -1,39 +1,410 @@
 Graphics processing unit drivers
 
-ROOT/
+// ROOT /
 buddy
 
 // DRM /
 
+[AMD GPU Core & KMS]
+amdgpu_afmt
+amdgpu_amdkfd
+amdgpu_atombios
+amdgpu_atomfirmware
+amdgpu_benchmark
+amdgpu_bios
+amdgpu_bo_list
+amdgpu_cgs
+amdgpu_connectors
+amdgpu_cs
+amdgpu_ctx
+amdgpu_debugfs
+amdgpu_device
+amdgpu_discovery
+amdgpu_display
+amdgpu_dma_buf
+amdgpu_drv
+amdgpu_encoders
+amdgpu_fbcon
+amdgpu_fdinfo
+amdgpu_fence
+amdgpu_freesync
+amdgpu_gart
+amdgpu_gem
+amdgpu_gmc
+amdgpu_gtt_mgr
+amdgpu_i2c
+amdgpu_ib
+amdgpu_ids
+amdgpu_ih
+amdgpu_ioc32
+amdgpu_irq
+amdgpu_job
+amdgpu_jpeg
+amdgpu_kms
+amdgpu_lsdma
+amdgpu_mes
+amdgpu_mca
+amdgpu_nbio
+amdgpu_object
+amdgpu_pci
+amdgpu_pll
+amdgpu_pm
+amdgpu_preempt_mgr
+amdgpu_psp
+amdgpu_ras
+amdgpu_reset
+amdgpu_ring
+amdgpu_ring_mux
+amdgpu_rlc
+amdgpu_sa
+amdgpu_sched
+amdgpu_sdma
+amdgpu_sec_display
+amdgpu_smc
+amdgpu_sync
+amdgpu_sysfs
+amdgpu_trace_points
+amdgpu_ttm
+amdgpu_ucode
+amdgpu_uvd
+amdgpu_vce
+amdgpu_vcn
+amdgpu_vf_error
+amdgpu_virt
+amdgpu_vkms
+amdgpu_vm
+amdgpu_vm_cpu
+amdgpu_vm_pt
+amdgpu_vm_sdma
+amdgpu_vram_mgr
+amdgpu_workaround
+amdgpu_xcp
 
-amd/
-i915/
-xe/
-nouveau/
-nova/
-brdge/
-clients/
-display/
-panel/
-scheduler/
-sysfb/
-ttm/
-hyperv/
-qxl/
-vboxvideo/
-virtio/
-vmwgfx/
-xen/
-gud
-udl/
-vgem/
-vkms/
+[Intel i915 Core & GEM]
+i915_active
+i915_cmd_parser
+i915_config
+i915_debugfs
+i915_driver
+i915_drm_client
+i915_gem
+i915_gem_context
+i915_gem_evict
+i915_gem_execbuffer
+i915_gem_gtt
+i915_gem_internal
+i915_gem_mman
+i915_gem_object
+i915_gem_pages
+i915_gem_phys
+i915_gem_shmem
+i915_gem_stolen
+i915_gem_ttm
+i915_gem_userptr
+i915_gem_wait
+i915_getparam
+i915_hwmon
+i915_irq
+i915_mitigations
+i915_pci
+i915_perf
+i915_pmu
+i915_query
+i915_request
+i915_scatterlist
+i915_suspend
+i915_sw_fence
+i915_syncmap
+i915_sysfs
+i915_trace_points
+i915_ttm_buddy_manager
+i915_user_extensions
+i915_utils
+i915_vma
+intel_device_info
+intel_memory_region
+intel_pch
+intel_region_ttm
+intel_runtime_pm
+intel_sbi
+intel_step
+intel_uncore
+intel_wakeref
+
+[Intel Xe Core]
+xe_bb
+xe_bo
+xe_device
+xe_display
+xe_dma_buf
+xe_drm_client
+xe_exec
+xe_exec_queue
+xe_force_wake
+xe_ggtt
+xe_gt
+xe_gt_clock
+xe_gt_mcr
+xe_gt_pagefault
+xe_gt_tlb_invalidation
+xe_gt_topology
+xe_gsc
+xe_guc
+xe_guc_ads
+xe_guc_ct
+xe_guc_hwconfig
+xe_guc_log
+xe_guc_pc
+xe_guc_submit
+xe_hw_engine
+xe_hw_fence
+xe_irq
+xe_lrc
+xe_memirq
+xe_migrate
+xe_mocs
+xe_module
+xe_pat
+xe_pci
+xe_pcode
+xe_pm
+xe_preempt_fence
+xe_pt
+xe_query
+xe_reg_sr
+xe_ring_ops
+xe_rtp
+xe_sa
+xe_sched_job
+xe_step
+xe_sync
+xe_tile
+xe_trace
+xe_ttm_bo_mgr
+xe_ttm_sys_mgr
+xe_ttm_vram_mgr
+xe_tuning
+xe_uc
+xe_uc_fw
+xe_vm
+xe_wait_user_fence
+xe_wopcm
+
+[Nouveau Core & KMS]
+nouveau_abi16
+nouveau_acpi
+nouveau_backlight
+nouveau_bios
+nouveau_bo
+nouveau_chan
+nouveau_connector
+nouveau_crtc
+nouveau_debugfs
+nouveau_display
+nouveau_dp
+nouveau_drm
+nouveau_exec
+nouveau_fence
+nouveau_fbcon
+nouveau_gem
+nouveau_hwmon
+nouveau_i2c
+nouveau_led
+nouveau_prime
+nouveau_sgdma
+nouveau_svm
+nouveau_sysfs
+nouveau_ttm
+nouveau_usif
+nouveau_uvmm
+nouveau_vga
+
+[DRM Bridge Framework]
+analogix_dp
+cdns_dp
+cdns_mhdp8546
+chrontel_ch7033
+ite_it6505
+megachips_stdpxxxx_ge_b850v3_fw
+panel
+parade_ps8622
+parade_ps8640
+sil_sii8620
+synopsys_dw_dp
+synopsys_dw_hdmi
+ti_sn65dsi86
+ti_tpd12s015
+
+[DRM Clients]
+drm_client
+drm_client_modeset
+drm_client_setup
+drm_fbdev_generic
+drm_fbdev_dma
+drm_fbdev_shmem
+
+[DRM Display Helpers]
+drm_dp_aux_bus
+drm_dp_cec
+drm_dp_dual_mode_helper
+drm_dp_helper
+drm_dp_mst_topology
+drm_dp_tunnel
+drm_dsc_helper
+drm_hdcp_helper
+drm_hdmi_helper
+drm_scdc_helper
+
+[DRM Panels]
+panel_common
+panel_edp
+panel_lvds
+panel_simple
+panel_sitronix_st7789v
+
+[DRM GPU Scheduler]
+sched_entity
+sched_fence
+sched_main
+
+[System Framebuffer Handover]
+sysfb
+sysfb_efi
+sysfb_simple
+
+[Translation Table Manager]
+ttm_agp_backend
+ttm_bo
+ttm_bo_util
+ttm_bo_vm
+ttm_device
+ttm_execbuf_util
+ttm_module
+ttm_pool
+ttm_resource
+ttm_sys_manager
+ttm_tt
+
+[Hyper-V Graphics]
+hyperv_drm_drv
+hyperv_drm_modeset
+
+[QXL Virtual Graphics]
+qxl_cmd
+qxl_debugfs
+qxl_display
+qxl_draw
+qxl_drv
+qxl_dummy
+qxl_edid
+qxl_fb
+qxl_gem
+qxl_image
+qxl_ioctl
+qxl_irq
+qxl_kms
+qxl_object
+qxl_prime
+qxl_release
+qxl_ttm
+
+[VirtualBox Graphics]
+hgsmi_base
+modesetting
+vbox_drv
+vbox_fb
+vbox_hgsmi
+vbox_irq
+vbox_main
+vbox_mode
+vbox_ttm
+vboxvideo_guest
+
+[VirtIO GPU]
+virtgpu_bars
+virtgpu_debugfs
+virtgpu_display
+virtgpu_drv
+virtgpu_fence
+virtgpu_gem
+virtgpu_ioctl
+virtgpu_kms
+virtgpu_object
+virtgpu_plane
+virtgpu_prime
+virtgpu_trace_points
+virtgpu_vq
+
+[VMware Graphics]
+vmwgfx_binding
+vmwgfx_blit
+vmwgfx_bo
+vmwgfx_cmdbuf
+vmwgfx_cmdbuf_res
+vmwgfx_context
+vmwgfx_cotable
+vmwgfx_drv
+vmwgfx_execbuf
+vmwgfx_fb
+vmwgfx_fence
+vmwgfx_fifo
+vmwgfx_gem
+vmwgfx_gmrid_manager
+vmwgfx_irq
+vmwgfx_kms
+vmwgfx_ldu
+vmwgfx_msg
+vmwgfx_msg_x86
+vmwgfx_overlay
+vmwgfx_prime
+vmwgfx_resource
+vmwgfx_scrn
+vmwgfx_shader
+vmwgfx_stdu
+vmwgfx_surface
+vmwgfx_ttm_buffer
+vmwgfx_validation
+
+[Xen Graphics]
+xen_drm_front
+xen_drm_front_cfg
+xen_drm_front_conn
+xen_drm_front_evtchnl
+xen_drm_front_gem
+xen_drm_front_kms
+
+[Generic USB Display]
+gud_connector
+gud_drv
+gud_pipe
+
+[DisplayLink USB]
+udl_connector
+udl_dmabuf
+udl_drv
+udl_gem
+udl_main
+udl_modeset
+udl_transfer
+
+[Virtual GEM]
+vgem_drv
+vgem_fence
+
+[Virtual KMS]
+vkms_composer
+vkms_crtc
+vkms_drv
+vkms_formats
+vkms_output
+vkms_plane
+vkms_writeback
 
 ---------------
 
 // NOVACORE/
 
-novacore-
+[Novacore Core Management]
 bitfield
 driver
 falcon
@@ -49,18 +420,20 @@ regs
 sbuffer
 vbios
 
-novacore-falcon-
+[Novacore Falcon Coprocessor Engine]
 fsp
 gsp
 hal
 sec2
-novacore-falcon-hal
+
+[Novacore Falcon Hardware Abstraction Layer]
 ga102
 tu102
 
-novacore-fb
+[Novacore Framebuffer Engine]
 hal
-novacore-fb-hal
+
+[Novacore Framebuffer Hardware Abstraction Layer]
 ga100
 ga102
 gb100
@@ -68,46 +441,52 @@ gb202
 gh100
 tu102
 
-novacore-firmware
+[Novacore Firmware Subsystem]
 booter
 fsp
 fwsec
 gsp
 riscv
-novacore-firmware-fwsec
+
+[Novacore Firmware Security Bootloader]
 bootloader
 
-novacore-fsp
+[Novacore Firmware Support Package]
 hal
-novacore-fsp-hal
+
+[Novacore Firmware Support Package Hardware Abstraction Layer]
 gb100
 gb202
 gh100
 
-novacore-gsp
+[Novacore GPU System Processor Core]
 boot
 cmdq
 commands
 fw
 hal
 sequencer
-novacore-gsp-cmdq
+
+[Novacore GSP Command Queue & Flow Control]
 continuation
-novacore-gsp-fw
+
+[Novacore GSP Firmware Commands]
 commands
 r570_144
-novacore-gsp-cmdq-r570_144
+
+[Novacore GSP Command Queue Interface Bindings]
 bindings
-novacore-gsp-hal
+
+[Novacore GSP Hardware Abstraction Layer]
 gh100
 tu102
 
-novacore-gpu
+[Novacore Graphics Processing Unit Pipeline]
 hal
-novacore-gpu-hal 
+
+[Novacore GPU Hardware Abstraction Layer]
 gh100
 tu102
-
 -------
 
 trace/
