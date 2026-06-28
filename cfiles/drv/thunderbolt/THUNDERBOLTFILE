@@ -1,0 +1,49 @@
+THUNDERBOLT drivers
+
+[Core Plumbing & Framework]
+configfs
+ctl
+domain
+path
+property
+quirks
+stream
+tb
+tb_msgs
+tb_regs
+trace
+tunnel
+
+[Intel NHI Hardware & Registers (Native Host Interface)]
+nhi
+nhi_regs
+sb_regs
+
+[PCIe & ACPI Integration]
+acpi
+pci
+
+[USB4 Compatibility & Port Architecture]
+usb4
+usb4_port
+
+[Device Connection & Topology Management]
+cap
+clx
+icm
+lc
+retimer
+switch
+tmu
+xdomain
+
+[EEPROM & Firmware Management]
+eeprom
+nvm
+
+[DMA Engine & Device Testing]
+dma_port
+
+[Kernel Testing & Verification (Development Only)]
+dma_test
+test

@@ -1,0 +1,78 @@
+Video drivers
+
+aperture
+[Core Video & Core Display Plumbing]
+aperture
+cmdline
+display_timing
+hdmi
+nomodeset
+screen_info_generic
+screen_info_pci
+vgastate
+videomode
+
+[Video Consoles & Terminal Hooks]
+console/dummycon
+console/vgacon
+
+[Boot Logos]
+logo/logo
+logo/pnmtologo
+
+[Backlight Framework & Generic PC Drivers]
+backlight/backlight
+backlight/gpio_backlight
+backlight/lcd
+backlight/led_bl
+backlight/platform_lcd
+backlight/pwm_bl
+
+[Modern x86 Firmware Buffers]
+fbdev/edid
+fbdev/efifb
+fbdev/simplefb
+fbdev/skeletonfb
+fbdev/vfb
+fbdev/vesafb
+
+[Core Framebuffer Support Layer]
+fbdev-core/bitblit
+fbdev-core/cfbcopyarea
+fbdev-core/cfbfillrect
+fbdev-core/cfbimgblt
+fbdev-core/cfbmem
+fbdev-core/fb_backlight
+fbdev-core/fb_chrdev
+fbdev-core/fb_cmdline
+fbdev-core/fb_copyarea
+fbdev-core/fb_ddc
+fbdev-core/fb_defio
+fbdev-core/fb_draw
+fbdev-core/fb_fillrect
+fbdev-core/fb_imageblit
+fbdev-core/fb_info
+fbdev-core/fb_internal
+fbdev-core/fb_io_fops
+fbdev-core/fb_logo
+fbdev-core/fb_notify
+fbdev-core/fb_procfs
+fbdev-core/fb_sys_fops
+fbdev-core/fbcmap
+fbdev-core/fbcon
+fbdev-core/fbcon_ccw
+fbdev-core/fbcon_cw
+fbdev-core/fbcon_rotate
+fbdev-core/fbcon_ud
+fbdev-core/fbcvt
+fbdev-core/fbmem
+fbdev-core/fbmon
+fbdev-core/fbsysfs
+fbdev-core/modedb
+fbdev-core/softcursor
+fbdev-core/svgalib
+fbdev-core/syscopyarea
+fbdev-core/sysfillrect
+fbdev-core/sysimgblt
+fbdev-core/sysmem
+fbdev-core/tileblit

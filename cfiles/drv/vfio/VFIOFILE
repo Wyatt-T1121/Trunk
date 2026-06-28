@@ -1,0 +1,44 @@
+Virtual function input output drivers
+
+[Core VFIO Subsystem Framework]
+container
+device_cdev
+group
+iommufd
+vfio
+vfio_main
+virqfd
+
+[IOMMU Types (Memory Isolation Engines)]
+vfio_iommu_type1
+
+[Core PCI Pass-Through Infrastructure (Modern x86 Laptop/Tablet)]
+pci/vfio_pci
+pci/vfio_pci_config
+pci/vfio_pci_core
+pci/vfio_pci_dmabuf
+pci/vfio_pci_intrs
+pci/vfio_pci_priv
+pci/vfio_pci_rdwr
+
+[Virtualization, Debugging & Hardware Splitting]
+debugfs
+mdev/mdev_core
+mdev/mdev_driver
+mdev/mdev_private
+mdev/mdev_sysfs
+pci-virtio/common
+pci-virtio/legacy_io
+pci-virtio/main
+pci-virtio/migrate
+pci/trace
+
+[Intel Laptop Graphics Integration]
+pci/vfio_pci_igd
+
+[Enterprise Server, Data Center & High-Performance Computing]
+pci-mlx5/cmd
+pci-mlx5/main
+pci-nvgracegpu/main
+pci-qat/main
+pci-xe/main

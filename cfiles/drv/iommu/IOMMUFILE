@@ -1,0 +1,80 @@
+[Core Plumbing & IOMMU Framework]
+dma-iommu
+io-pgfault
+io-pgtable
+iommu
+iommu-debug-pagealloc
+iommu-debugfs
+iommu-pages
+iommu-priv
+iommu-sva
+iommu-sysfs
+iommu-traces
+iova
+irq_remapping
+
+[Intel VT-d Hardware Drivers (Core x86_64)]
+intel-cache
+intel-debugfs
+intel-dmar
+intel-iommu
+intel-irq_remapping
+intel-nested
+intel-pasid
+intel-perf
+intel-perfmon
+intel-prq
+intel-svm
+intel-trace
+
+[AMD-Vi Hardware Drivers (Core x86_64)]
+amd_iommu
+amd_iommu_types
+amd/debugfs
+amd/init
+amd/iommu
+amd/iommufd
+amd/nested
+amd/pasid
+amd/ppr
+amd/quirks
+
+[Generic & x86_64 Page Table Parsers]
+generic-pt/iommu_pt
+generic-pt/pt_common
+generic-pt/pt_defs
+generic-pt/pt_fmt_defaults
+generic-pt/pt_iter
+generic-pt/pt_log2
+generic-pt/fmt/defs_x86_64
+generic-pt/fmt/iommu_vtdss
+generic-pt/fmt/iommu_x86_64
+generic-pt/fmt/x86_64
+
+[IOMMU User-Space Subsystem (iommufd)]
+iommufd-device
+iommufd-driver
+iommufd-eventq
+iommufd-hw_pagetable
+iommufd-io_pagetable
+iommufd-ioas
+iommufd-iommufd_private
+iommufd-main
+iommufd-pages
+iommufd-vfio_compat
+
+[Virtualization & Hypervisor Integration]
+hv-irq-remap-x86
+virtio-iommu
+iommufd-viommu
+
+[Kernel Unit Testing & Mocks (Development Only)]
+generic-pt/kunit_generic_pt
+generic-pt/kunit_iommu
+generic-pt/kunit_iommu_pt
+generic-pt/fmt/iommu_mock
+generic-pt/fmt/iommu_template
+iommufd-double_span
+iommufd-iova_bitmap
+iommufd-selftest
+iommufd-iommufd_test

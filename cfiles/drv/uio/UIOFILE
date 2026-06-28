@@ -1,0 +1,18 @@
+Universal input output drivers
+
+[Core Userspace I/O Framework]
+uio
+
+[Generic Core Drivers for Modern Hardware (x86/PCI/Hypervisors)]
+uio_dfl
+uio_hv_generic
+uio_pci_generic
+uio_pci_generic_sva
+uio_pdrv_genrq
+
+[Industrial, Specialized, or Legacy Expansion Cards]
+uio_aec
+uio_cif
+uio_mf624
+uio_netx
+uio_sercos3

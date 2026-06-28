@@ -1,0 +1,33 @@
+Virtualization drivers
+
+[Confidential Computing]
+coco/efi_secret
+coco/report
+coco/sev-guest
+coco/tdx-guest
+coco/tdx-host
+coco/tsm-core
+coco/tsm-mr
+nitro_enclaves/ne_misc_dev
+nitro_enclaves/ne_pci_dev
+vmgenid
+
+[VirtualBox Integration]
+vboxguest/vboxguest_core
+vboxguest/vboxguest_trunk
+vboxguest/vboxguest_utils
+vboxguest/vboxguest_version
+vboxguest/vmmdev
+
+[ACRN Embedded Hypervisor]
+acrn/acrn_drv
+acrn/hsm
+acrn/hypercall
+acrn/ioeventfd
+acrn/ioreq
+acrn/irqfd
+acrn/mm
+acrn/vm
+
+[Kernel Testing]
+nitro_enclaves/ne_misc_dev_test

@@ -1,0 +1,31 @@
+Trusted platform module drivers
+
+[Core Plumbing & Framework]
+tpm
+tpm-buf
+tpm-chip
+tpm-dev
+tpm-dev-common
+tpm-interface
+tpm-sysfs
+tpm1-cmd
+tpm2-cmd
+tpm2-sessions
+tpm2-space
+tpmrm-dev
+
+[x86 Motherboard TPM Interface Hardware]
+tpm_crb
+tpm_ppi
+tpm_tis
+tpm_tis_core
+
+[Secure Boot Event Log Parsers]
+eventlog-acpi
+eventlog-common
+eventlog-efi
+eventlog-tpm1
+eventlog-tpm2
+
+[Virtualization & Proxy Interfaces]
+tpm_vtpm_proxy

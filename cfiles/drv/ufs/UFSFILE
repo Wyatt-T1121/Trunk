@@ -1,0 +1,23 @@
+Universal-flash-storage drivers
+
+[Core UFS Framework & Controller State Machine]
+ufs
+ufs-bsg
+ufs-mcq
+ufs-rpmb
+ufs-sysfs
+ufshcd
+ufshcd-priv
+ufshcd-crypto
+
+[Debugging, Hardware Monitoring & Analysis]
+ufs-debugfs
+ufs-fault-injection
+ufs-hwmon
+ufs-trace
+ufs-trace-types
+ufs-txeq
+
+[x86_64 Laptop/Tablet Host Controllers]
+host/ufshcd-pci
+host/ufshcd-pltfrm

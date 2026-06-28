@@ -1,0 +1,37 @@
+Thermal drivers
+
+[Core Thermal Framework & Governors]
+cpufreq_cooling
+cpuidle_cooling
+devfreq_cooling
+gov_bang_bang
+gov_fair_share
+gov_power_allocator
+gov_step_wise
+gov_user_space
+pcie_cooling
+thermal_core
+thermal_debugfs
+thermal_helpers
+thermal_hwmon
+thermal_mmio
+thermal_netlink
+thermal_sysfs
+thermal_thresholds
+thermal_trip
+thermel_trace
+thermel_trace_ipa
+
+[Intel & x86_64 Hardware Thermal Drivers]
+intel_bxt_pmic_thermal
+intel_hfi
+intel_pch_thermal
+intel_powerclamp
+intel_quark_dts_thermal
+intel_soc_dts_iosf
+intel_soc_dts_thermal
+intel_tcc
+intel_tcc_cooling
+therm_throt
+thermal_interrupt
+x86_pkg_temp_thermal

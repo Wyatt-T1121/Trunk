@@ -1,0 +1,76 @@
+TTY drivers
+
+[Core TTY Plumbing & Line Disciplines]
+n_null
+n_tty
+pty
+sysrq
+tty
+tty_audit
+tty_baudrate
+tty_buffer
+tty_io
+tty_ioctl
+tty_jobctrl
+tty_ldisc
+tty_ldsem
+tty_mutex
+tty_port
+ttynull
+
+[Virtual Terminal (VT) Display & Keyboard Subsystem]
+vt/conmakehash
+vt/consolemap
+vt/keyboard
+vt/selection
+vt/ucs
+vt/vc_screen
+vt/vt
+vt/vt_ioctl
+
+[Core Serial Framework & Standard PC UARTs]
+serial/8250/8250_core
+serial/8250/8250_dfl
+serial/8250/8250_dma
+serial/8250/8250_dw
+serial/8250/8250_dwlib
+serial/8250/8250_early
+serial/8250/8250_exar
+serial/8250/8250_mid
+serial/8250/8250_pci
+serial/8250/8250_pci1xxxx
+serial/8250/8250_pcilib
+serial/8250/8250_pericom
+serial/8250/8250_platform
+serial/8250/8250_pnp
+serial/8250/8250_port
+serial/earlycon
+serial/kgdboc
+serial/serial_base
+serial/serial_base_bus
+serial/serial_core
+serial/serial_ctrl
+serial/serial_port
+
+[Serdev (Serial Device Bus Framework)]
+serdev/core
+serdev/serdev-ttyport
+
+[Hypervisor & Virtualization Consoles]
+hvc/hvc_console
+hvc/hvc_irq
+hvc/hvc_xen
+
+[Legacy x86 PC Expansion Devices]
+moxa
+mxser
+serial/8250/8250_accent
+serial/8250/8250_fourport
+serial/8250/8250_hub6
+serial/8250/serial_cs
+serial/jsm/jsm_cls
+serial/jsm/jsm_driver
+serial/jsm/jsm_neo
+serial/jsm/jsm_tty
+serial/pch_uart
+serial/rp2
