@@ -31,14 +31,8 @@
 #include <cbk/mm/freelist.h>
 #include <cbk/mm/memblock.h>
 
-// Physical memory management,
-// Split into 3 files..
-
-// freelist
-// memblock
-// physical
-
-// THIS FILE: physical
+// Physical...
+// This file is apart of the physical memory system...
 
 // ORDER:
 // 1. Set the highest physical page

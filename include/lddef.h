@@ -24,22 +24,23 @@
 
 #include <types.h>
 
-extern "C" {
-extern CHAR __kernel_phys_start[];
-extern CHAR __kernel_phys_end[];
+EXTERN_C
+{
+    extern CHAR __kernel_phys_start[];
+    extern CHAR __kernel_phys_end[];
 
-extern CHAR __text_start[];
-extern CHAR __text_end[];
+    extern CHAR __text_start[];
+    extern CHAR __text_end[];
 
-extern CHAR __rodata_start[];
-extern CHAR __rodata_end[];
+    extern CHAR __rodata_start[];
+    extern CHAR __rodata_end[];
 
-extern CHAR __data_start[];
-extern CHAR __data_end[];
+    extern CHAR __data_start[];
+    extern CHAR __data_end[];
 
-extern CHAR __bss_start[];
-extern CHAR __bss_end[];
+    extern CHAR __bss_start[];
+    extern CHAR __bss_end[];
 
-extern BYTE __stack_bottom[];
-extern BYTE __stack_top[];
+    extern BYTE __stack_bottom[];
+    extern BYTE __stack_top[];
 }

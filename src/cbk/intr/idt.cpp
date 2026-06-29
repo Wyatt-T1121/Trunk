@@ -22,7 +22,7 @@
  ********************************************************************************/
 #include <cbk/intr/idt.h>
 
-extern "C" const QWORD g_InterruptVectorTable[256];
+EXTERN_C const QWORD g_InterruptVectorTable[256];
 
 namespace cbk::interrupts
 {

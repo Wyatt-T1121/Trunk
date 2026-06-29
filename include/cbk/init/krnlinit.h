@@ -37,6 +37,9 @@ namespace cbk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Main kernel function. Called by CbkLoad()                          *
      ********************************************************************************/
-    extern "C" NO_RETURN VOID CbkStartup(const boot::BootInfo &info) noexcept;
+    EXTERN_C
+    NO_RETURN
+    TEXT_SECTION
+    VOID CbkStartup(const boot::BootInfo &info) noexcept;
 
 } // namespace cbk::kernel

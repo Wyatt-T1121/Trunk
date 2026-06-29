@@ -38,8 +38,10 @@ You also need to add your information to CREDITS.
 
 Naming convention
 
-PascalCase - functions, structs, enums, classes
+PascalCase - functions, structs, classes
 
 snake_case - Variables
 
 CAPCASE - type aliases
+
+SCREAMING_SNAKE_CASE - enums

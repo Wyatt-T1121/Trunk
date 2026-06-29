@@ -34,7 +34,7 @@ namespace cbk::interrupts
      *  DATE    : 2026                                                               *
      *  PURPOSE : Takes the interrupt from trap and dispatches It                    *
      ********************************************************************************/
-    extern "C" VOID KInterruptDispatcher(InterruptFrame *frame) noexcept
+    EXTERN_C VOID KInterruptDispatcher(InterruptFrame *frame) noexcept
     {
         const BYTE vector = static_cast<BYTE>(frame->vector_number);
 

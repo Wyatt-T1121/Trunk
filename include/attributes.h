@@ -24,19 +24,23 @@
 
 // clang-format off
 #if defined(__GNUC__) || defined(__clang__)
-    #define GNU_PACKED [[gnu::packed]]
-    #define NO_DISCARD [[nodiscard]]
-    #define NO_RETURN  [[noreturn]]
-    #define UNLIKELY   [[unlikely]]
+    #define GNU_PACKED   [[gnu::packed]]
+    #define NO_DISCARD   [[nodiscard]]
+    #define NO_RETURN    [[noreturn]]
+    #define UNLIKELY     [[unlikely]]
     #define MAYBE_UNUSED [[maybe_unused]]
 
     #define INLINE       inline
     #define INLINE_CONST inline constexpr
-    #define ALWAYS_INLINE __always_inline
 
-    #define ALIGNED(x) __attribute__((aligned(x)))
+    #define ALWAYS_INLINE __attribute__((always_inline))
+    #define ALIGNED(x)    __attribute__((aligned(x)))
+    #define TEXT_SECTION  __attribute__((section(".text")))
+
     #define IS_ALIGNED(addr, alignment) (((addr) & ((alignment) - 1)) == 0)
-    #define OFFSET_OF(type, member) reinterpret_cast<SIZE_T>(&(reinterpret_cast<type*>(0)->member))
+    #define OFFSET_OF(type, member)     reinterpret_cast<SIZE_T>(&(reinterpret_cast<type*>(0)->member))
+
+    #define EXTERN_C extern "C"
 #else
     #define GNU_PACKED
     #define NO_DISCARD
@@ -49,6 +53,8 @@
     #define ALIGNED
     #define IS_ALIGNED
     #define OFFSET_OF
+    #define TEXT_SECTION
+    #define EXTERN_C
 #endif
 
 // clang-format on

@@ -51,7 +51,7 @@ namespace cbk::gdt
      *  DATE    : 2026                                                               *
      *  PURPOSE : Flushes/Reloads the global descriptor table (external assembly)    *
      ********************************************************************************/
-    extern "C" VOID GdtFlush(ULONG_PTR gdt_ptr_addr) noexcept;
+    EXTERN_C VOID GdtFlush(ULONG_PTR gdt_ptr_addr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

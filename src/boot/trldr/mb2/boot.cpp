@@ -34,7 +34,7 @@
 
 namespace cbk::boot
 {
-    extern "C" NO_RETURN VOID CbkStartup(const BootInfo &info) noexcept;
+    EXTERN_C NO_RETURN VOID CbkStartup(const BootInfo &info) noexcept;
 
     static BootInfo g_boot_info{};
 
@@ -77,7 +77,7 @@ namespace cbk::boot
      *  DATE    : 2026                                                              *
      *  PURPOSE : Called from CbkSystemStartup. Builds BootInfo struct              *
      * *****************************************************************************/
-    extern "C" VOID CbkLoad(DWORD mb2_magic, DWORD mb2_phys) noexcept
+    EXTERN_C VOID CbkLoad(DWORD mb2_magic, DWORD mb2_phys) noexcept
     {
         // TODO: IM PLANNING ON WRITING A BASIC NO BUFFER UART DRIVER FOR BOOT STAGE
         // THIS IS THE ACTUAL DRIVER, THIS CALL WILL BE REMOVED AND REPLACED WITH THE NEW BOOT CODE

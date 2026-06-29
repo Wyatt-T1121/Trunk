@@ -23,15 +23,13 @@
 #include <cbk/init/krnlinit.h>
 
 #include <cbk/gdt/gdt.h>
-#include <cbk/hal/io.h>
-
 #include <cbk/intr/idt.h>
-
-#include <drivers/hal/pic.h>
 
 #include <cbk/mm/fault.h>
 
-#define STARTUP_FUNC_FLAGS extern "C" NO_RETURN __attribute__((section(".text")))
+#include <drivers/hal/pic.h>
+
+#include <cbk/hal/io.h>
 
 namespace cbk::kernel
 {
@@ -54,7 +52,14 @@ namespace cbk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Top-level kernel entry.                                            *
      ********************************************************************************/
-    STARTUP_FUNC_FLAGS VOID CbkStartup(const boot::BootInfo &info) noexcept
+
+    // EXTERN_C - Called as a C function to avoid garabge name
+    // NO_RETURN - Does not return, infinite halt
+    // TEXT_SECTION - Force this code into the .text section to assure it works
+    EXTERN_C
+    NO_RETURN
+    TEXT_SECTION
+    VOID CbkStartup(const boot::BootInfo &info) noexcept
     {
         CbkSetupSubsystems(info);
 
@@ -62,8 +67,7 @@ namespace cbk::kernel
         interrupts::RegisterInterruptHandler(14, mem::HandlePageFault);
 
         (VOID) info;
-        for (;;) {
+        for (;;)
             asm volatile("sti; hlt");
-        }
     }
 } // namespace cbk::kernel
