@@ -26,13 +26,10 @@
 #include <attributes.h>
 #include <types.h>
 
-#include <cbk/mm/mmarch.h>
-#include <cbk/mm/mmtypes.h>
+#include <cbk/mm/mmdefs.h>
 
 #include <cbk/mm/freelist.h>
 #include <cbk/mm/memblock.h>
-
-#include <cbk/mm/list.h>
 
 // Physical memory management,
 // Split into 3 files..

@@ -27,13 +27,7 @@
 #include <types.h>
 
 #include <cbk/bgchk/bug.h>
-
-#include <cbk/mm/list.h>
-#include <cbk/mm/mmarch.h>
-#include <cbk/mm/mmtypes.h>
-
-#define ASSERT_IS_CBK_PFN(pfn_num)                                                                 \
-    ASSERT((pfn_num) != 0 && (pfn_num) <= mm_highest_physical_page, "Invalid PFN provided")
+#include <cbk/mm/mmdefs.h>
 
 namespace cbk::mem
 {

@@ -22,17 +22,33 @@
  ********************************************************************************/
 #pragma once
 
-#include <attributes.h>
+#include <lddef.h>
 #include <types.h>
+
+#include <attributes.h>
 
 #include <cbk/hal/io.h>
 
-#include <lddef.h>
+#define PAGE_ALIGN(addr) (((addr) + PAGE_SIZE - 1) & PAGE_MASK)
 
-#include <cbk/mm/list.h>
+#define CONTAINING_RECORD(address, type, field)                                                    \
+    ((type *)((PCHAR)(address) - (SIZE_T)(&((type *)0)->field)))
+
+#define ASSERT_IS_CBK_PFN(pfn_num)                                                                 \
+    ASSERT((pfn_num) != 0 && (pfn_num) <= mm_highest_physical_page, "Invalid PFN provided")
 
 namespace cbk::mem
 {
+    constexpr ULONG MEM_COMMIT              = 0x00001000;
+    constexpr ULONG MEM_RESERVE             = 0x00002000;
+    constexpr ULONG MEM_REPLACE_PLACEHOLDER = 0x00004000;
+    constexpr ULONG MEM_RELEASE             = 0x00008000;
+    constexpr ULONG MEM_FREE                = 0x00010000;
+    constexpr ULONG MEM_RESET               = 0x00080000;
+    constexpr ULONG MEM_TOP_DOWN            = 0x00100000;
+    constexpr ULONG MEM_LARGE_PAGES         = 0x20000000;
+
+    constexpr SIZE_T MEM_PFN_STATE_COUNT = 7;
 
     constexpr QWORD KERNEL_VMA   = 0xFFFFFFFF80000000ULL;
     constexpr QWORD PHYSMAP_BASE = 0xFFFF800000000000ULL;
@@ -88,8 +104,6 @@ namespace cbk::mem
 
     constexpr QWORD NO_OF_PT_ENTRIES = 512;
 
-#define PAGE_ALIGN(addr) (((addr) + PAGE_SIZE - 1) & PAGE_MASK)
-
     struct ArchAspace
     {
         QWORD *pml4_virt;
@@ -98,11 +112,37 @@ namespace cbk::mem
         SIZE_T size;
     };
 
+    struct ListEntry
+    {
+        ListEntry *flink;
+        ListEntry *blink;
+    };
+
     struct MmRmapEntry
     {
         LIST_ENTRY list_entry;
         ArchAspace *space;
         PVOID virtual_address;
+    };
+
+    enum class MM_PFN_STATE : BYTE
+    {
+        ZEROED_PAGE_LIST   = 0,
+        FREE_PAGE_LIST     = 1,
+        RESERVED_PAGE_LIST = 2,
+        BAD_PAGE_LIST      = 3,
+        FIRMWARE_PAGE_LIST = 4,
+        ACTIVE_AND_VALID   = 6
+    };
+
+    enum class MC_TYPE : ULONG
+    {
+        SYSTEM     = 1,
+        USER       = 2,
+        NPPOOL     = 3,
+        PPOOL      = 4,
+        CACHE      = 5,
+        CONTIGUOUS = 6
     };
 
     /* *******************************************************************************
@@ -210,7 +250,7 @@ namespace cbk::mem
      * DATE    : 2026                                                                *
      * PURPOSE : Aligns an address down to page boundary                             *
      ********************************************************************************/
-    NO_DISCARD static INLINE QWORD PageAlignDown(QWORD addr) noexcept
+    NO_DISCARD INLINE QWORD PageAlignDown(QWORD addr) noexcept
     {
         return addr & PAGE_MASK;
     }
@@ -221,7 +261,7 @@ namespace cbk::mem
      * DATE    : 2026                                                                *
      * PURPOSE : Aligns an address up to page boundary                               *
      ********************************************************************************/
-    NO_DISCARD static INLINE QWORD PageAlignUp(QWORD addr) noexcept
+    NO_DISCARD INLINE QWORD PageAlignUp(QWORD addr) noexcept
     {
         return (addr + PAGE_SIZE - 1) & PAGE_MASK;
     }
@@ -232,7 +272,7 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns TRUE if addr is 4KB aligned                                *
      ********************************************************************************/
-    NO_DISCARD static INLINE BOOL IsPageAligned(QWORD addr) noexcept
+    NO_DISCARD INLINE BOOL IsPageAligned(QWORD addr) noexcept
     {
         return (addr & (PAGE_SIZE - 1)) == 0;
     }
@@ -243,7 +283,7 @@ namespace cbk::mem
      * DATE    : 2026                                                                *
      * PURPOSE : Converts a physical address to a virtual address                    *
      ********************************************************************************/
-    NO_DISCARD static INLINE PVOID PaddrToKvaddr(QWORD paddr) noexcept
+    NO_DISCARD INLINE PVOID PaddrToKvaddr(QWORD paddr) noexcept
     {
         return reinterpret_cast<PVOID>(paddr + PHYSMAP_BASE);
     }
@@ -254,7 +294,7 @@ namespace cbk::mem
      * DATE    : 2026                                                                *
      * PURPOSE : Converts a virtual address to a physical adddress                   *
      ********************************************************************************/
-    NO_DISCARD static INLINE QWORD KvaddrToPaddr(QWORD kvaddr) noexcept
+    NO_DISCARD INLINE QWORD KvaddrToPaddr(QWORD kvaddr) noexcept
     {
         if (kvaddr >= KERNEL_VMA) {
             QWORD k_phys_start = reinterpret_cast<QWORD>(__kernel_phys_start);
@@ -265,11 +305,78 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : InitializeListHead                                                 *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Initializes a list head to point to itself                         *
+     ********************************************************************************/
+    INLINE VOID InitializeListHead(PLIST_ENTRY list_head) noexcept
+    {
+        list_head->flink = list_head;
+        list_head->blink = list_head;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : IsListEmpty                                                        *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Checks If a doubly-linked list is empty                            *
+     ********************************************************************************/
+    NO_DISCARD INLINE BOOL IsListEmpty(PLIST_ENTRY list_head) noexcept
+    {
+        return (BOOL)(list_head->flink == list_head);
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : InsertHeadList                                                     *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Inserts an entry at the beginning of the list                      *
+     ********************************************************************************/
+    INLINE VOID InsertHeadList(PLIST_ENTRY list_head, PLIST_ENTRY entry) noexcept
+    {
+        PLIST_ENTRY flink = list_head->flink;
+        entry->flink      = flink;
+        entry->blink      = list_head;
+        flink->blink      = entry;
+        list_head->flink  = entry;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : InsertTailList                                                     *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Inserts an entry at the beginning of the list                      *
+     ********************************************************************************/
+    INLINE VOID InsertTailList(PLIST_ENTRY list_head, PLIST_ENTRY entry) noexcept
+    {
+        PLIST_ENTRY blink = list_head->blink;
+        entry->flink      = list_head;
+        entry->blink      = blink;
+        blink->flink      = entry;
+        list_head->blink  = entry;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : RemoveEntryList                                                    *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Removes an entry from anywhere in the list in 0(1) time            *
+     ********************************************************************************/
+    INLINE VOID RemoveEntryList(PLIST_ENTRY entry) noexcept
+    {
+        PLIST_ENTRY flink = entry->flink;
+        PLIST_ENTRY blink = entry->blink;
+        blink->flink      = flink;
+        flink->blink      = blink;
+    }
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : TlbFlushPage                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Flush the TLB entry for a single virtual address on this CPU       *
      ********************************************************************************/
-    static INLINE VOID TlbFlushPage(QWORD va) noexcept
+    INLINE VOID TlbFlushPage(QWORD va) noexcept
     {
         hal::InvLpg(va);
     }
@@ -280,7 +387,7 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Flush the entire TLB by reloading CR3                              *
      ********************************************************************************/
-    static INLINE VOID TlbFlushAll() noexcept
+    INLINE VOID TlbFlushAll() noexcept
     {
         QWORD cr3 = hal::ReadCr3();
         hal::WriteCr3(cr3);

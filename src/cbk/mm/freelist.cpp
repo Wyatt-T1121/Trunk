@@ -47,7 +47,7 @@ namespace cbk::mem
     SIZE_T mm_total_commit_limit_maximum = 0;
 
     ListEntry mm_active_user_list;
-    ListEntry mm_page_location_list_head[MM_PFN_STATE_COUNT];
+    ListEntry mm_page_location_list_head[MEM_PFN_STATE_COUNT];
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
