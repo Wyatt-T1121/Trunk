@@ -68,7 +68,7 @@ namespace cbk::mem
     constexpr QWORD PAGE_SHIFT = 12;
 
     constexpr QWORD HUGE_PAGE_SIZE = 2 * MB;
-    constexpr QWORD HUGE_MASK      = HUGE_PAGE_SIZE - 1;
+    constexpr QWORD HUGE_MASK      = ~(HUGE_PAGE_SIZE - 1);
     constexpr QWORD PAGE_HUGE      = QWORD{1} << 7;
 
     constexpr QWORD PAGE_WRITE_THROUGH = 1ULL << 3;

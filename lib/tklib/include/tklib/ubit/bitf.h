@@ -36,7 +36,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr DWORD popcount(T value) noexcept
     {
-        static_assert(std::is_integral_v<T>, "popcount requires an integral type");
+        static_assert(is_integral_v<T>, "popcount requires an integral type");
         if constexpr (sizeof(T) <= 4) {
             return static_cast<DWORD>(__builtin_popcount(static_cast<unsigned int>(value)));
         } else
@@ -51,7 +51,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr DWORD clz(T value) noexcept
     {
-        static_assert(std::is_integral_v<T>, "clz requires an integral type");
+        static_assert(is_integral_v<T>, "clz requires an integral type");
         if constexpr (sizeof(T) <= 4) {
             return static_cast<DWORD>(__builtin_clz(static_cast<unsigned int>(value)));
         } else {
@@ -69,7 +69,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr DWORD ctz(T value) noexcept
     {
-        static_assert(std::is_integral_v<T>, "ctz requires an integral type");
+        static_assert(is_integral_v<T>, "ctz requires an integral type");
         if constexpr (sizeof(T) <= 4) {
             return static_cast<DWORD>(__builtin_ctz(static_cast<unsigned int>(value)));
         } else {
@@ -85,7 +85,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr DWORD bit_width(T value) noexcept
     {
-        static_assert(std::is_integral_v<T>, "bit_width requires an integral type");
+        static_assert(is_integral_v<T>, "bit_width requires an integral type");
         return value == 0 ? 0u : (static_cast<DWORD>(sizeof(T) * 8u)) - clz(value);
     }
 
@@ -97,7 +97,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr T bit_floor(T value) noexcept
     {
-        static_assert(std::is_integral_v<T>, "bit_floor requires an integral type");
+        static_assert(is_integral_v<T>, "bit_floor requires an integral type");
         return value == 0 ? T{0} : T{1} << (bit_width(value) - 1u);
     }
 
@@ -109,7 +109,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr T bit_ceil(T value) noexcept
     {
-        static_assert(std::is_integral_v<T>, "bit_ceil requires an integral type");
+        static_assert(is_integral_v<T>, "bit_ceil requires an integral type");
         if (value <= 1)
             return T{1};
         return T{1} << bit_width(static_cast<T>(value - 1u));
@@ -178,7 +178,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr T rotl(T value, DWORD shift) noexcept
     {
-        static_assert(std::is_integral_v<T>, "rotl requires an integral type");
+        static_assert(is_integral_v<T>, "rotl requires an integral type");
         constexpr DWORD width  = sizeof(T) * 8u;
         shift                 &= (width - 1u);
         if (shift == 0)
@@ -194,7 +194,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr T rotr(T value, DWORD shift) noexcept
     {
-        static_assert(std::is_integral_v<T>, "rotr requires an integral type");
+        static_assert(is_integral_v<T>, "rotr requires an integral type");
         constexpr DWORD width  = sizeof(T) * 8u;
         shift                 &= (width - 1u);
         if (shift == 0)
@@ -210,7 +210,7 @@ namespace tklib
      ********************************************************************************/
     template <typename T> NO_DISCARD constexpr T byteswap(T value) noexcept
     {
-        static_assert(std::is_integral_v<T>, "byteswap requires an integral type");
+        static_assert(is_integral_v<T>, "byteswap requires an integral type");
         if constexpr (sizeof(T) == 2) {
             return static_cast<T>(__builtin_bswap16(static_cast<WORD>(value)));
         } else if constexpr (sizeof(T) == 4) {

@@ -107,12 +107,14 @@ namespace cbk::mem
          ********************************************************************************/
         VOID InternalTeardownRange(QWORD vstart, SIZE_T size) noexcept
         {
-            MmuIterateRange(vstart, size, [](QWORD vaddr, SIZE_T) noexcept {
+            CBKSTATUS status = MmuIterateRange(vstart, size, [](QWORD vaddr, SIZE_T) noexcept {
                 QWORD phys_page = TranslateVirtualToPhysical(vaddr);
                 if (phys_page != PHYS_ADDR_MAX)
                     InternalPurgePageMapping(vaddr, phys_page >> PAGE_SHIFT);
                 return STATUS_SUCCESS;
             });
+
+            ASSERT(status == STATUS_SUCCESS, "InternalTeardownRange: FAILED TO ITERATE RANGE");
         }
     } // namespace
 

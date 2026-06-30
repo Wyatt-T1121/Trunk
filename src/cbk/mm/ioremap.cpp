@@ -64,7 +64,9 @@ namespace cbk::mem
         if (virt_addr == nullptr)
             return;
 
-        QWORD vaddr = reinterpret_cast<QWORD>(virt_addr);
-        UnmapRange4K(vaddr, size);
+        QWORD vaddr      = reinterpret_cast<QWORD>(virt_addr);
+        CBKSTATUS status = UnmapRange4K(vaddr, size);
+
+        ASSERT(status == STATUS_SUCCESS, "MmIoUnRemap: FAILED TO UNMAP RANGE (4K)");
     }
 } // namespace cbk::mem

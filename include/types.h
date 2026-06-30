@@ -152,7 +152,15 @@ namespace cbk::mem
     struct NCacheDescriptor;
     using NCACHE_DESCRIPTOR  = NCacheDescriptor;
     using PNCACHE_DESCRIPTOR = NCacheDescriptor *;
+
 } // namespace cbk::mem
+
+namespace tklib
+{
+    struct RtlBitmap;
+    using RTL_BITMAP  = RtlBitmap;
+    using PRTL_BITMAP = RtlBitmap *;
+} // namespace tklib
 
 INLINE_CONST BOOL TRUE  = true;
 INLINE_CONST BOOL FALSE = false;
