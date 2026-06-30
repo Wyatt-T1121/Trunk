@@ -56,15 +56,47 @@
 // I also split logic into 3 seperate files:
 //          mmu
 //          ncache
-//          largepag
+//          mappag
 
 // So this file will be a lot more clean...
 
-// Although, 4KB mappings are still apart of this file...
-// We don't need to create a seperate 'smallpag'...
-
 namespace cbk::mem
 {
+    using MmuPteAction = VOID (*)(PPAGE_TABLE_ENTRY target_pte, PTE_CONTEXT &ctx) noexcept;
+
+    /* *******************************************************************************
+     * AUTHOR  : Trollycat                                                           *
+     * FUNC    : MmuIterateRange                                                     *
+     * DATE    : 2026                                                                *
+     * PURPOSE : Range loop helper                                                   *
+     ********************************************************************************/
+    template <SIZE_T STRIDE = PAGE_SIZE, typename F>
+    NO_DISCARD CBKSTATUS MmuIterateRange(QWORD start, SIZE_T size, F action) noexcept
+    {
+        if ((start & (STRIDE - 1)) != 0)
+            return STATUS_DATATYPE_MISALIGNMENT;
+
+        SIZE_T step_count = (size + STRIDE - 1) / STRIDE;
+
+        for (SIZE_T i = 0; i < step_count; ++i) {
+            CBKSTATUS status = action(start + (i * STRIDE), i);
+            if (status != STATUS_SUCCESS)
+                return status;
+        }
+
+        return STATUS_SUCCESS;
+    }
+
+    /* *******************************************************************************
+     * AUTHOR  : Trollycat                                                           *
+     * FUNC    : MmuExecuteOnPte                                                     *
+     * DATE    : 2026                                                                *
+     * PURPOSE : Walks down any tiers to leaf                                        *
+     ********************************************************************************/
+    NO_DISCARD CBKSTATUS MmuExecuteOnPte(QWORD virt, PAGING_LEVEL target_level,
+                                         BOOL alloc_if_missing, MmuPteAction action,
+                                         PTE_CONTEXT &ctx) noexcept;
+
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
      *  FUNC    : MmuWriteCr3                                                        *
