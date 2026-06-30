@@ -153,6 +153,22 @@ namespace cbk::mem
     using NCACHE_DESCRIPTOR  = NCacheDescriptor;
     using PNCACHE_DESCRIPTOR = NCacheDescriptor *;
 
+    struct MmVad;
+    using MMVAD  = MmVad;
+    using PMMVAD = MmVad *;
+
+    struct MmAddressSpace;
+    using MM_ADDRESS_SPACE  = MmAddressSpace;
+    using PMM_ADDRESS_SPACE = MmAddressSpace *;
+
+    struct MmVadFlags;
+    using MM_VAD_FLAGS  = MmVadFlags;
+    using PMM_VAD_FLAGS = MmVadFlags *;
+
+    struct ArchAspace;
+    using ARCH_ASPACE  = ArchAspace;
+    using PARCH_ASPACE = ArchAspace *;
+
 } // namespace cbk::mem
 
 namespace tklib
