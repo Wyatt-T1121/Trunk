@@ -163,6 +163,14 @@ namespace cbk::mem
         QWORD extra;
     };
 
+    struct NCacheDescriptor
+    {
+        PVOID virt_address;
+        SIZE_T size;
+        QWORD phys_base;
+        QWORD alloc_tag;
+    };
+
     enum class MM_PFN_STATE : BYTE
     {
         ZEROED_PAGE_LIST   = 0,
@@ -425,6 +433,11 @@ namespace cbk::mem
     INLINE VOID TlbFlushPage(QWORD va) noexcept
     {
         hal::InvLpg(va);
+    }
+
+    INLINE VOID MemoryFence() noexcept
+    {
+        __asm__ __volatile__("mfence" ::: "memory");
     }
 
     /* *******************************************************************************

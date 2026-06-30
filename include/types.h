@@ -148,6 +148,10 @@ namespace cbk::mem
     struct PteContext;
     using PTE_CONTEXT  = PteContext;
     using PPTE_CONTEXT = PteContext *;
+
+    struct NCacheDescriptor;
+    using NCACHE_DESCRIPTOR  = NCacheDescriptor;
+    using PNCACHE_DESCRIPTOR = NCacheDescriptor *;
 } // namespace cbk::mem
 
 INLINE_CONST BOOL TRUE  = true;
