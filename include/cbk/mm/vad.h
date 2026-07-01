@@ -76,50 +76,50 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : CreateVadNode                                                      *
+     *  FUNC    : MmVadInitializeNode                                                *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Creates a new VAD node                                             *
      ********************************************************************************/
     NO_DISCARD PMMVAD
-    VadInitializeNode(PMMVAD blank_node,
-                      QWORD starting_vpn,
-                      SIZE_T page_count,
-                      ULONG protect) noexcept;
+    MmVadInitializeNode(PMMVAD blank_node,
+                        QWORD starting_vpn,
+                        SIZE_T page_count,
+                        ULONG protect) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : VadFindNode                                                        *
+     *  FUNC    : MmVadFindNode                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Walks the tree to see if a vpn exists inside a range               *
      ********************************************************************************/
     NO_DISCARD PMMVAD
-    VadFindNode(PMM_ADDRESS_SPACE space, QWORD vpn) noexcept;
+    MmVadFindNode(PMM_ADDRESS_SPACE space, QWORD vpn) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : VadInsertNode                                                      *
+     *  FUNC    : MmVadInsertNode                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Places a new block into the binary tree                            *
      ********************************************************************************/
     NO_DISCARD CBKSTATUS
-    VadInsertNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept;
+    MmVadInsertNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : VadDeleteNode                                                       *
+     * FUNC    : MmVadDeleteNode                                                     *
      * DATE    : 2026                                                                *
      * PURPOSE : Removes a node from the tree and rebalances                         *
      ********************************************************************************/
     VOID
-    VadDeleteNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept;
+    MmVadDeleteNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : VadFindFreeGap                                                     *
+     *  FUNC    : MmVadFindFreeGap                                                   *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Walks the tree looking for an empty hole between nodes             *
      ********************************************************************************/
     NO_DISCARD QWORD
-    VadFindFreeGap(PMM_ADDRESS_SPACE space, SIZE_T page_cnt, BOOL top_down) noexcept;
+    MmVadFindFreeGap(PMM_ADDRESS_SPACE space, SIZE_T page_cnt, BOOL top_down) noexcept;
 
 } // namespace cbk::mem

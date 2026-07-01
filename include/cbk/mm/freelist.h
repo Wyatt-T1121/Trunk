@@ -97,21 +97,21 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IsPfnFree                                                          *
+     *  FUNC    : MmIsPfnFree                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check to see if a specific physical page frame is ready            *
      ********************************************************************************/
     NO_DISCARD BOOL
-    IsPfnFree(PMMPFN pfn1) noexcept;
+    MmIsPfnFree(PMMPFN pfn1) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IsPfnInUse                                                         *
+     *  FUNC    : MmIsPfnInUse                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check if a physical page frame is actively holding data            *
      ********************************************************************************/
     NO_DISCARD BOOL
-    IsPfnInUse(PMMPFN pfn1) noexcept;
+    MmIsPfnInUse(PMMPFN pfn1) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *

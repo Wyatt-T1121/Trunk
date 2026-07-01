@@ -39,7 +39,8 @@ namespace cbk::kernel
      *  DATE    : 2026                                                               *
      *  PURPOSE : Setup all subsystems of the Trunk kernel                           *
      ********************************************************************************/
-    VOID CbkSetupSubsystems(const boot::BootInfo &info) noexcept
+    VOID
+    CbkSetupSubsystems(const boot::BootInfo &info) noexcept
     {
         gdt::GdtInit();
         interrupts::IdtInit();
@@ -61,12 +62,13 @@ namespace cbk::kernel
     EXTERN_C
     NO_RETURN
     TEXT_SECTION
-    VOID CbkStartup(const boot::BootInfo &info) noexcept
+    VOID
+    CbkStartup(const boot::BootInfo &info) noexcept
     {
         CbkSetupSubsystems(info);
 
         hal::Sti();
-        interrupts::RegisterInterruptHandler(14, mem::HandlePageFault);
+        interrupts::RegisterInterruptHandler(14, mem::KiPageFault);
 
         (VOID) info;
         for (;;)

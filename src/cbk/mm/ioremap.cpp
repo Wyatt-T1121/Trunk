@@ -41,24 +41,24 @@ namespace cbk::mem
             return nullptr;
 
         SIZE_T page_cnt  = (size + PAGE_SIZE - 1) / PAGE_SIZE;
-        QWORD target_vpn = VadFindFreeGap(address_space, page_cnt, FALSE);
+        QWORD target_vpn = MmVadFindFreeGap(address_space, page_cnt, FALSE);
         if (target_vpn == 0)
             return nullptr;
 
         QWORD io_flags = flags | PAGE_CACHE_DISABLE | PAGE_WRITE_THROUGH;
         PMMVAD initialized_vad =
-            VadInitializeNode(blank_node, target_vpn, page_cnt, static_cast<ULONG>(io_flags));
+            MmVadInitializeNode(blank_node, target_vpn, page_cnt, static_cast<ULONG>(io_flags));
         if (initialized_vad == nullptr)
             return nullptr;
 
-        CBKSTATUS status = VadInsertNode(address_space, initialized_vad);
+        CBKSTATUS status = MmVadInsertNode(address_space, initialized_vad);
         if (status != STATUS_SUCCESS)
             return nullptr;
 
         QWORD vaddr = target_vpn * PAGE_SIZE;
-        status      = MapRange4K(vaddr, phys_addr, page_cnt * PAGE_SIZE, io_flags);
+        status      = MmMapRange4K(vaddr, phys_addr, page_cnt * PAGE_SIZE, io_flags);
         if (status != STATUS_SUCCESS) {
-            VadDeleteNode(address_space, initialized_vad);
+            MmVadDeleteNode(address_space, initialized_vad);
             return nullptr;
         }
 
@@ -80,15 +80,15 @@ namespace cbk::mem
         QWORD vaddr      = reinterpret_cast<QWORD>(virt_addr);
         QWORD target_vpn = vaddr / PAGE_SIZE;
 
-        PMMVAD found_vad = VadFindNode(address_space, target_vpn);
+        PMMVAD found_vad = MmVadFindNode(address_space, target_vpn);
         if (found_vad == nullptr || found_vad->starting_vpn != target_vpn)
             return;
 
         SIZE_T page_cnt  = (size + PAGE_SIZE - 1) / PAGE_SIZE;
-        CBKSTATUS status = UnmapRange4K(vaddr, page_cnt * PAGE_SIZE);
+        CBKSTATUS status = MmUnmapRange4K(vaddr, page_cnt * PAGE_SIZE);
         ASSERT(status == STATUS_SUCCESS, "MmIoUnRemap: FAILED TO UNMAP RANGE (4K)");
 
-        VadDeleteNode(address_space, found_vad);
+        MmVadDeleteNode(address_space, found_vad);
     }
 
 } // namespace cbk::mem

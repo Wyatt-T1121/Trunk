@@ -30,16 +30,17 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the page frame number database                          *
      ********************************************************************************/
-    VOID MmInitializePfnDatabase() noexcept
+    VOID
+    MmInitializePfnDatabase() noexcept
     {
         // Highest physical ram address available
-        QWORD ram_address_high = MemblockEndOfDRam();
+        QWORD ram_address_high = MmMemblockGetEndOfDRam();
         ASSERT(ram_address_high != PHYS_ADDR_MAX,
                "MMInitializePfnDatabase: RAM_ADDRESS_HIGH FAILURE");
 
         // Calculate the highest physical page
         // ram_address_high - converted to a page frame number
-        mm_highest_physical_page = AddrToPfn(ram_address_high);
+        mm_highest_physical_page = MmGetPfnFromAddress(ram_address_high);
 
         // Size of our database area
         SIZE_T db_size = mm_highest_physical_page * sizeof(MMPFN);
@@ -50,13 +51,13 @@ namespace cbk::mem
 
         // Because we need this for our memory management system to work,
         // Panic if it fails to allocate an area
-        QWORD alloc_paddr = MemblockAllocOrPanic(db_size, PAGE_SIZE);
+        QWORD alloc_paddr = MmMemblockAllocateOrCrashKernel(db_size, PAGE_SIZE);
 
         // Map our databases to the memory area we just allocated
         g_MmPfnDatabase = reinterpret_cast<PMMPFN>(PaddrToKvaddr(alloc_paddr));
         mm_pfn_database = g_MmPfnDatabase;
 
-        MemblockFreeAll();
+        MmMemblockFreeAll();
     }
 
     /* *******************************************************************************
@@ -65,7 +66,8 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the physical memory manager                             *
      ********************************************************************************/
-    VOID MmInitializePhysicalManager() noexcept
+    VOID
+    MmInitializePhysicalManager() noexcept
     {
         MmInitializePfnDatabase();
     }
@@ -76,7 +78,8 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get the highest available phys page                                *
      ********************************************************************************/
-    NO_DISCARD PFN_NUM MmGetHighestPhysicalPage() noexcept
+    NO_DISCARD PFN_NUM
+    MmGetHighestPhysicalPage() noexcept
     {
         return mm_highest_physical_page;
     }
@@ -87,7 +90,8 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get available page count                                           *
      ********************************************************************************/
-    NO_DISCARD PFN_NUM MmGetAvailablePageCount() noexcept
+    NO_DISCARD PFN_NUM
+    MmGetAvailablePageCount() noexcept
     {
         return mm_available_pages;
     }

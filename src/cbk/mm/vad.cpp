@@ -31,12 +31,12 @@ namespace cbk::mem
     {
         /* *******************************************************************************
          * AUTHOR  : Trollycat                                                           *
-         * FUNC    : VadUpdateHeight                                                     *
+         * FUNC    : MiVadUpdateHeight                                                   *
          * DATE    : 2026                                                                *
          * PURPOSE : Re-calculates and caches the max depth of a node                    *
          ********************************************************************************/
         INLINE VOID
-        VadUpdateHeight(PMMVAD node) noexcept
+        MiVadUpdateHeight(PMMVAD node) noexcept
         {
             if (node != nullptr)
                 node->height =
@@ -45,24 +45,24 @@ namespace cbk::mem
 
         /* *******************************************************************************
          * AUTHOR  : Trollycat                                                           *
-         * FUNC    : VadGetBalance                                                       *
+         * FUNC    : MiVadGetBalance                                                     *
          * DATE    : 2026                                                                *
          * PURPOSE : Computes balance difference (left height - right height)            *
          ********************************************************************************/
         NO_DISCARD INLINE LONG
-        VadGetBalance(PMMVAD node) noexcept
+        MiVadGetBalance(PMMVAD node) noexcept
         {
             return node ? (NODE_HEIGHT(node->left_child) - NODE_HEIGHT(node->right_child)) : 0;
         }
 
         /* *******************************************************************************
          * AUTHOR  : Trollycat                                                           *
-         * FUNC    : VadRotateLeft                                                       *
+         * FUNC    : MiVadRotateLeft                                                     *
          * DATE    : 2026                                                                *
          * PURPOSE : Single left rotation for right-heavy tree                           *
          ********************************************************************************/
         NO_DISCARD INLINE PMMVAD
-        VadRotateLeft(PMMVAD x) noexcept
+        MiVadRotateLeft(PMMVAD x) noexcept
         {
             PMMVAD y       = x->right_child;
             x->right_child = y->left_child;
@@ -74,19 +74,19 @@ namespace cbk::mem
             y->left_child = x;
             x->parent     = y;
 
-            VadUpdateHeight(x);
-            VadUpdateHeight(y);
+            MiVadUpdateHeight(x);
+            MiVadUpdateHeight(y);
             return y;
         }
 
         /* *******************************************************************************
          * AUTHOR  : Trollycat                                                           *
-         * FUNC    : VadRotateRight                                                      *
+         * FUNC    : MiVadRotateRight                                                    *
          * DATE    : 2026                                                                *
          * PURPOSE : Single right rotation for left-heavy tree                           *
          ********************************************************************************/
         NO_DISCARD INLINE PMMVAD
-        VadRotateRight(PMMVAD y) noexcept
+        MiVadRotateRight(PMMVAD y) noexcept
         {
             PMMVAD x      = y->left_child;
             y->left_child = x->right_child;
@@ -98,30 +98,30 @@ namespace cbk::mem
             x->right_child = y;
             y->parent      = x;
 
-            VadUpdateHeight(y);
-            VadUpdateHeight(x);
+            MiVadUpdateHeight(y);
+            MiVadUpdateHeight(x);
             return x;
         }
 
         /* *******************************************************************************
          * AUTHOR  : Trollycat                                                           *
-         * FUNC    : VadRebalanceTree                                                    *
+         * FUNC    : MiVadRebalanceTree                                                  *
          * DATE    : 2026                                                                *
          * PURPOSE : Upward chains to correct AVL balance                                *
          ********************************************************************************/
         VOID
-        VadRebalanceTree(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept
+        MiVadRebalanceTree(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept
         {
             while (node != nullptr) {
-                VadUpdateHeight(node);
-                LONG balance = VadGetBalance(node);
+                MiVadUpdateHeight(node);
+                LONG balance = MiVadGetBalance(node);
 
                 if (balance > 1) {
-                    if (VadGetBalance(node->left_child) < 0)
-                        node->left_child = VadRotateLeft(node->left_child);
+                    if (MiVadGetBalance(node->left_child) < 0)
+                        node->left_child = MiVadRotateLeft(node->left_child);
 
                     PMMVAD parent       = node->parent;
-                    PMMVAD balanced_sub = VadRotateRight(node);
+                    PMMVAD balanced_sub = MiVadRotateRight(node);
 
                     if (parent == nullptr)
                         space->vad_root = balanced_sub;
@@ -135,11 +135,11 @@ namespace cbk::mem
                 }
 
                 if (balance < -1) {
-                    if (VadGetBalance(node->right_child) > 0)
-                        node->right_child = VadRotateRight(node->right_child);
+                    if (MiVadGetBalance(node->right_child) > 0)
+                        node->right_child = MiVadRotateRight(node->right_child);
 
                     PMMVAD parent       = node->parent;
-                    PMMVAD balanced_sub = VadRotateLeft(node);
+                    PMMVAD balanced_sub = MiVadRotateLeft(node);
 
                     if (parent == nullptr)
                         space->vad_root = balanced_sub;
@@ -158,12 +158,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : VadFindMinimum                                                     *
+         *  FUNC    : MiVadFindMinimum                                                   *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Finds the VAD node with the lowest address in a sub-tree           *
          ********************************************************************************/
         NO_DISCARD PMMVAD
-        VadFindMinimum(PMMVAD node) noexcept
+        MiVadFindMinimum(PMMVAD node) noexcept
         {
             if (node == nullptr)
                 return nullptr;
@@ -176,17 +176,17 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : VadGetNextSuccessor                                                *
+         *  FUNC    : MiVadGetNextNode                                                   *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Finds the next node in memory order                                *
          ********************************************************************************/
         NO_DISCARD PMMVAD
-        VadGetNextSuccessor(PMMVAD node) noexcept
+        MiVadGetNextNode(PMMVAD node) noexcept
         {
             if (node == nullptr)
                 return nullptr;
             if (node->right_child != nullptr)
-                return VadFindMinimum(node->right_child);
+                return MiVadFindMinimum(node->right_child);
 
             PMMVAD p = node->parent;
 
@@ -200,12 +200,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : VadLinkChildNode                                                   *
+         *  FUNC    : MiVadLinkChildNode                                                 *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Link a child leaf to its parent                                    *
          ********************************************************************************/
         VOID
-        VadLinkChildNode(PMMVAD parent, PMMVAD *child_slot, PMMVAD new_node) noexcept
+        MiVadLinkChildNode(PMMVAD parent, PMMVAD *child_slot, PMMVAD new_node) noexcept
         {
             *child_slot           = new_node;
             new_node->parent      = parent;
@@ -217,15 +217,15 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : CreateVadNode                                                      *
+     *  FUNC    : MmVadInitializeNode                                                *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Creates a new VAD node                                             *
      ********************************************************************************/
     NO_DISCARD PMMVAD
-    VadInitializeNode(PMMVAD blank_node,
-                      QWORD starting_vpn,
-                      SIZE_T page_count,
-                      ULONG protect) noexcept
+    MmVadInitializeNode(PMMVAD blank_node,
+                        QWORD starting_vpn,
+                        SIZE_T page_count,
+                        ULONG protect) noexcept
     {
         if (blank_node == nullptr)
             return nullptr;
@@ -248,12 +248,12 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : VadFindNode                                                        *
+     *  FUNC    : MmVadFindNode                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Walks the tree to see if a vpn exists inside a range               *
      ********************************************************************************/
     NO_DISCARD PMMVAD
-    VadFindNode(PMM_ADDRESS_SPACE space, QWORD vpn) noexcept
+    MmVadFindNode(PMM_ADDRESS_SPACE space, QWORD vpn) noexcept
     {
         if (space == nullptr)
             return nullptr;
@@ -276,18 +276,18 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : VadInsertNode                                                      *
+     *  FUNC    : MmVadInsertNode                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Places a new block into the binary tree                            *
      ********************************************************************************/
     NO_DISCARD CBKSTATUS
-    VadInsertNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept
+    MmVadInsertNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept
     {
         if (space == nullptr || node == nullptr)
             return STATUS_INVALID_PARAMETER;
 
         if (space->vad_root == nullptr) {
-            VadLinkChildNode(nullptr, &space->vad_root, node);
+            MiVadLinkChildNode(nullptr, &space->vad_root, node);
             return STATUS_SUCCESS;
         }
 
@@ -297,7 +297,7 @@ namespace cbk::mem
             if (node->ending_vpn < current->starting_vpn) {
 
                 if (current->left_child == nullptr) {
-                    VadLinkChildNode(current, &current->left_child, node);
+                    MiVadLinkChildNode(current, &current->left_child, node);
                     break;
                 }
 
@@ -306,7 +306,7 @@ namespace cbk::mem
             } else if (node->starting_vpn > current->ending_vpn) {
 
                 if (current->right_child == nullptr) {
-                    VadLinkChildNode(current, &current->right_child, node);
+                    MiVadLinkChildNode(current, &current->right_child, node);
                     break;
                 }
 
@@ -316,18 +316,18 @@ namespace cbk::mem
                 return STATUS_CONFLICTING_ADDRESSES;
         }
 
-        VadRebalanceTree(space, node->parent);
+        MiVadRebalanceTree(space, node->parent);
         return STATUS_SUCCESS;
     }
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : VadDeleteNode                                                       *
+     * FUNC    : MmVadDeleteNode                                                     *
      * DATE    : 2026                                                                *
      * PURPOSE : Removes a node from the  tree and rebalances                        *
      ********************************************************************************/
     VOID
-    VadDeleteNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept
+    MmVadDeleteNode(PMM_ADDRESS_SPACE space, PMMVAD node) noexcept
     {
         if (space == nullptr || node == nullptr)
             return;
@@ -348,7 +348,7 @@ namespace cbk::mem
             else
                 node->parent->right_child = child;
         } else {
-            PMMVAD successor = VadFindMinimum(node->right_child);
+            PMMVAD successor = MiVadFindMinimum(node->right_child);
             rebalance_start  = successor->parent;
 
             if (successor->parent->left_child == successor)
@@ -381,7 +381,7 @@ namespace cbk::mem
         }
 
         if (rebalance_start != nullptr)
-            VadRebalanceTree(space, rebalance_start);
+            MiVadRebalanceTree(space, rebalance_start);
 
         node->left_child  = nullptr;
         node->right_child = nullptr;
@@ -390,18 +390,18 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : VadFindFreeGap                                                     *
+     *  FUNC    : MmVadFindFreeGap                                                   *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Walks the tree looking for an empty hole between nodes             *
      ********************************************************************************/
     NO_DISCARD QWORD
-    VadFindFreeGap(PMM_ADDRESS_SPACE space, SIZE_T page_cnt, BOOL top_down) noexcept
+    MmVadFindFreeGap(PMM_ADDRESS_SPACE space, SIZE_T page_cnt, BOOL top_down) noexcept
     {
         if (space == nullptr || space->vad_root == nullptr)
             return space->lowest_addr >> 12;
 
         QWORD current_vpn_frontier = space->lowest_addr >> 12;
-        PMMVAD current             = VadFindMinimum(space->vad_root);
+        PMMVAD current             = MiVadFindMinimum(space->vad_root);
 
         while (current != nullptr) {
 
@@ -415,7 +415,7 @@ namespace cbk::mem
                 return 0;
 
             current_vpn_frontier = current->ending_vpn + 1;
-            current              = VadGetNextSuccessor(current);
+            current              = MiVadGetNextNode(current);
         }
 
         QWORD highest_vpn_boundary = space->highest_addr >> 12;

@@ -177,6 +177,18 @@ namespace cbk::mem
     using ARCH_ASPACE  = ArchAspace;
     using PARCH_ASPACE = ArchAspace *;
 
+    struct BootAllocation;
+    using BOOT_ALLOCATION  = BootAllocation;
+    using PBOOT_ALLOCATION = BootAllocation *;
+
+    struct MemblockType;
+    using MEMBLOCK_TYPE  = MemblockType;
+    using PMEMBLOCK_TYPE = MemblockType *;
+
+    struct Memblock;
+    using MEMBLOCK  = Memblock;
+    using PMEMBLOCK = Memblock *;
+
 } // namespace cbk::mem
 
 namespace tklib

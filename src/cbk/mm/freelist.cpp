@@ -63,7 +63,7 @@ namespace cbk::mem
 
         PLIST_ENTRY first_node = mm_active_user_list.flink;
         PMMPFN pfn             = CONTAINING_RECORD(first_node, MMPFN, list_entry);
-        PFN_NUM page           = GetPfnEntryIndex(pfn);
+        PFN_NUM page           = MmGetPfnEntryIndex(pfn);
 
         MmReferencePage(page);
 
@@ -79,7 +79,7 @@ namespace cbk::mem
     VOID
     MmInsertLRULastUserPage(PFN_NUM page) noexcept
     {
-        PMMPFN pfn = GetPfnEntry(page);
+        PMMPFN pfn = MmGetPfnEntry(page);
 
         if (pfn->list_entry.flink != nullptr && pfn->list_entry.blink != nullptr)
             RemoveEntryList(&pfn->list_entry);
@@ -99,7 +99,7 @@ namespace cbk::mem
         ASSERT(page != 0, "MmRemoveLRUUserPage: page = 0");
         ASSERT_IS_CBK_PFN(page);
 
-        PMMPFN pfn = GetPfnEntry(page);
+        PMMPFN pfn = MmGetPfnEntry(page);
 
         if (pfn->list_entry.flink != nullptr && pfn->list_entry.blink != nullptr) {
             RemoveEntryList(&pfn->list_entry);
@@ -119,7 +119,7 @@ namespace cbk::mem
     {
         PFN_NUM page = 0;
 
-        PMMPFN previous_pfn = GetPfnEntry(prev_page);
+        PMMPFN previous_pfn = MmGetPfnEntry(prev_page);
 
         PLIST_ENTRY next_entry = previous_pfn->list_entry.flink;
         PMMPFN next_pfn        = CONTAINING_RECORD(next_entry, MMPFN, list_entry);
@@ -130,7 +130,7 @@ namespace cbk::mem
         }
 
         if (next_entry != &mm_active_user_list) {
-            page = GetPfnEntryIndex(next_pfn);
+            page = MmGetPfnEntryIndex(next_pfn);
             MmReferencePage(page);
         } else
             page = 0;
@@ -142,12 +142,12 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IsPfnFree                                                          *
+     *  FUNC    : MmIsPfnFree                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check to see if a specific physical page frame is free             *
      ********************************************************************************/
     NO_DISCARD BOOL
-    IsPfnFree(PMMPFN pfn1) noexcept
+    MmIsPfnFree(PMMPFN pfn1) noexcept
     {
         return (pfn1->reference_count == 0) &&
                (pfn1->page_location == MM_PFN_STATE::FREE_PAGE_LIST ||
@@ -156,14 +156,14 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IsPfnInUse                                                         *
+     *  FUNC    : MmIsPfnInUse                                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check if a physical page frame is actively holding data            *
      ********************************************************************************/
     NO_DISCARD BOOL
-    IsPfnInUse(PMMPFN pfn1) noexcept
+    MmIsPfnInUse(PMMPFN pfn1) noexcept
     {
-        return !IsPfnFree(pfn1);
+        return !MmIsPfnFree(pfn1);
     }
 
     /* *******************************************************************************
@@ -178,11 +178,11 @@ namespace cbk::mem
     {
         ASSERT_IS_CBK_PFN(pfn);
 
-        PMMPFN pfn1 = GetPfnEntry(pfn);
+        PMMPFN pfn1 = MmGetPfnEntry(pfn);
         ASSERT(pfn1 != nullptr, "MmSetRmapListHeadPage: PFN entry pointer is null");
 
         if (list_head != nullptr)
-            ASSERT(IsPfnInUse(pfn1), "MmSetRmapListHeadPage: PFN must be active to assign RMAP");
+            ASSERT(MmIsPfnInUse(pfn1), "MmSetRmapListHeadPage: PFN must be active to assign RMAP");
 
         pfn1->rmap_list_head = list_head;
     }
@@ -198,9 +198,9 @@ namespace cbk::mem
     MmGetRmapListHeadPage(PFN_NUM pfn) noexcept
     {
         ASSERT_IS_CBK_PFN(pfn);
-        PMMPFN pfn1 = GetPfnEntry(pfn);
+        PMMPFN pfn1 = MmGetPfnEntry(pfn);
         ASSERT(pfn1 != nullptr, "MmGetRmapListHeadPage: PFN entry pointer is null");
-        ASSERT(IsPfnInUse(pfn1), "MmGetRmapListHeadPage: PFN must be active to have RMAP");
+        ASSERT(MmIsPfnInUse(pfn1), "MmGetRmapListHeadPage: PFN must be active to have RMAP");
         return pfn1->rmap_list_head;
     }
 
@@ -214,9 +214,9 @@ namespace cbk::mem
     MmReferencePage(PFN_NUM pfn) noexcept
     {
         ASSERT_IS_CBK_PFN(pfn);
-        PMMPFN pfn1 = GetPfnEntry(pfn);
+        PMMPFN pfn1 = MmGetPfnEntry(pfn);
         ASSERT(pfn1 != nullptr, "MmReferencePage: PFN entry pointer is null");
-        ASSERT(!IsPfnFree(pfn1), "MmReferencePage: Cannot reference a completely freed page");
+        ASSERT(!MmIsPfnFree(pfn1), "MmReferencePage: Cannot reference a completely freed page");
         pfn1->reference_count++;
     }
 
@@ -231,7 +231,7 @@ namespace cbk::mem
     MmGetReferenceCountPage(PFN_NUM pfn) noexcept
     {
         ASSERT_IS_CBK_PFN(pfn);
-        PMMPFN pfn1 = GetPfnEntry(pfn);
+        PMMPFN pfn1 = MmGetPfnEntry(pfn);
         ASSERT(pfn1 != nullptr, "MmGetReferenceCountPage: PFN entry pointer is null");
         return pfn1->reference_count;
     }
@@ -247,7 +247,7 @@ namespace cbk::mem
     MmIsPageInUse(PFN_NUM pfn) noexcept
     {
         ASSERT_IS_CBK_PFN(pfn);
-        return IsPfnInUse(GetPfnEntry(pfn));
+        return MmIsPfnInUse(MmGetPfnEntry(pfn));
     }
 
     /* *******************************************************************************
@@ -261,7 +261,7 @@ namespace cbk::mem
     {
         ASSERT_IS_CBK_PFN(pfn);
 
-        PMMPFN pfn1 = GetPfnEntry(pfn);
+        PMMPFN pfn1 = MmGetPfnEntry(pfn);
         ASSERT(pfn1 != nullptr, "MmDereferencePage: PFN entry pointer is null");
 
         ASSERT(pfn1->reference_count != 0,
@@ -302,7 +302,7 @@ namespace cbk::mem
         RemoveEntryList(node);
 
         PMMPFN pfn1        = CONTAINING_RECORD(node, MmPfn, list_entry);
-        PFN_NUM pfn_offset = GetPfnEntryIndex(pfn1);
+        PFN_NUM pfn_offset = MmGetPfnEntryIndex(pfn1);
 
         pfn1->reference_count = 1;
         pfn1->page_location   = MM_PFN_STATE::ACTIVE_AND_VALID;
@@ -341,7 +341,7 @@ namespace cbk::mem
 
             BOOL block_suitable = TRUE;
             for (SIZE_T i = 0; i < page_count; ++i) {
-                if (!IsPfnFree(GetPfnEntry(pfn + i))) {
+                if (!MmIsPfnFree(MmGetPfnEntry(pfn + i))) {
                     block_suitable = FALSE;
                     break;
                 }
@@ -350,7 +350,7 @@ namespace cbk::mem
             if (block_suitable) {
                 for (SIZE_T i = 0; i < page_count; ++i) {
                     PFN_NUM target_pfn = pfn + i;
-                    PMMPFN pfn_entry   = GetPfnEntry(target_pfn);
+                    PMMPFN pfn_entry   = MmGetPfnEntry(target_pfn);
 
                     RemoveEntryList(&pfn_entry->list_entry);
 

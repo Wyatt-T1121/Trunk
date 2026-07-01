@@ -43,44 +43,48 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : AddrToPfn                                                          *
+     *  FUNC    : MmGetPfnFromAddress                                                *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Shift address to Page frame number                                 *
      ********************************************************************************/
-    NO_DISCARD INLINE_CONST QWORD AddrToPfn(QWORD addr) noexcept
+    NO_DISCARD INLINE_CONST QWORD
+    MmGetPfnFromAddress(QWORD addr) noexcept
     {
         return addr >> PAGE_SHIFT;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : PfnToAddr                                                          *
+     *  FUNC    : MmGetVirtualAddressFromPfn                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Shift Page frame number to address                                 *
      ********************************************************************************/
-    NO_DISCARD INLINE_CONST QWORD PfnToAddr(QWORD pfn) noexcept
+    NO_DISCARD INLINE_CONST QWORD
+    MmGetVirtualAddressFromPfn(QWORD pfn) noexcept
     {
         return pfn << PAGE_SHIFT;
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : GetPfnEntry                                                        *
+     *  FUNC    : MmGetPfnEntry                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Translates a raw PFN index into its metadata structure pointer     *
      ********************************************************************************/
-    NO_DISCARD INLINE PMMPFN GetPfnEntry(PFN_NUM pfn_num) noexcept
+    NO_DISCARD INLINE PMMPFN
+    MmGetPfnEntry(PFN_NUM pfn_num) noexcept
     {
         return &g_MmPfnDatabase[pfn_num];
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : GetPfnEntryIndex                                                   *
+     *  FUNC    : MmGetPfnEntryIndex                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Translates a raw PFN index into its metadata structure pointer     *
      ********************************************************************************/
-    NO_DISCARD INLINE PFN_NUM GetPfnEntryIndex(PMMPFN pfn_entry) noexcept
+    NO_DISCARD INLINE PFN_NUM
+    MmGetPfnEntryIndex(PMMPFN pfn_entry) noexcept
     {
         return (PFN_NUM)(pfn_entry - g_MmPfnDatabase);
     }

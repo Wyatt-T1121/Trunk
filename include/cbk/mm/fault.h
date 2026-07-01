@@ -33,11 +33,12 @@ namespace cbk::mem
 {
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : HandlePageFault                                                    *
+     *  FUNC    : KiPageFault                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Raw ISR entry hook for Vector 14 (#PF)                             *
      ********************************************************************************/
-    VOID HandlePageFault(interrupts::InterruptFrame *frame, MAYBE_UNUSED PVOID context) noexcept;
+    VOID
+    KiPageFault(interrupts::InterruptFrame *frame, MAYBE_UNUSED PVOID context) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -45,7 +46,7 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Evaluates why the CPU faulted                                      *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS MmAccessFault(ULONG_PTR faulting_address,
-                                       interrupts::InterruptFrame *frame) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmAccessFault(ULONG_PTR faulting_address, interrupts::InterruptFrame *frame) noexcept;
 
 } // namespace cbk::mem

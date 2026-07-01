@@ -44,11 +44,12 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : HandlePageFault                                                    *
+     *  FUNC    : KiPageFault                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Raw ISR entry hook for Vector 14 (#PF)                             *
      ********************************************************************************/
-    VOID HandlePageFault(interrupts::InterruptFrame *frame, MAYBE_UNUSED PVOID context) noexcept
+    VOID
+    KiPageFault(interrupts::InterruptFrame *frame, MAYBE_UNUSED PVOID context) noexcept
     {
         ULONG_PTR faulting_address = hal::ReadCr2();
         CBKSTATUS status           = MmAccessFault(faulting_address, frame);
@@ -61,8 +62,8 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Evaluates why the CPU faulted                                      *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS MmAccessFault(ULONG_PTR faulting_address,
-                                       interrupts::InterruptFrame *frame) noexcept
+    NO_DISCARD CBKSTATUS
+    MmAccessFault(ULONG_PTR faulting_address, interrupts::InterruptFrame *frame) noexcept
     {
         MAYBE_UNUSED BOOL is_present = (frame->error_code & 1) != 0;
         MAYBE_UNUSED BOOL is_write   = (frame->error_code & 2) != 0;

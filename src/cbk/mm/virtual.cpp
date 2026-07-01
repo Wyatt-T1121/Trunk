@@ -27,20 +27,20 @@ namespace cbk::mem
     MMVAD static_boot_nodes[ARR_BOOT_NODE_SIZE];
     ULONG next_free_boot_node = 0;
 
-    static const MM_LEVEL_TRAITS level_traits[] = {{PAGE_SIZE, UnmapPage4K},
-                                                   {2 * MB, UnmapPage2M},
-                                                   {1 * GB, UnmapPage1G}};
+    static const MM_LEVEL_TRAITS level_traits[] = {{PAGE_SIZE, MmUnmapPage4K},
+                                                   {2 * MB, MmUnmapPage2M},
+                                                   {1 * GB, MmUnmapPage1G}};
 
     namespace
     {
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmInternalVpnToAddress                                             *
+         *  FUNC    : MiVirtualPageNumberToAddress                                       *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Converts a VPN back to a virtual address                           *
          ********************************************************************************/
         NO_DISCARD INLINE QWORD
-        MmInternalVpnToAddress(QWORD vpn) noexcept
+        MiVirtualPageNumberToAddress(QWORD vpn) noexcept
         {
             constexpr QWORD MAX_USER_VPN = PHYS_ADDR_48_BIT_MAX >> PAGE_SHIFT;
             QWORD raw_address            = vpn << PAGE_SHIFT;
@@ -57,12 +57,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmGetLevelTraits                                                   *
+         *  FUNC    : MiGetLevelTraits                                                   *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Gets the traits for a given paging level                           *
          ********************************************************************************/
         NO_DISCARD INLINE const MM_LEVEL_TRAITS &
-        MmGetLevelTraits(PAGING_LEVEL level, PAGE_TABLE_ENTRY entry) noexcept
+        MiGetLevelTraits(PAGING_LEVEL level, PAGE_TABLE_ENTRY entry) noexcept
         {
             if (entry.Bits.large_page &&
                 static_cast<SIZE_T>(level) <= static_cast<SIZE_T>(PAGING_LEVEL::PDPT))
@@ -72,12 +72,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmEncodeHardwareProtection                                         *
+         *  FUNC    : MiEncodeHardwreProtectionBits                                      *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Encode hardware protection bits                                    *
          ********************************************************************************/
         NO_DISCARD INLINE PAGE_TABLE_ENTRY
-        MmEncodeHardwareProtection(ULONG protect) noexcept
+        MiEncodeHardwreProtectionBits(ULONG protect) noexcept
         {
             PAGE_TABLE_ENTRY pte{};
 
@@ -93,12 +93,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmValidateAllocateParameters                                       *
+         *  FUNC    : MiValidateAllocateParameters                                       *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Validate parameters for vmm allocate                               *
          ********************************************************************************/
         NO_DISCARD INLINE CBKSTATUS
-        MmValidateAllocateParameters(PMM_ADDRESS_SPACE address_space,
+        MiValidateAllocateParameters(PMM_ADDRESS_SPACE address_space,
                                      PVOID *base_address,
                                      PSIZE_T region_size,
                                      ULONG allocation_type) noexcept
@@ -117,13 +117,13 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmProcessVirtualRange                                              *
+         *  FUNC    : MiProcessVirtualRange                                              *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Process a virtual range (abstraction helper basically...)          *
          ********************************************************************************/
         template <typename TAction>
         NO_DISCARD INLINE SIZE_T
-        MmProcessVirtualRange(QWORD pml4_phys,
+        MiProcessVirtualRange(QWORD pml4_phys,
                               QWORD start_va,
                               SIZE_T total_size,
                               PAGING_LEVEL target_level,
@@ -137,7 +137,7 @@ namespace cbk::mem
                 PPAGE_TABLE_ENTRY entry   = nullptr;
                 PAGING_LEVEL resolved_lvl = PAGING_LEVEL::PML4;
                 CBKSTATUS status =
-                    MmuWalkToTable(pml4_phys, current_va, target_level, FALSE, entry, resolved_lvl);
+                    MmWalkToTable(pml4_phys, current_va, target_level, FALSE, entry, resolved_lvl);
                 if (status != STATUS_SUCCESS || entry == nullptr) {
                     SIZE_T step_size = PAGE_SIZE;
                     if (target_level == PAGING_LEVEL::PD)
@@ -150,7 +150,7 @@ namespace cbk::mem
                     continue;
                 }
 
-                const auto &traits = MmGetLevelTraits(resolved_lvl, *entry);
+                const auto &traits = MiGetLevelTraits(resolved_lvl, *entry);
 
                 QWORD page_offset  = current_va & (traits.bytes_spanned - 1);
                 SIZE_T chunk_avail = traits.bytes_spanned - page_offset;
@@ -173,25 +173,25 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmCommitVirtualRange                                               *
+         *  FUNC    : MiCommitVirtualRange                                               *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Commit a virtual range                                             *
          ********************************************************************************/
         NO_DISCARD INLINE CBKSTATUS
-        MmCommitVirtualRange(PMM_ADDRESS_SPACE address_space,
+        MiCommitVirtualRange(PMM_ADDRESS_SPACE address_space,
                              QWORD target_va,
                              SIZE_T aligned_size,
                              ULONG protect,
                              PMMVAD vad) noexcept
         {
             SIZE_T pages_mapped           = 0;
-            PAGE_TABLE_ENTRY template_pte = MmEncodeHardwareProtection(protect);
+            PAGE_TABLE_ENTRY template_pte = MiEncodeHardwreProtectionBits(protect);
 
             PAGING_LEVEL target_level = PAGING_LEVEL::PT;
             if (protect & MEM_LARGE_PAGES)
                 target_level = PAGING_LEVEL::PD;
 
-            SIZE_T processed_bytes = MmProcessVirtualRange(address_space->hardware_map->pml4_phys,
+            SIZE_T processed_bytes = MiProcessVirtualRange(address_space->hardware_map->pml4_phys,
                                                            target_va,
                                                            aligned_size,
                                                            target_level,
@@ -239,12 +239,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmReserveVirtualRange                                              *
+         *  FUNC    : MiReserveVirtualRange                                              *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Reserve a virtual range                                            *
          ********************************************************************************/
         NO_DISCARD INLINE CBKSTATUS
-        MmReserveVirtualRange(PMM_ADDRESS_SPACE address_space,
+        MiReserveVirtualRange(PMM_ADDRESS_SPACE address_space,
                               QWORD &target_va,
                               SIZE_T page_count,
                               ULONG allocation_type,
@@ -254,7 +254,7 @@ namespace cbk::mem
             if (target_va == 0) {
 
                 QWORD free_vpn =
-                    VadFindFreeGap(address_space, page_count, (allocation_type & MEM_TOP_DOWN));
+                    MmVadFindFreeGap(address_space, page_count, (allocation_type & MEM_TOP_DOWN));
 
                 if (free_vpn == 0)
                     return STATUS_INSUFFICIENT_RESOURCES;
@@ -268,7 +268,7 @@ namespace cbk::mem
                 QWORD start_vpn = target_va >> PAGE_SHIFT;
 
                 for (SIZE_T i = 0; i < page_count; ++i)
-                    if (VadFindNode(address_space, start_vpn + i) != nullptr)
+                    if (MmVadFindNode(address_space, start_vpn + i) != nullptr)
                         return STATUS_CONFLICTING_ADDRESSES;
             }
 
@@ -276,13 +276,13 @@ namespace cbk::mem
                 return STATUS_INSUFFICIENT_RESOURCES;
 
             PMMVAD blank_slot = &static_boot_nodes[next_free_boot_node++];
-            out_vad = VadInitializeNode(blank_slot, target_va >> PAGE_SHIFT, page_count, protect);
+            out_vad = MmVadInitializeNode(blank_slot, target_va >> PAGE_SHIFT, page_count, protect);
             if (out_vad == nullptr) {
                 next_free_boot_node--;
                 return STATUS_INSUFFICIENT_RESOURCES;
             }
 
-            CBKSTATUS status = VadInsertNode(address_space, out_vad);
+            CBKSTATUS status = MmVadInsertNode(address_space, out_vad);
             if (status != STATUS_SUCCESS) {
                 next_free_boot_node--;
                 return status;
@@ -293,12 +293,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmVerifyExistingReservation                                        *
+         *  FUNC    : MiVerifyExistingReservation                                        *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Verify an existing reservation                                     *
          ********************************************************************************/
         NO_DISCARD INLINE CBKSTATUS
-        MmVerifyExistingReservation(PMM_ADDRESS_SPACE address_space,
+        MiVerifyExistingReservation(PMM_ADDRESS_SPACE address_space,
                                     QWORD target_va,
                                     SIZE_T page_count,
                                     PMMVAD &out_vad) noexcept
@@ -306,7 +306,7 @@ namespace cbk::mem
             if (target_va == 0 || !IsPageAligned(target_va))
                 return STATUS_INVALID_PARAMETER;
 
-            out_vad = VadFindNode(address_space, target_va >> PAGE_SHIFT);
+            out_vad = MmVadFindNode(address_space, target_va >> PAGE_SHIFT);
             if (out_vad == nullptr)
                 return STATUS_NOT_FOUND;
 
@@ -318,12 +318,12 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmProbeForRead                                                     *
+         *  FUNC    : MiProbeVirtualRangeForRead                                         *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Verify a virtual range is fully within user space                  *
          ********************************************************************************/
         NO_DISCARD INLINE BOOL
-        MmProbeForRead(PVOID address, SIZE_T length) noexcept
+        MiProbeVirtualRangeForRead(PVOID address, SIZE_T length) noexcept
         {
             if (length == 0)
                 return TRUE;
@@ -339,27 +339,27 @@ namespace cbk::mem
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmProbeForWrite                                                    *
+         *  FUNC    : MiProbeVirtualRangeForWrite                                        *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Verify a virtual range is safe for user-mode writing               *
          ********************************************************************************/
         NO_DISCARD INLINE BOOL
-        MmProbeForWrite(PVOID address, SIZE_T length) noexcept
+        MiProbeVirtualRangeForWrite(PVOID address, SIZE_T length) noexcept
         {
-            return MmProbeForRead(address, length);
+            return MiProbeVirtualRangeForRead(address, length);
         }
 
         /* *******************************************************************************
          *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : MmSplitVad                                                         *
+         *  FUNC    : MiSplitVadNode                                                     *
          *  DATE    : 2026                                                               *
          *  PURPOSE : Splis a VAD node into three fragments                              *
          ********************************************************************************/
         NO_DISCARD CBKSTATUS
-        MmSplitVad(PMM_ADDRESS_SPACE address_space,
-                   PMMVAD original_vad,
-                   QWORD target_start_vpn,
-                   QWORD target_end_vpn) noexcept
+        MiSplitVadNode(PMM_ADDRESS_SPACE address_space,
+                       PMMVAD original_vad,
+                       QWORD target_start_vpn,
+                       QWORD target_end_vpn) noexcept
         {
             if (next_free_boot_node >= ARR_BOOT_NODE_SIZE)
                 return STATUS_INSUFFICIENT_RESOURCES;
@@ -368,13 +368,13 @@ namespace cbk::mem
             QWORD orig_end   = original_vad->ending_vpn;
             CBKSTATUS status = STATUS_SUCCESS;
 
-            VadDeleteNode(address_space, original_vad);
+            MmVadDeleteNode(address_space, original_vad);
 
             if (target_start_vpn == orig_start && target_end_vpn < orig_end) {
                 original_vad->starting_vpn = orig_start;
                 original_vad->ending_vpn   = target_end_vpn;
 
-                status = VadInsertNode(address_space, original_vad);
+                status = MmVadInsertNode(address_space, original_vad);
                 if (status != STATUS_SUCCESS)
                     return status;
 
@@ -384,7 +384,7 @@ namespace cbk::mem
                 right_node->u.long_flags   = original_vad->u.long_flags;
                 right_node->backing_object = original_vad->backing_object;
 
-                status = VadInsertNode(address_space, right_node);
+                status = MmVadInsertNode(address_space, right_node);
                 if (status != STATUS_SUCCESS)
                     return status;
 
@@ -392,7 +392,7 @@ namespace cbk::mem
                 original_vad->starting_vpn = target_start_vpn;
                 original_vad->ending_vpn   = orig_end;
 
-                status = VadInsertNode(address_space, original_vad);
+                status = MmVadInsertNode(address_space, original_vad);
                 if (status != STATUS_SUCCESS)
                     return status;
 
@@ -402,7 +402,7 @@ namespace cbk::mem
                 left_node->u.long_flags   = original_vad->u.long_flags;
                 left_node->backing_object = original_vad->backing_object;
 
-                status = VadInsertNode(address_space, left_node);
+                status = MmVadInsertNode(address_space, left_node);
                 if (status != STATUS_SUCCESS)
                     return status;
 
@@ -410,7 +410,7 @@ namespace cbk::mem
                 original_vad->starting_vpn = orig_start;
                 original_vad->ending_vpn   = target_start_vpn - 1;
 
-                status = VadInsertNode(address_space, original_vad);
+                status = MmVadInsertNode(address_space, original_vad);
                 if (status != STATUS_SUCCESS)
                     return status;
 
@@ -423,7 +423,7 @@ namespace cbk::mem
                 middle_node->u.long_flags   = original_vad->u.long_flags;
                 middle_node->backing_object = original_vad->backing_object;
 
-                status = VadInsertNode(address_space, middle_node);
+                status = MmVadInsertNode(address_space, middle_node);
                 if (status != STATUS_SUCCESS)
                     return status;
 
@@ -433,7 +433,7 @@ namespace cbk::mem
                 right_node->u.long_flags   = original_vad->u.long_flags;
                 right_node->backing_object = original_vad->backing_object;
 
-                status = VadInsertNode(address_space, right_node);
+                status = MmVadInsertNode(address_space, right_node);
                 if (status != STATUS_SUCCESS)
                     return status;
             }
@@ -476,7 +476,7 @@ namespace cbk::mem
 
         SIZE_T size = end_addr - start_addr;
 
-        PMMVAD vad = VadFindNode(space, start_addr >> PAGE_SHIFT);
+        PMMVAD vad = MmVadFindNode(space, start_addr >> PAGE_SHIFT);
         if (vad == nullptr)
             return STATUS_UNSUCCESSFUL;
 
@@ -487,16 +487,16 @@ namespace cbk::mem
             return STATUS_CONFLICTING_ADDRESSES;
 
         if (start_vpn > vad->starting_vpn || (end_vpn - 1) < vad->ending_vpn) {
-            CBKSTATUS split_status = MmSplitVad(space, vad, start_vpn, end_vpn - 1);
+            CBKSTATUS split_status = MiSplitVadNode(space, vad, start_vpn, end_vpn - 1);
             if (split_status != STATUS_SUCCESS)
                 return split_status;
 
-            vad = VadFindNode(space, start_vpn);
+            vad = MmVadFindNode(space, start_vpn);
             if (vad == nullptr)
                 return STATUS_UNSUCCESSFUL;
         }
 
-        CBKSTATUS status = MmuProtectRange(start_addr, size, new_access_protection);
+        CBKSTATUS status = MmProtectRange(start_addr, size, new_access_protection);
         if (status != STATUS_SUCCESS)
             return status;
 
@@ -536,8 +536,8 @@ namespace cbk::mem
             }
         }
 
-        QWORD current_address = MmInternalVpnToAddress(found_vad->starting_vpn);
-        QWORD end_address     = MmInternalVpnToAddress(found_vad->ending_vpn) + PAGE_SIZE;
+        QWORD current_address = MiVirtualPageNumberToAddress(found_vad->starting_vpn);
+        QWORD end_address     = MiVirtualPageNumberToAddress(found_vad->ending_vpn) + PAGE_SIZE;
 
         while (current_address < end_address) {
             hal::InvLpg(current_address);
@@ -545,12 +545,12 @@ namespace cbk::mem
             PPAGE_TABLE_ENTRY entry   = nullptr;
             PAGING_LEVEL resolved_lvl = PAGING_LEVEL::PML4;
 
-            CBKSTATUS status = MmuWalkToTable(address_space->hardware_map->pml4_phys,
-                                              current_address,
-                                              PAGING_LEVEL::PT,
-                                              FALSE,
-                                              entry,
-                                              resolved_lvl);
+            CBKSTATUS status = MmWalkToTable(address_space->hardware_map->pml4_phys,
+                                             current_address,
+                                             PAGING_LEVEL::PT,
+                                             FALSE,
+                                             entry,
+                                             resolved_lvl);
 
             SIZE_T step = PAGE_SIZE;
             if (status == STATUS_SUCCESS && entry && entry->Bits.large_page)
@@ -578,7 +578,7 @@ namespace cbk::mem
         QWORD aligned_end   = PAGE_ALIGN(ending_address);
         SIZE_T size         = aligned_end - aligned_start;
 
-        return MmProcessVirtualRange(address_space->hardware_map->pml4_phys,
+        return MiProcessVirtualRange(address_space->hardware_map->pml4_phys,
                                      aligned_start,
                                      size,
                                      PAGING_LEVEL::PT,
@@ -613,7 +613,7 @@ namespace cbk::mem
         QWORD aligned_end   = PAGE_ALIGN(ending_va);
         SIZE_T size         = aligned_end - aligned_start;
 
-        MAYBE_UNUSED SIZE_T unused = MmProcessVirtualRange(address_space->hardware_map->pml4_phys,
+        MAYBE_UNUSED SIZE_T unused = MiProcessVirtualRange(address_space->hardware_map->pml4_phys,
                                                            aligned_start,
                                                            size,
                                                            PAGING_LEVEL::PT,
@@ -651,8 +651,9 @@ namespace cbk::mem
             kernel_buffer == nullptr || buffer_size == 0)
             return 0;
 
-        BOOL probe_success = write_to_target ? MmProbeForWrite(target_virtual_address, buffer_size)
-                                             : MmProbeForRead(target_virtual_address, buffer_size);
+        BOOL probe_success = write_to_target
+                                 ? MiProbeVirtualRangeForWrite(target_virtual_address, buffer_size)
+                                 : MiProbeVirtualRangeForRead(target_virtual_address, buffer_size);
 
         if (!probe_success)
             return 0;
@@ -660,7 +661,7 @@ namespace cbk::mem
         QWORD start_va = reinterpret_cast<QWORD>(target_virtual_address);
         BYTE *curr_buf = reinterpret_cast<BYTE *>(kernel_buffer);
 
-        return MmProcessVirtualRange(target_address_space->hardware_map->pml4_phys,
+        return MiProcessVirtualRange(target_address_space->hardware_map->pml4_phys,
                                      start_va,
                                      buffer_size,
                                      PAGING_LEVEL::PT,
@@ -707,8 +708,8 @@ namespace cbk::mem
             source_address == nullptr || target_address == nullptr || buffer_size == 0)
             return 0;
 
-        if (!MmProbeForRead(source_address, buffer_size) ||
-            !MmProbeForWrite(target_address, buffer_size))
+        if (!MiProbeVirtualRangeForRead(source_address, buffer_size) ||
+            !MiProbeVirtualRangeForWrite(target_address, buffer_size))
             return 0;
 
         if (source_address_space == target_address_space) {
@@ -792,7 +793,7 @@ namespace cbk::mem
                             ULONG protect) noexcept
     {
         CBKSTATUS status =
-            MmValidateAllocateParameters(address_space, base_address, region_size, allocation_type);
+            MiValidateAllocateParameters(address_space, base_address, region_size, allocation_type);
         if (status != STATUS_SUCCESS)
             return status;
 
@@ -802,19 +803,19 @@ namespace cbk::mem
         PMMVAD vad          = nullptr;
 
         status = (allocation_type & MEM_RESERVE)
-                     ? MmReserveVirtualRange(address_space,
+                     ? MiReserveVirtualRange(address_space,
                                              target_va,
                                              page_count,
                                              allocation_type,
                                              protect,
                                              vad)
-                     : MmVerifyExistingReservation(address_space, target_va, page_count, vad);
+                     : MiVerifyExistingReservation(address_space, target_va, page_count, vad);
 
         if (status != STATUS_SUCCESS)
             return status;
 
         if (allocation_type & MEM_COMMIT) {
-            status = MmCommitVirtualRange(address_space, target_va, aligned_size, protect, vad);
+            status = MiCommitVirtualRange(address_space, target_va, aligned_size, protect, vad);
             if (status != STATUS_SUCCESS)
                 return status;
         }
@@ -849,7 +850,7 @@ namespace cbk::mem
         QWORD target_va  = reinterpret_cast<QWORD>(*base_address);
         QWORD target_vpn = target_va / PAGE_SIZE;
 
-        PMMVAD found_vad = VadFindNode(address_space, target_vpn);
+        PMMVAD found_vad = MmVadFindNode(address_space, target_vpn);
         if (found_vad == nullptr)
             return STATUS_CONFLICTING_ADDRESSES;
 
@@ -869,7 +870,7 @@ namespace cbk::mem
         else if (free_type & MEM_RELEASE) {
             MmDeleteVirtualAddresses(address_space, starting_va, ending_va);
 
-            VadDeleteNode(address_space, found_vad);
+            MmVadDeleteNode(address_space, found_vad);
 
             if (found_vad >= static_boot_nodes &&
                 found_vad < &static_boot_nodes[MM_MAPPED_COPY_PAGES])

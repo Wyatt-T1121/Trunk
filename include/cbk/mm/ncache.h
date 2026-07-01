@@ -36,22 +36,22 @@ namespace cbk::mem
 {
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : NcacheAllocateBuffer                                                *
+     * FUNC    : MmNcacheAllocateBuffer                                              *
      * DATE    : 2026                                                                *
      * PURPOSE : Reserves virtual space via VMM and wires uncached physical entries  *
      ********************************************************************************/
     NO_DISCARD CBKSTATUS
-    NcacheAllocateBuffer(PMM_ADDRESS_SPACE address_space,
-                         SIZE_T size,
-                         QWORD tag,
-                         PNCACHE_DESCRIPTOR out_desc) noexcept;
+    MmNcacheAllocateBuffer(PMM_ADDRESS_SPACE address_space,
+                           SIZE_T size,
+                           QWORD tag,
+                           PNCACHE_DESCRIPTOR out_desc) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : NcacheFreeBuffer                                                    *
+     * FUNC    : MmNcacheFreeBuffer                                                  *
      * DATE    : 2026                                                                *
      * PURPOSE : Tears down translations, releases frames, and frees VMM region      *
      ********************************************************************************/
     VOID
-    NcacheFreeBuffer(PMM_ADDRESS_SPACE address_space, PNCACHE_DESCRIPTOR descriptor) noexcept;
+    MmNcacheFreeBuffer(PMM_ADDRESS_SPACE address_space, PNCACHE_DESCRIPTOR descriptor) noexcept;
 } // namespace cbk::mem

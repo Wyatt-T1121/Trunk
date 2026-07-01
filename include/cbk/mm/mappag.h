@@ -29,113 +29,127 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MapPage4K                                                          *
+     *  FUNC    : MmMapPage4K                                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Walks down the 4 levels, allocates missing sub-tables              *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS MapPage4K(QWORD virt, QWORD phys, QWORD flags) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmMapPage4K(QWORD virt, QWORD phys, QWORD flags) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : UnmapPage4K                                                        *
+     *  FUNC    : MmUnmapPage4K                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Clears level 1 PTE, TLB cache flush                                *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS UnmapPage4K(QWORD virt) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmUnmapPage4K(QWORD virt) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : ProtectPage4K                                                      *
+     *  FUNC    : MmProtectPage4K                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Modify an existing PTE's attribute bits                            *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS ProtectPage4K(QWORD virt, QWORD flags) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmProtectPage4K(QWORD virt, QWORD flags) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : MapPage2M                                                           *
+     * FUNC    : MmMapPage2M                                                         *
      * DATE    : 2026                                                                *
      * PURPOSE : Terminates at Level 2 PD with PAGE_HUGE set                         *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS MapPage2M(QWORD virt, QWORD phys, QWORD flags) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmMapPage2M(QWORD virt, QWORD phys, QWORD flags) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : UnmapPage2M                                                         *
+     * FUNC    : MmUnmapPage2M                                                       *
      * DATE    : 2026                                                                *
      * PURPOSE : Clears Level 2 PDE block, executes TLB cache flush                  *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS UnmapPage2M(QWORD virt) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmUnmapPage2M(QWORD virt) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : MapPage1G                                                           *
+     * FUNC    : MmMapPage1G                                                         *
      * DATE    : 2026                                                                *
      * PURPOSE : Terminates at Level 3 PDPT with PAGE_HUGE set                       *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS MapPage1G(QWORD virt, QWORD phys, QWORD flags) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmMapPage1G(QWORD virt, QWORD phys, QWORD flags) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : UnmapPage1G                                                         *
+     * FUNC    : MmUnmapPage1G                                                       *
      * DATE    : 2026                                                                *
      * PURPOSE : Clears Level 3 PDPTE block, executes TLB cache flush                *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS UnmapPage1G(QWORD virt) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmUnmapPage1G(QWORD virt) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : MapRange4K                                                          *
+     * FUNC    : MmMapRange4K                                                        *
      * DATE    : 2026                                                                *
      * PURPOSE : Maps a continuous virtual range to a continuous physical range      *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS MapRange4K(QWORD vstart, QWORD pstart, SIZE_T size, QWORD flags) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmMapRange4K(QWORD vstart, QWORD pstart, SIZE_T size, QWORD flags) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : UnmapRange4K                                                        *
+     * FUNC    : MmUnmapRange4K                                                      *
      * DATE    : 2026                                                                *
      * PURPOSE : Unmaps a continuous block of 4KB pages in one call                  *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS UnmapRange4K(QWORD start, SIZE_T size) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmUnmapRange4K(QWORD start, SIZE_T size) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : MapRange2M                                                          *
+     * FUNC    : MmMapRange2M                                                        *
      * DATE    : 2026                                                                *
      * PURPOSE : Maps a continuous block of 2MB pages in one call                    *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS MapRange2M(QWORD vstart, QWORD pstart, SIZE_T size, QWORD flags) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmMapRange2M(QWORD vstart, QWORD pstart, SIZE_T size, QWORD flags) noexcept;
 
     /* *******************************************************************************
      * AUTHOR  : Trollycat                                                           *
-     * FUNC    : UnmapRange2M                                                        *
+     * FUNC    : MmUnmapRange2M                                                      *
      * DATE    : 2026                                                                *
      * PURPOSE : Unmaps a continuous block of 2MB pages in one call                  *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS UnmapRange2M(QWORD start, SIZE_T size) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmUnmapRange2M(QWORD start, SIZE_T size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IsRangeFree                                                        *
+     *  FUNC    : MmIsRangeFree                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Checks if a range of virtual addresses has any existing mappings   *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS IsRangeFree(QWORD start, SIZE_T size) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmIsRangeFree(QWORD start, SIZE_T size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IsPagePresent                                                      *
+     *  FUNC    : MmIsPagePresent                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Checks if a page is present                                        *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS IsPagePresent(QWORD virt) noexcept;
+    NO_DISCARD CBKSTATUS
+    MmIsPagePresent(QWORD virt) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : TranslateVirtualToPhysical                                         *
+     *  FUNC    : MmTranslateVirtualToPhysical                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Finds what physical frame address is mapped to a virtual pointer   *
      ********************************************************************************/
-    NO_DISCARD QWORD TranslateVirtualToPhysical(QWORD virt) noexcept;
+    NO_DISCARD QWORD
+    MmTranslateVirtualToPhysical(QWORD virt) noexcept;
 } // namespace cbk::mem

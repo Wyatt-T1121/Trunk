@@ -56,18 +56,16 @@
 namespace cbk::mem
 {
     INLINE_CONST BYTE INITIAL_POOL_SIZE = 16;
+
+    struct Memblock;
+    extern Memblock g_Memblock;
+
     struct BootAllocation
     {
         QWORD phys_addr;
         QWORD size;
         BOOL is_free;
     };
-
-    using BOOT_ALLOCATION  = BootAllocation;
-    using PBOOT_ALLOCATION = BootAllocation *;
-
-    struct Memblock;
-    extern Memblock g_Memblock;
 
     struct MemblockType
     {
@@ -77,7 +75,8 @@ namespace cbk::mem
         PBOOT_ALLOCATION regions;
         PCSTR name;
 
-        NO_DISCARD BOOL Add(QWORD phys_addr, QWORD size, BOOL is_free) noexcept
+        NO_DISCARD BOOL
+        Add(QWORD phys_addr, QWORD size, BOOL is_free) noexcept
         {
             if (size == 0)
                 return FALSE;
@@ -127,9 +126,11 @@ namespace cbk::mem
             return TRUE;
         }
 
-        NO_DISCARD BOOL Grow() noexcept;
+        NO_DISCARD BOOL
+        Grow() noexcept;
 
-        NO_DISCARD BOOL Intersects(QWORD phys_addr, QWORD size) noexcept
+        NO_DISCARD BOOL
+        Intersects(QWORD phys_addr, QWORD size) noexcept
         {
             if (size == 0 || cnt == 0)
                 return FALSE;
@@ -159,12 +160,13 @@ namespace cbk::mem
     };
 
     extern BOOT_ALLOCATION initial_memory_pool[];
-    extern BootAllocation initial_reserved_pool[];
+    extern BOOT_ALLOCATION initial_reserved_pool[];
 
     extern PBOOT_ALLOCATION boot_blocks;
     extern SIZE_T boot_blocks_count;
 
-    NO_DISCARD INLINE BOOL MemblockType::Grow() noexcept
+    NO_DISCARD INLINE BOOL
+    MemblockType::Grow() noexcept
     {
         if (!g_Memblock.allow_resize)
             return FALSE;
@@ -216,267 +218,300 @@ namespace cbk::mem
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockInitialize                                                 *
+     *  FUNC    : MmMemblockInitialize                                               *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the memory block allocator                              *
      ********************************************************************************/
-    VOID MemblockInitialize(const boot::BootInfo &info) noexcept;
+    VOID
+    MmMemblockInitialize(const boot::BootInfo &info) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockSetCurrentLimit                                            *
+     *  FUNC    : MmMemblockSetCurrentLimit                                          *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Set limit on highest physical address allowed to be given out      *
      ********************************************************************************/
-    VOID MemblockSetCurrentLimit(QWORD limit) noexcept;
+    VOID
+    MmMemblockSetCurrentLimit(QWORD limit) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockGetCurrentLimit                                            *
+     *  FUNC    : MmMemblockGetCurrentLimit                                          *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Get the current limit set by the function above                    *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockGetCurrentLimit() noexcept;
+    NO_DISCARD QWORD
+    MmMemblockGetCurrentLimit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAllowResize                                                *
+     *  FUNC    : MmMemblockAllowResize                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Allows tracking arrays to expand if they run out of slots          *
      ********************************************************************************/
-    VOID MemblockAllowResize() noexcept;
+    VOID
+    MmMemblockAllowResize() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockSetBottomUp                                                *
+     *  FUNC    : MmMemblockSetBottomUp                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Flips the search direction for the allocator                       *
      *            If enabled, LOWEST-TO-HIGHEST, if disabled, HIGHEST-TO-LOWEST      *
      ********************************************************************************/
-    VOID MemblockSetBottomUp(BOOL enable) noexcept;
+    VOID
+    MmMemblockSetBottomUp(BOOL enable) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockBottomUp                                                   *
+     *  FUNC    : MmMemblockIsBottomUp                                               *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Checks if set to bottom-up allocator                               *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockBottomUp() noexcept;
+    NO_DISCARD BOOL
+    MmMemblockIsBottomUp() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockEnforceMemoryLimit                                         *
+     *  FUNC    : MmMemblockEnforceMemoryLimit                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Chops off any memory regions that exist above 'limit'              *
      ********************************************************************************/
-    VOID MemblockEnforceMemoryLimit(QWORD limit) noexcept;
+    VOID
+    MmMemblockEnforceMemoryLimit(QWORD limit) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockCapMemoryRange                                             *
+     *  FUNC    : MmMemblockCapMemoryRange                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Clips everything outside of the window away                        *
      ********************************************************************************/
-    VOID MemblockCapMemoryRange(QWORD base, QWORD size) noexcept;
+    VOID
+    MmMemblockCapMemoryRange(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockDiscard                                                    *
+     *  FUNC    : MmMemblockDiscard                                                  *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Untracks and releases the temporary arrays                         *
      ********************************************************************************/
-    VOID MemblockDiscard() noexcept;
+    VOID
+    MmMemblockDiscard() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAdd                                                        *
+     *  FUNC    : MmMemblockAdd                                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Insert a raw chunk of RAM into tracking pool                       *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockAdd(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockAdd(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockRemove                                                     *
+     *  FUNC    : MmMemblockRemove                                                   *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Removes a raw chunk of RAM from the tracking pool                  *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockRemove(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockRemove(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockReserve                                                    *
+     *  FUNC    : MmMemblockReserve                                                  *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Marks a chunk of added RAM as 'in-use'                             *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockReserve(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockReserve(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockReserveKern                                                *
+     *  FUNC    : MmMemblockReserveKernelRegions                                     *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Same as MemblockReserve, but specialized for the kernel regions    *
+     *  PURPOSE : Same as MmMemblockReserve, but specialized for the kernel regions  *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockReserveKern(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockReserveKernelRegions(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockPhysFree                                                   *
+     *  FUNC    : MmMemblockPhysicalFree                                             *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Un-reserves a chunk of RAM and adds to 'free' pool                 *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockPhysFree(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockPhysicalFree(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockTrimMemory                                                 *
+     *  FUNC    : MmMemblockTrimMemory                                               *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Clips off the tiny unaligned edges                                 *
      ********************************************************************************/
-    VOID MemblockTrimMemory(QWORD align);
+    VOID
+    MmMemblockTrimMemory(QWORD align);
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAlloc                                                      *
+     *  FUNC    : MmMemblockAllocate                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Finds a free chunk of memory matching size and alignment and       *
      *                                              reserves it                      *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockAlloc(QWORD size, QWORD align) noexcept;
+    NO_DISCARD QWORD
+    MmMemblockAllocate(QWORD size, QWORD align) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAllocRaw                                                   *
+     *  FUNC    : MmMemblockAllocateRaw                                              *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Same as MemblockAlloc but doesn't zero the memory                  *
+     *  PURPOSE : Same as MmMemblockAllocate but doesn't zero the memory             *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockAllocRaw(QWORD size, QWORD align) noexcept;
+    NO_DISCARD QWORD
+    MmMemblockAllocateRaw(QWORD size, QWORD align) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAllocFrom                                                  *
+     *  FUNC    : MmMemblockAllocateFromAddress                                      *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Alloc a chunk of memory but block must start at or above min_addr  *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockAllocFrom(QWORD size, QWORD align, QWORD min_addr) noexcept;
+    NO_DISCARD QWORD
+    MmMemblockAllocateFromAddress(QWORD size, QWORD align, QWORD min_addr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAllocLow                                                   *
+     *  FUNC    : MmMemblockAllocateLow                                              *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Exact opposite of MemblockAllocFrom                                *
+     *  PURPOSE : Exact opposite of MmMemblockAllocateFromAddress                    *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockAllocLow(QWORD size, QWORD align) noexcept;
+    NO_DISCARD QWORD
+    MmMemblockAllocateLow(QWORD size, QWORD align) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockAllocOrPanic                                               *
+     *  FUNC    : MmMemblockAllocateOrCrashKernel                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Standard alloc but panics if it fails (used for core systems)      *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockAllocOrPanic(QWORD size, QWORD align) noexcept;
+    NO_DISCARD QWORD
+    MmMemblockAllocateOrCrashKernel(QWORD size, QWORD align) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockFree                                                       *
+     *  FUNC    : MmMemblockFree                                                     *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Unreserves the exact region in the tracking list                   *
      ********************************************************************************/
-    VOID MemblockFree(PVOID ptr, SIZE_T size) noexcept;
+    VOID
+    MmMemblockFree(PVOID ptr, SIZE_T size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockIsMemory                                                   *
+     *  FUNC    : MmMemblockIsAddressValid                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check if the address is inside a valid RAM block                   *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockIsMemory(QWORD addr) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockIsAddressValid(QWORD addr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockIsReserved                                                 *
+     *  FUNC    : MmMemblockIsAddressReserved                                        *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check if a address sits inside a block that's currently not free   *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockIsReserved(QWORD addr) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockIsAddressReserved(QWORD addr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockIsRegionMemory                                             *
+     *  FUNC    : MmMemblockIsRegionMemory                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check if the memory region rests within valid RAM sectors          *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockIsRegionMemory(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockIsRegionMemory(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockIsRegionReserved                                           *
+     *  FUNC    : MmMemblockIsRegionReserved                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Checks if a piece of memory crosses over area marked as reserved   *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockIsRegionReserved(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockIsRegionReserved(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockIsMapAnywhere                                              *
+     *  FUNC    : MmMemblockIsRegionFreeForMap                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Check if a region is free of special usage constraints like NOMAP  *
      ********************************************************************************/
-    NO_DISCARD BOOL MemblockIsMapAnywhere(QWORD base, QWORD size) noexcept;
+    NO_DISCARD BOOL
+    MmMemblockIsRegionFreeForMap(QWORD base, QWORD size) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockPhysMemSize                                                *
+     *  FUNC    : MmMemblockPhysicalMemorySize                                       *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Gets the total amount of RAM discovered on the system              *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockPhysMemSize() noexcept;
+    NO_DISCARD QWORD
+    MmMemblockPhysicalMemorySize() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockReservedSize                                               *
+     *  FUNC    : MmMemblockCurrentlyReservedSize                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Calculate how many bytes are currently tied up in boot-stage       *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockReservedSize() noexcept;
+    NO_DISCARD QWORD
+    MmMemblockCurrentlyReservedSize() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockMemSizeLimit                                               *
+     *  FUNC    : MmMemblockGetSizeLimit                                             *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Returns current allocation limit cap (only if set)                 *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockMemSizeLimit() noexcept;
+    NO_DISCARD QWORD
+    MmMemblockGetSizeLimit() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockStartOfDRam                                                *
+     *  FUNC    : MmMemblockGetStartOfDRam                                           *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Locate the lowest address of RAM                                   *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockStartOfDRam() noexcept;
+    NO_DISCARD QWORD
+    MmMemblockGetStartOfDRam() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockEndOfDRam                                                  *
+     *  FUNC    : MmMemblockGetEndOfDRam                                             *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Locate the highest address of RAM                                  *
      ********************************************************************************/
-    NO_DISCARD QWORD MemblockEndOfDRam() noexcept;
+    NO_DISCARD QWORD
+    MmMemblockGetEndOfDRam() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockFreeAll                                                    *
+     *  FUNC    : MmMemblockFreeAll                                                  *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Registers free blocks into our physical page manager               *
      ********************************************************************************/
-    VOID MemblockFreeAll() noexcept;
+    VOID
+    MmMemblockFreeAll() noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemblockFreeLate                                                   *
+     *  FUNC    : MmMemblockFreeLate                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Delivers patch of memory to page allocator                         *
      ********************************************************************************/
-    VOID MemblockFreeLate(QWORD base, QWORD size) noexcept;
+    VOID
+    MmMemblockFreeLate(QWORD base, QWORD size) noexcept;
 } // namespace cbk::mem
