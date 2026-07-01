@@ -43,7 +43,7 @@ namespace cbk::kernel
     CbkSetupSubsystems(const boot::BootInfo &info) noexcept
     {
         gdt::GdtInit();
-        interrupts::IdtInit();
+        interrupts::KeInitializeIdt();
 
         CBKSTATUS status = drivers::pic::PicInit();
         ASSERT(status == STATUS_SUCCESS, "CbkSetupSubsystems: Failed to init PIC");
@@ -68,7 +68,7 @@ namespace cbk::kernel
         CbkSetupSubsystems(info);
 
         hal::Sti();
-        interrupts::RegisterInterruptHandler(14, mem::KiPageFault);
+        interrupts::KeRegisterInterruptHandler(14, mem::KiPageFault);
 
         (VOID) info;
         for (;;)

@@ -23,7 +23,7 @@
 
 [bits 64]
 
-extern KInterruptDispatcher
+extern KeInterruptDispatchHandler
 
 section .text
 
@@ -63,13 +63,13 @@ section .text
     pop rax
 %endmacro
 
-CommonInterruptHandler:
+KeCommonInterruptHandler:
     pushaq
 
     mov rdi, rsp
 
     cld
-    call KInterruptDispatcher
+    call KeInterruptDispatchHandler
 
     popaq
     add rsp, 16
@@ -80,14 +80,14 @@ global VectorHandler_%1
 VectorHandler_%1:
     push qword 0
     push qword %1
-    jmp CommonInterruptHandler
+    jmp KeCommonInterruptHandler
 %endmacro
 
 %macro ISR_ERRCODE 1
 global VectorHandler_%1
 VectorHandler_%1:
     push qword %1
-    jmp CommonInterruptHandler
+    jmp KeCommonInterruptHandler
 %endmacro
 
 ISR_NOERRCODE 0

@@ -86,9 +86,9 @@ Interrupts are 'trapped' and then 'dispatched' and then 'handled'
 
 This Is the standard order:
 
-trap.asm -> catches Interrupt -> collects-data -> sends off to KInterruptDispatcher()
-KInterruptDispatcher() -> collects Interrupt -> Fires It off to ExecuteInterruptHandler()
-ExecuteInterruptHandler() -> checks 2 things.
+trap.asm -> catches Interrupt -> collects-data -> sends off to KeInterruptDispatchHandler()
+KeInterruptDispatchHandler() -> collects Interrupt -> Fires It off to KeExecuteInterruptHandler()
+KeExecuteInterruptHandler() -> checks 2 things.
 
 1. If the interrupt Is mapped to a function, If so, calls that function
 2. If It is not mapped, It checks If the interrupt is an error, If so, -> KAbort()()

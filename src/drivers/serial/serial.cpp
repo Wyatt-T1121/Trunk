@@ -37,7 +37,8 @@ namespace cbk::drivers::serial
          *  DATE    : 2026                                                              *
          *  PURPOSE : Return TRUE if the transmit buffer is empty.                      *
          * *****************************************************************************/
-        NO_DISCARD BOOL SerialIsTransmitReady() noexcept
+        NO_DISCARD BOOL
+        SerialIsTransmitReady() noexcept
         {
             return (hal::InB(SERIAL_REG_LINE_STATUS) & SERIAL_LSR_TX_EMPTY) != 0;
         }
@@ -48,8 +49,9 @@ namespace cbk::drivers::serial
          * DATE    : 2026                                                               *
          * PURPOSE : Handles incoming characters from the serial port asynchronously    *
          * *****************************************************************************/
-        VOID SerialInterruptHandler(MAYBE_UNUSED interrupts::InterruptFrame *frame,
-                                    MAYBE_UNUSED PVOID context) noexcept
+        VOID
+        SerialInterruptHandler(MAYBE_UNUSED interrupts::InterruptFrame *frame,
+                               MAYBE_UNUSED PVOID context) noexcept
         {
             while (hal::InB(SERIAL_REG_LINE_STATUS) & 0x01) {
                 BYTE incoming_byte = hal::InB(SERIAL_REG_DATA);
@@ -64,19 +66,21 @@ namespace cbk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Initialise COM1 at 115200 baud, 8N1, FIFO enabled                 *
      * *****************************************************************************/
-    NO_DISCARD CBKSTATUS SerialInit() noexcept
+    NO_DISCARD CBKSTATUS
+    SerialInit() noexcept
     {
         hal::OutB(SERIAL_REG_INT_ENABLE, 0x00);
         hal::OutB(SERIAL_REG_LINE_CTRL, SERIAL_LCR_DLAB);
         hal::OutB(SERIAL_REG_DATA, SERIAL_BAUD_115200_LO);
         hal::OutB(SERIAL_REG_INT_ENABLE, SERIAL_BAUD_115200_HI);
         hal::OutB(SERIAL_REG_LINE_CTRL, SERIAL_LCR_8N1);
-        hal::OutB(SERIAL_REG_FIFO, SERIAL_FCR_ENABLE | SERIAL_FCR_CLEAR_RX | SERIAL_FCR_CLEAR_TX |
-                                       SERIAL_FCR_TRIGGER_14);
+        hal::OutB(SERIAL_REG_FIFO,
+                  SERIAL_FCR_ENABLE | SERIAL_FCR_CLEAR_RX | SERIAL_FCR_CLEAR_TX |
+                      SERIAL_FCR_TRIGGER_14);
         hal::OutB(SERIAL_REG_MODEM_CTRL, 0x0B);
         hal::OutB(SERIAL_REG_INT_ENABLE, 0x01);
 
-        interrupts::RegisterInterruptHandler(36, SerialInterruptHandler, nullptr);
+        interrupts::KeRegisterInterruptHandler(36, SerialInterruptHandler, nullptr);
         drivers::pic::PicMask(4);
 
         return STATUS_SUCCESS;
@@ -88,7 +92,8 @@ namespace cbk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write one character to COM1.                                      *
      * *****************************************************************************/
-    VOID SerialPutChar(CHAR c) noexcept
+    VOID
+    SerialPutChar(CHAR c) noexcept
     {
         if (c == '\n')
             SerialPutChar('\r');
@@ -111,7 +116,8 @@ namespace cbk::drivers::serial
      *  DATE    : 2026                                                              *
      *  PURPOSE : Write a null-terminated string to COM1.                           *
      * *****************************************************************************/
-    VOID SerialPuts(PCSTR s) noexcept
+    VOID
+    SerialPuts(PCSTR s) noexcept
     {
         while (*s)
             SerialPutChar(*s++);

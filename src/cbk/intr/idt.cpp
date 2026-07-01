@@ -28,46 +28,59 @@ namespace cbk::interrupts
 {
     static IdtDescriptor g_IdtEntries[256] ALIGNED(16);
 
-    /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : SetGate                                                            *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Sets a new IDT gate with parameters                                *
-     ********************************************************************************/
-    VOID SetGate(BYTE vector, QWORD handler_address, WORD selector, BYTE privilege,
-                 BYTE ist) noexcept
+    namespace
     {
-        g_IdtEntries[vector].offset_low  = static_cast<WORD>(handler_address & 0xFFFF);
-        g_IdtEntries[vector].offset_mid  = static_cast<WORD>((handler_address >> 16) & 0xFFFF);
-        g_IdtEntries[vector].offset_high = static_cast<DWORD>((handler_address >> 32) & 0xFFFFFFFF);
+        /* *******************************************************************************
+         *  AUTHOR  : Trollycat                                                          *
+         *  FUNC    : KiSetIdtGate                                                       *
+         *  DATE    : 2026                                                               *
+         *  PURPOSE : Sets a new IDT gate with parameters                                *
+         ********************************************************************************/
+        VOID
+        KiSetIdtGate(BYTE vector,
+                     QWORD handler_address,
+                     WORD selector,
+                     BYTE privilege,
+                     BYTE ist) noexcept
+        {
+            g_IdtEntries[vector].offset_low = static_cast<WORD>(handler_address & 0xFFFF);
+            g_IdtEntries[vector].offset_mid = static_cast<WORD>((handler_address >> 16) & 0xFFFF);
+            g_IdtEntries[vector].offset_high =
+                static_cast<DWORD>((handler_address >> 32) & 0xFFFFFFFF);
 
-        g_IdtEntries[vector].segment_selector = selector;
-        g_IdtEntries[vector].ist_index        = ist;
-        g_IdtEntries[vector].gate_type        = 0xE;
-        g_IdtEntries[vector].privilege        = privilege;
-        g_IdtEntries[vector].present          = 1;
-        g_IdtEntries[vector].reserved_0       = 0;
-        g_IdtEntries[vector].reserved_1       = 0;
-        g_IdtEntries[vector].reserved_2       = 0;
-    }
+            g_IdtEntries[vector].segment_selector = selector;
+            g_IdtEntries[vector].ist_index        = ist;
+            g_IdtEntries[vector].gate_type        = 0xE;
+            g_IdtEntries[vector].privilege        = privilege;
+            g_IdtEntries[vector].present          = 1;
+            g_IdtEntries[vector].reserved_0       = 0;
+            g_IdtEntries[vector].reserved_1       = 0;
+            g_IdtEntries[vector].reserved_2       = 0;
+        }
+    } // namespace
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IdtInit                                                            *
+     *  FUNC    : KeInitializeIdt                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initializes the interrupt descriptor table                         *
      ********************************************************************************/
-    VOID IdtInit() noexcept
+    VOID
+    KeInitializeIdt() noexcept
     {
         const WORD kernel_code_selector = 0x08;
 
         for (int i = 0; i < 256; ++i)
-            SetGate(static_cast<BYTE>(i), g_InterruptVectorTable[i], kernel_code_selector, 0, 0);
+            KiSetIdtGate(static_cast<BYTE>(i),
+                         g_InterruptVectorTable[i],
+                         kernel_code_selector,
+                         0,
+                         0);
 
-        SetGate(8, g_InterruptVectorTable[8], kernel_code_selector, 0, 1);
-        SetGate(2, g_InterruptVectorTable[2], kernel_code_selector, 0, 2);
-        SetGate(1, g_InterruptVectorTable[1], kernel_code_selector, 0, 3);
-        SetGate(18, g_InterruptVectorTable[18], kernel_code_selector, 0, 4);
+        KiSetIdtGate(8, g_InterruptVectorTable[8], kernel_code_selector, 0, 1);
+        KiSetIdtGate(2, g_InterruptVectorTable[2], kernel_code_selector, 0, 2);
+        KiSetIdtGate(1, g_InterruptVectorTable[1], kernel_code_selector, 0, 3);
+        KiSetIdtGate(18, g_InterruptVectorTable[18], kernel_code_selector, 0, 4);
 
         IdtrPointer idtr;
         idtr.limit        = (sizeof(IdtDescriptor) * 256) - 1;

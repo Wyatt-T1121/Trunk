@@ -39,19 +39,22 @@ namespace cbk::interrupts
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : RegisterInterruptHandler                                           *
+     *  FUNC    : KeRegisterInterruptHandler                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Assigns a custom C++ driver function to an IDT slot                *
      ********************************************************************************/
-    VOID RegisterInterruptHandler(BYTE vector, InterruptHandler handler,
-                                  PVOID context = nullptr) noexcept;
+    VOID
+    KeRegisterInterruptHandler(BYTE vector,
+                               InterruptHandler handler,
+                               PVOID context = nullptr) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : ExecuteInterruptHandler                                            *
+     *  FUNC    : KeExecuteInterruptHandler                                          *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Invoked to route traffic or detect unhandled traps                 *
      ********************************************************************************/
-    VOID ExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept;
+    VOID
+    KeExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept;
 
 } // namespace cbk::interrupts

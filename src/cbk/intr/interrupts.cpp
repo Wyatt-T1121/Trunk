@@ -33,11 +33,12 @@ namespace cbk::interrupts
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : RegisterInterruptHandler                                           *
+     *  FUNC    : KeRegisterInterruptHandler                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Assigns a custom C++ driver function to an IDT slot                *
      ********************************************************************************/
-    VOID RegisterInterruptHandler(BYTE vector, InterruptHandler handler, PVOID context) noexcept
+    VOID
+    KeRegisterInterruptHandler(BYTE vector, InterruptHandler handler, PVOID context) noexcept
     {
         ASSERT(vector < 256, "VECTOR OUT OF BOUNDS IN REGISTER_INTERRUPT_HANDLER");
 
@@ -50,11 +51,12 @@ namespace cbk::interrupts
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : ExecuteInterruptHandler                                            *
+     *  FUNC    : KeExecuteInterruptHandler                                          *
      *  DATE    : 2026                                                               *
      *  PURPOSE : called to route interrupts                                         *
      ********************************************************************************/
-    VOID ExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept
+    VOID
+    KeExecuteInterruptHandler(BYTE vector, InterruptFrame *frame) noexcept
     {
         RegisteredHandler target = g_InterruptHandlers[vector];
 

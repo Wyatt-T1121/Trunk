@@ -15,12 +15,10 @@
  *  limitations under the License.                                               *
  *                                                                               *
  *********************************************************************************
- *                                                                               *
  *  AUTHOR  :  Trollycat                                                         *
  *  MODULE  :  Interrupt subsystem                                               *
  *  DATE    :  2026                                                              *
- *  PURPOSE :  Maps the hardware and software register state on an interrupt     *
- *                                                                  trap         *
+ *  PURPOSE :  Hardware and software register state during an interrupt (tf)     *
  ********************************************************************************/
 #pragma once
 

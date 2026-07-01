@@ -30,11 +30,12 @@ namespace cbk::interrupts
 {
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : KInterruptDispatcher                                               *
+     *  FUNC    : KeInterruptDispatchHandler                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Takes the interrupt from trap and dispatches It                    *
      ********************************************************************************/
-    EXTERN_C VOID KInterruptDispatcher(InterruptFrame *frame) noexcept
+    EXTERN_C VOID
+    KeInterruptDispatchHandler(InterruptFrame *frame) noexcept
     {
         const BYTE vector = static_cast<BYTE>(frame->vector_number);
 
@@ -43,6 +44,6 @@ namespace cbk::interrupts
             drivers::pic::IrqAck(irq);
         }
 
-        ExecuteInterruptHandler(vector, frame);
+        KeExecuteInterruptHandler(vector, frame);
     }
 } // namespace cbk::interrupts

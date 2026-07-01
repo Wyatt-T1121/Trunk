@@ -36,10 +36,11 @@ namespace cbk::interrupts
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : IdtInit                                                            *
+     *  FUNC    : KeInitializeIdt                                                    *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Initialize the interrupt descriptor table                          *
      ********************************************************************************/
-    VOID IdtInit() noexcept;
+    VOID
+    KeInitializeIdt() noexcept;
 
 } // namespace cbk::interrupts

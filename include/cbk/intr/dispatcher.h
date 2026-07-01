@@ -48,10 +48,11 @@ namespace cbk::interrupts
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : KInterruptDispatcher                                              *
+     *  FUNC    : KeInterruptDispatchHandler                                         *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Takes the interrupt from trap and dispatches It                    *
      ********************************************************************************/
-    EXTERN_C VOID KInterruptDispatcher(InterruptFrame *frame) noexcept;
+    EXTERN_C VOID
+    KeInterruptDispatchHandler(InterruptFrame *frame) noexcept;
 
 } // namespace cbk::interrupts
