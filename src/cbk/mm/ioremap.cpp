@@ -22,51 +22,73 @@
  ********************************************************************************/
 #include <cbk/mm/ioremap.h>
 
-// VERY IMPORTANT NOTICE:
-// IOREMAP REQUIRES A VIRTUAL MEMORY MANAGER TO BE PROPER...
-// RIGHT NOW, WE DON'T HAVE ONE...
-// WE ARE DOING A TRICK CALLED 'IDENTITY MAPPING'...
-// vaddr = phys_addr...
-// THIS IS NOT SAFE...
-
-// THIS IMPLEMENTATION IS DEAD SIMPLE...
-// NO SECURITY...
-// WILL BE IMPROVED AFTER VMM...
-
 namespace cbk::mem
 {
     /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MmIoRemap                                                          *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Maps physical hardware registers into virtual space                *
+     * AUTHOR  : Trollycat                                                          *
+     * FUNC    : MmIoRemap                                                          *
+     * DATE    : 2026                                                               *
+     * PURPOSE : Maps physical hardware registers into virtual space                *
      ********************************************************************************/
-    NO_DISCARD PVOID MmIoRemap(QWORD phys_addr, SIZE_T size, QWORD flags) noexcept
+    NO_DISCARD PVOID
+    MmIoRemap(PMM_ADDRESS_SPACE address_space,
+              QWORD phys_addr,
+              SIZE_T size,
+              QWORD flags,
+              PMMVAD blank_node) noexcept
     {
-        QWORD io_flags = flags | PAGE_CACHE_DISABLE | PAGE_WRITE_THROUGH;
-        QWORD vaddr    = phys_addr;
+        if (address_space == nullptr || size == 0 || blank_node == nullptr)
+            return nullptr;
 
-        CBKSTATUS status = MapRange4K(vaddr, phys_addr, size, io_flags);
+        SIZE_T page_cnt  = (size + PAGE_SIZE - 1) / PAGE_SIZE;
+        QWORD target_vpn = VadFindFreeGap(address_space, page_cnt, FALSE);
+        if (target_vpn == 0)
+            return nullptr;
+
+        QWORD io_flags = flags | PAGE_CACHE_DISABLE | PAGE_WRITE_THROUGH;
+        PMMVAD initialized_vad =
+            VadInitializeNode(blank_node, target_vpn, page_cnt, static_cast<ULONG>(io_flags));
+        if (initialized_vad == nullptr)
+            return nullptr;
+
+        CBKSTATUS status = VadInsertNode(address_space, initialized_vad);
         if (status != STATUS_SUCCESS)
             return nullptr;
+
+        QWORD vaddr = target_vpn * PAGE_SIZE;
+        status      = MapRange4K(vaddr, phys_addr, page_cnt * PAGE_SIZE, io_flags);
+        if (status != STATUS_SUCCESS) {
+            VadDeleteNode(address_space, initialized_vad);
+            return nullptr;
+        }
 
         return reinterpret_cast<PVOID>(vaddr);
     }
 
     /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MmIoUnRemap                                                        *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Unmaps previously allocated hardware address range                 *
+     * AUTHOR  : Trollycat                                                          *
+     * FUNC    : MmIoUnRemap                                                        *
+     * DATE    : 2026                                                               *
+     * PURPOSE : Unmaps previously allocated hardware address range                 *
      ********************************************************************************/
-    VOID MmIoUnRemap(PVOID virt_addr, SIZE_T size) noexcept
+    VOID
+    MmIoUnRemap(PMM_ADDRESS_SPACE address_space, PVOID virt_addr, SIZE_T size) noexcept
     {
-        if (virt_addr == nullptr)
+        if (address_space == nullptr || virt_addr == nullptr || size == 0)
             return;
 
         QWORD vaddr      = reinterpret_cast<QWORD>(virt_addr);
-        CBKSTATUS status = UnmapRange4K(vaddr, size);
+        QWORD target_vpn = vaddr / PAGE_SIZE;
 
+        PMMVAD found_vad = VadFindNode(address_space, target_vpn);
+        if (found_vad == nullptr || found_vad->starting_vpn != target_vpn)
+            return;
+
+        SIZE_T page_cnt  = (size + PAGE_SIZE - 1) / PAGE_SIZE;
+        CBKSTATUS status = UnmapRange4K(vaddr, page_cnt * PAGE_SIZE);
         ASSERT(status == STATUS_SUCCESS, "MmIoUnRemap: FAILED TO UNMAP RANGE (4K)");
+
+        VadDeleteNode(address_space, found_vad);
     }
+
 } // namespace cbk::mem

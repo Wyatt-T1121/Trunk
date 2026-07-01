@@ -136,12 +136,8 @@ namespace cbk::mem
             while (bytes_remaining > 0) {
                 PPAGE_TABLE_ENTRY entry   = nullptr;
                 PAGING_LEVEL resolved_lvl = PAGING_LEVEL::PML4;
-                CBKSTATUS status = MmuWalkToTable(pml4_phys,
-                                                  current_va,
-                                                  target_level, // <-- Use target level here
-                                                  FALSE,
-                                                  entry,
-                                                  resolved_lvl);
+                CBKSTATUS status =
+                    MmuWalkToTable(pml4_phys, current_va, target_level, FALSE, entry, resolved_lvl);
                 if (status != STATUS_SUCCESS || entry == nullptr) {
                     SIZE_T step_size = PAGE_SIZE;
                     if (target_level == PAGING_LEVEL::PD)
@@ -372,7 +368,6 @@ namespace cbk::mem
             QWORD orig_end   = original_vad->ending_vpn;
             CBKSTATUS status = STATUS_SUCCESS;
 
-            // Unlink from the AVL tree before mutating bounds
             VadDeleteNode(address_space, original_vad);
 
             if (target_start_vpn == orig_start && target_end_vpn < orig_end) {
@@ -838,8 +833,52 @@ namespace cbk::mem
     NO_DISCARD CBKSTATUS
     MmFreeVirtualMemory(PMM_ADDRESS_SPACE address_space,
                         PVOID *base_address,
-                        PSIZE_T region_size) noexcept
+                        PSIZE_T region_size,
+                        ULONG free_type) noexcept
     {
+        if (address_space == nullptr || base_address == nullptr || *base_address == nullptr ||
+            region_size == nullptr)
+            return STATUS_INVALID_PARAMETER;
+
+        if ((free_type & (MEM_RELEASE | MEM_DECOMMIT)) == (MEM_RELEASE | MEM_DECOMMIT))
+            return STATUS_INVALID_PARAMETER;
+
+        if ((free_type & (MEM_RELEASE | MEM_DECOMMIT)) == 0)
+            return STATUS_INVALID_PARAMETER;
+
+        QWORD target_va  = reinterpret_cast<QWORD>(*base_address);
+        QWORD target_vpn = target_va / PAGE_SIZE;
+
+        PMMVAD found_vad = VadFindNode(address_space, target_vpn);
+        if (found_vad == nullptr)
+            return STATUS_CONFLICTING_ADDRESSES;
+
+        if (found_vad->starting_vpn != target_vpn)
+            return STATUS_INVALID_PARAMETER;
+
+        QWORD starting_va = found_vad->starting_vpn * PAGE_SIZE;
+        QWORD ending_va   = (found_vad->ending_vpn * PAGE_SIZE) + (PAGE_SIZE - 1);
+        SIZE_T total_size = (ending_va - starting_va) + 1;
+
+        if (free_type & MEM_RELEASE)
+            if (*region_size != 0 && *region_size != total_size)
+                return STATUS_INVALID_PARAMETER;
+
+        if (free_type & MEM_DECOMMIT)
+            MmDeleteVirtualAddresses(address_space, starting_va, ending_va);
+        else if (free_type & MEM_RELEASE) {
+            MmDeleteVirtualAddresses(address_space, starting_va, ending_va);
+
+            VadDeleteNode(address_space, found_vad);
+
+            if (found_vad >= static_boot_nodes &&
+                found_vad < &static_boot_nodes[MM_MAPPED_COPY_PAGES])
+                tklib::memset(found_vad, 0, sizeof(MmVad));
+        }
+
+        *base_address = nullptr;
+        *region_size  = total_size;
+
         return STATUS_SUCCESS;
     }
 

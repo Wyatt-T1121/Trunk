@@ -30,23 +30,28 @@
 #include <cbk/mm/freelist.h>
 #include <cbk/mm/mappag.h>
 #include <cbk/mm/mmdefs.h>
+#include <cbk/mm/virtual.h>
 
 namespace cbk::mem
 {
     /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : NcacheAllocateBuffer                                               *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Allocates a new non-cached continuous buffer                       *
+     * AUTHOR  : Trollycat                                                           *
+     * FUNC    : NcacheAllocateBuffer                                                *
+     * DATE    : 2026                                                                *
+     * PURPOSE : Reserves virtual space via VMM and wires uncached physical entries  *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS NcacheAllocateBuffer(SIZE_T size, QWORD tag,
-                                              PNCACHE_DESCRIPTOR out_desc) noexcept;
+    NO_DISCARD CBKSTATUS
+    NcacheAllocateBuffer(PMM_ADDRESS_SPACE address_space,
+                         SIZE_T size,
+                         QWORD tag,
+                         PNCACHE_DESCRIPTOR out_desc) noexcept;
 
     /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : NcacheFreeBuffer                                                   *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Restores cache state and releases frames back to PMM               *
+     * AUTHOR  : Trollycat                                                           *
+     * FUNC    : NcacheFreeBuffer                                                    *
+     * DATE    : 2026                                                                *
+     * PURPOSE : Tears down translations, releases frames, and frees VMM region      *
      ********************************************************************************/
-    VOID NcacheFreeBuffer(PNCACHE_DESCRIPTOR descriptor) noexcept;
+    VOID
+    NcacheFreeBuffer(PMM_ADDRESS_SPACE address_space, PNCACHE_DESCRIPTOR descriptor) noexcept;
 } // namespace cbk::mem

@@ -28,6 +28,7 @@
 
 #include <cbk/mm/mappag.h>
 #include <cbk/mm/mmdefs.h>
+#include <cbk/mm/vad.h>
 
 namespace cbk::mem
 {
@@ -37,7 +38,12 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Maps physical hardware registers into virtual space                *
      ********************************************************************************/
-    NO_DISCARD PVOID MmIoRemap(QWORD phys_addr, SIZE_T size, QWORD flags) noexcept;
+    NO_DISCARD PVOID
+    MmIoRemap(PMM_ADDRESS_SPACE address_space,
+              QWORD phys_addr,
+              SIZE_T size,
+              QWORD flags,
+              PMMVAD blank_node) noexcept;
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
@@ -45,5 +51,6 @@ namespace cbk::mem
      *  DATE    : 2026                                                               *
      *  PURPOSE : Unmaps previously allocated hardware address range                 *
      ********************************************************************************/
-    VOID MmIoUnRemap(PVOID virt_addr, SIZE_T size) noexcept;
+    VOID
+    MmIoUnRemap(PMM_ADDRESS_SPACE address_space, PVOID virt_addr, SIZE_T size) noexcept;
 } // namespace cbk::mem

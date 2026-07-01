@@ -136,6 +136,7 @@ namespace cbk::mem
     MmAllocateVirtualMemory(PMM_ADDRESS_SPACE address_space,
                             PVOID *base_address,
                             PSIZE_T region_size,
+                            ULONG allocation_type,
                             ULONG protect) noexcept;
 
     /* *******************************************************************************
@@ -147,6 +148,7 @@ namespace cbk::mem
     NO_DISCARD CBKSTATUS
     MmFreeVirtualMemory(PMM_ADDRESS_SPACE address_space,
                         PVOID *base_address,
-                        PSIZE_T region_size) noexcept;
+                        PSIZE_T region_size,
+                        ULONG free_type) noexcept;
 
 } // namespace cbk::mem

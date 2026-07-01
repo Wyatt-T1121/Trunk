@@ -32,7 +32,8 @@ namespace cbk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Purge a page mapping (or allocation)                               *
          ********************************************************************************/
-        VOID InternalPurgePageMapping(QWORD vaddr, PFN_NUM pfn) noexcept
+        VOID
+        InternalPurgePageMapping(QWORD vaddr, PFN_NUM pfn) noexcept
         {
             CBKSTATUS status = UnmapPage4K(vaddr);
             ASSERT(status == STATUS_SUCCESS, "InternalPurgePageMapping: UNMAP FAILURE!!");
@@ -46,7 +47,8 @@ namespace cbk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Unwind an allocation                                               *
          ********************************************************************************/
-        VOID InternalUnwindAllocation(QWORD vstart, QWORD curr_vaddr, SIZE_T allocated_cnt) noexcept
+        VOID
+        InternalUnwindAllocation(QWORD vstart, QWORD curr_vaddr, SIZE_T allocated_cnt) noexcept
         {
             SIZE_T i = allocated_cnt;
             while (i > 0) {
@@ -66,8 +68,8 @@ namespace cbk::mem
          *  DATE    : 2026                                                               *
          *  PURPOSE : Populate a range                                                   *
          ********************************************************************************/
-        CBKSTATUS InternalPopulateRange(QWORD vstart, SIZE_T page_cnt, QWORD cache_flags,
-                                        QWORD &out_phys_base) noexcept
+        CBKSTATUS
+        InternalPopulateRange(QWORD vstart, SIZE_T page_cnt, QWORD cache_flags) noexcept
         {
             QWORD curr_vaddr = vstart;
 
@@ -79,98 +81,119 @@ namespace cbk::mem
                     return STATUS_INSUFFICIENT_RESOURCES;
                 }
 
-                QWORD target_vaddr = (vstart == 0) ? (new_pfn << PAGE_SHIFT) : curr_vaddr;
-
-                CBKSTATUS status = MapPage4K(target_vaddr, new_pfn << PAGE_SHIFT, cache_flags);
+                CBKSTATUS status = MapPage4K(curr_vaddr, new_pfn << PAGE_SHIFT, cache_flags);
                 if (status != STATUS_SUCCESS) {
                     MmDereferencePage(new_pfn);
                     InternalUnwindAllocation(vstart, curr_vaddr, i);
                     return status;
                 }
 
-                TlbFlushPage(target_vaddr);
-
-                if (vstart != 0)
-                    curr_vaddr += PAGE_SIZE;
-                else if (i == 0)
-                    out_phys_base = new_pfn << PAGE_SHIFT;
+                TlbFlushPage(curr_vaddr);
+                curr_vaddr += PAGE_SIZE;
             }
 
             return STATUS_SUCCESS;
         }
 
         /* *******************************************************************************
-         *  AUTHOR  : Trollycat                                                          *
-         *  FUNC    : InternalTeardownRange                                              *
-         *  DATE    : 2026                                                               *
-         *  PURPOSE : Teardown a range                                                   *
+         * AUTHOR  : Trollycat                                                           *
+         * FUNC    : InternalTeardownRange                                               *
+         * DATE    : 2026                                                                *
+         * PURPOSE : Clears page mappings page-by-page across the requested span         *
          ********************************************************************************/
-        VOID InternalTeardownRange(QWORD vstart, SIZE_T size) noexcept
+        VOID
+        InternalTeardownRange(QWORD vstart, SIZE_T size) noexcept
         {
-            CBKSTATUS status = MmuIterateRange(vstart, size, [](QWORD vaddr, SIZE_T) noexcept {
-                QWORD phys_page = TranslateVirtualToPhysical(vaddr);
-                if (phys_page != PHYS_ADDR_MAX)
-                    InternalPurgePageMapping(vaddr, phys_page >> PAGE_SHIFT);
-                return STATUS_SUCCESS;
-            });
+            SIZE_T page_cnt  = size / PAGE_SIZE;
+            QWORD curr_vaddr = vstart;
 
-            ASSERT(status == STATUS_SUCCESS, "InternalTeardownRange: FAILED TO ITERATE RANGE");
+            for (SIZE_T i = 0; i < page_cnt; ++i) {
+                QWORD phys_page = TranslateVirtualToPhysical(curr_vaddr);
+                if (phys_page != PHYS_ADDR_MAX) {
+                    InternalPurgePageMapping(curr_vaddr, phys_page >> PAGE_SHIFT);
+                }
+                curr_vaddr += PAGE_SIZE;
+            }
         }
     } // namespace
 
     /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : NcacheAllocateBuffer                                               *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Allocates a new non-cached continuous buffer                       *
+     * AUTHOR  : Trollycat                                                           *
+     * FUNC    : NcacheAllocateBuffer                                                *
+     * DATE    : 2026                                                                *
+     * PURPOSE : Reserves virtual space via VMM and wires uncached physical entries  *
      ********************************************************************************/
-    NO_DISCARD CBKSTATUS NcacheAllocateBuffer(SIZE_T size, QWORD tag,
-                                              PNCACHE_DESCRIPTOR out_desc) noexcept
+    NO_DISCARD CBKSTATUS
+    NcacheAllocateBuffer(PMM_ADDRESS_SPACE address_space,
+                         SIZE_T size,
+                         QWORD tag,
+                         PNCACHE_DESCRIPTOR out_desc) noexcept
     {
-        if (out_desc == nullptr || size == 0 || size > (limits::SIZE_T_max - PAGE_SIZE))
+        if (address_space == nullptr || out_desc == nullptr || size == 0 ||
+            size > (limits::SIZE_T_max - PAGE_SIZE))
             return STATUS_INVALID_PARAMETER;
 
-        SIZE_T page_cnt = (size + (PAGE_SIZE - 1)) / PAGE_SIZE;
+        PVOID base_address = nullptr;
+        SIZE_T region_size = size;
+        ULONG protect      = PAGE_CACHE_DISABLE | PAGE_WRITE_THROUGH;
 
-        // NOTE: Early testing parameters without a VMM region...
-        QWORD vstart              = 0;
-        QWORD cache_flags         = PAGE_CACHE_DISABLE | PAGE_WRITE_THROUGH;
-        QWORD allocated_phys_base = 0;
-
-        CBKSTATUS status =
-            InternalPopulateRange(vstart, page_cnt, cache_flags, allocated_phys_base);
+        CBKSTATUS status = MmAllocateVirtualMemory(address_space,
+                                                   &base_address,
+                                                   &region_size,
+                                                   MEM_RESERVE | MEM_COMMIT,
+                                                   protect);
         if (status != STATUS_SUCCESS)
             return status;
 
+        QWORD vstart    = reinterpret_cast<QWORD>(base_address);
+        SIZE_T page_cnt = region_size / PAGE_SIZE;
+
+        status = InternalPopulateRange(vstart, page_cnt, protect);
+        if (status != STATUS_SUCCESS) {
+            CBKSTATUS free_status =
+                MmFreeVirtualMemory(address_space, &base_address, &region_size, MEM_RELEASE);
+            ASSERT(free_status == STATUS_SUCCESS, "NcacheAllocateBuffer: Unwind free failed!");
+            return status;
+        }
+
         MemoryFence();
 
-        out_desc->virt_address = (vstart == 0) ? reinterpret_cast<PVOID>(allocated_phys_base)
-                                               : reinterpret_cast<PVOID>(vstart);
-        out_desc->size         = page_cnt * PAGE_SIZE;
-        out_desc->phys_base =
-            (vstart == 0) ? allocated_phys_base : TranslateVirtualToPhysical(vstart);
-        out_desc->alloc_tag = tag;
+        out_desc->virt_address = base_address;
+        out_desc->size         = region_size;
+        out_desc->phys_base    = TranslateVirtualToPhysical(vstart);
+        out_desc->alloc_tag    = tag;
 
         return STATUS_SUCCESS;
     }
 
     /* *******************************************************************************
-     *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : NcacheFreeBuffer                                                   *
-     *  DATE    : 2026                                                               *
-     *  PURPOSE : Restores cache state and releases frames back to PMM               *
+     * AUTHOR  : Trollycat                                                           *
+     * FUNC    : NcacheFreeBuffer                                                    *
+     * DATE    : 2026                                                                *
+     * PURPOSE : Tears down translations, releases frames, and frees VMM region      *
      ********************************************************************************/
-    VOID NcacheFreeBuffer(PNCACHE_DESCRIPTOR descriptor) noexcept
+    VOID
+    NcacheFreeBuffer(PMM_ADDRESS_SPACE address_space, PNCACHE_DESCRIPTOR descriptor) noexcept
     {
-        if (descriptor == nullptr || descriptor->virt_address == nullptr || descriptor->size == 0)
+        if (address_space == nullptr || descriptor == nullptr ||
+            descriptor->virt_address == nullptr || descriptor->size == 0)
             return;
 
-        InternalTeardownRange(reinterpret_cast<QWORD>(descriptor->virt_address), descriptor->size);
+        PVOID base_address = descriptor->virt_address;
+        SIZE_T region_size = descriptor->size;
+        QWORD vstart       = reinterpret_cast<QWORD>(base_address);
 
+        InternalTeardownRange(vstart, region_size);
+
+        CBKSTATUS free_status =
+            MmFreeVirtualMemory(address_space, &base_address, &region_size, MEM_RELEASE);
+        ASSERT(free_status == STATUS_SUCCESS,
+               "NcacheFreeBuffer: Backing address space release failed!");
         MemoryFence();
 
         descriptor->virt_address = nullptr;
         descriptor->phys_base    = 0;
         descriptor->size         = 0;
     }
+
 } // namespace cbk::mem

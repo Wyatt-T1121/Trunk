@@ -44,14 +44,21 @@ namespace cbk::mem
     using UnmapFn = CBKSTATUS (*)(QWORD);
 
     // Memory allocation flags... (tracking)
-    constexpr ULONG MEM_COMMIT              = 0x00001000;
-    constexpr ULONG MEM_RESERVE             = 0x00002000;
-    constexpr ULONG MEM_REPLACE_PLACEHOLDER = 0x00004000;
-    constexpr ULONG MEM_RELEASE             = 0x00008000;
-    constexpr ULONG MEM_FREE                = 0x00010000;
-    constexpr ULONG MEM_RESET               = 0x00080000;
-    constexpr ULONG MEM_TOP_DOWN            = 0x00100000;
-    constexpr ULONG MEM_LARGE_PAGES         = 0x20000000;
+    constexpr ULONG MEM_COMMIT                  = 0x00001000;
+    constexpr ULONG MEM_RESERVE                 = 0x00002000;
+    constexpr ULONG MEM_REPLACE_PLACEHOLDER     = 0x00004000;
+    constexpr ULONG MEM_DECOMMIT                = 0x00004000;
+    constexpr ULONG MEM_RELEASE                 = 0x00008000;
+    constexpr ULONG MEM_FREE                    = 0x00010000;
+    constexpr ULONG MEM_RESET                   = 0x00080000;
+    constexpr ULONG MEM_TOP_DOWN                = 0x00100000;
+    constexpr ULONG MEM_WRITE_WATCH             = 0x00200000;
+    constexpr ULONG MEM_PHYSICAL                = 0x00400000;
+    constexpr ULONG MEM_ROTATE                  = 0x00800000;
+    constexpr ULONG MEM_DIFFERENT_IMAGE_BASE_OK = 0x00800000;
+    constexpr ULONG MEM_RESET_UNDO              = 0x01000000;
+    constexpr ULONG MEM_LARGE_PAGES             = 0x20000000;
+    constexpr ULONG MEM_4MB_PAGES               = 0x80000000;
 
     constexpr SIZE_T MEM_PFN_STATE_COUNT = 7;
 
@@ -92,6 +99,10 @@ namespace cbk::mem
     constexpr QWORD PAGE_WRITE_THROUGH = 1ULL << 3;
     constexpr QWORD PAGE_CACHE_DISABLE = 1ULL << 4;
     constexpr QWORD PAGE_PAT           = 1ULL << 7;
+
+    constexpr QWORD MM_IO_COHERENT_MEMORY = 0x00000001;
+    constexpr QWORD MM_IO_NONCACHED       = 0x00000002;
+    constexpr QWORD MM_IO_WRITE_COMBINED  = 0x00000004;
 
     // Page table entry access flags...
     constexpr QWORD PAGE_PRESENT  = (1ULL << 0);
