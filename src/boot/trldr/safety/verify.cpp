@@ -26,22 +26,24 @@ namespace cbk::boot
 {
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : VerifyMb2Magic                                                    *
+     *  FUNC    : InVerifyMultiboot2Magic                                           *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Check the MB2 handoff magic value matches the spec                *
      * *****************************************************************************/
-    BOOL VerifyMb2Magic(DWORD magic) noexcept
+    BOOL
+    InVerifyMultiboot2Magic(DWORD magic) noexcept
     {
         return magic == MB2_MAGIC;
     }
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : VerifyMb2Pointer                                                  *
+     *  FUNC    : InVerifyMultiboot2Pointer                                         *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Check the MB2 info struct pointer before walking it               *
      * *****************************************************************************/
-    BOOL VerifyMb2Pointer(DWORD phys) noexcept
+    BOOL
+    InVerifyMultiboot2Pointer(DWORD phys) noexcept
     {
         if (phys < MB2_PTR_MIN)
             return FALSE;

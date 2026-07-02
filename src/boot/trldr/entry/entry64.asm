@@ -23,7 +23,7 @@
 
 bits 64
 
-extern CbkSystemStartup
+extern KeSystemStartup
 
 extern __bss_start
 extern __bss_end
@@ -33,33 +33,33 @@ extern __stack_top
 extern __init_array_start
 extern __init_array_end
 
-extern Mb2MagicStore
-extern Mb2InfoStore
+extern InMultiboot2MagicStore
+extern InMultiboot2InfoStore
 
-extern CbkEarlyFaultLockdown
+extern InEmergencyLockdown
 
-global Entry64
+global In64BitEntry
 
 section .text
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : LoadMb2FromMemory                                                *
+; *  FUNC    : InLoadMultiboot2FromMemory                                       *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Loads MB2 values saved by entry32.asm before the mode switch.    *
 ; *******************************************************************************
-LoadMb2FromMemory:
-    mov r12d, dword [Mb2MagicStore]
-    mov r13d, dword [Mb2InfoStore]
+InLoadMultiboot2FromMemory:
+    mov r12d, dword [InMultiboot2MagicStore]
+    mov r13d, dword [InMultiboot2InfoStore]
     ret
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : Load64bDataSegments                                              *
+; *  FUNC    : InLoad64BitDataSegments                                          *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Loads 64-bit data segments                                       *
 ; *******************************************************************************
-Load64bDataSegments:
+InLoad64BitDataSegments:
     mov ax, 16
     mov ds, ax
     mov es, ax
@@ -70,11 +70,11 @@ Load64bDataSegments:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : ZeroBss                                                          *
+; *  FUNC    : InZeroBss                                                        *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Zeros the BSS section                                            *
 ; *******************************************************************************
-ZeroBss:
+InZeroBss:
     mov rdi, __bss_start
     mov rcx, __bss_end
     sub rcx, rdi
@@ -84,41 +84,44 @@ ZeroBss:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : Entry64                                                          *
+; *  FUNC    : In64BitEntry                                                     *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : 64-bit entry level code, sets up the stack, calls C++ global con *
 ; *******************************************************************************
-Entry64:
+In64BitEntry:
     cli
     cld
     
-    call LoadMb2FromMemory
-    call Load64bDataSegments
+    call InLoadMultiboot2FromMemory
+    call InLoad64BitDataSegments
 
     mov rsp, __stack_top
     and rsp, ~0XF
     xor rbp, rbp
 
-    call ZeroBss
+    call InZeroBss
 
     mov rbx, __init_array_start
 
 ; ***************************************************************************
 ; *  AUTHOR  : Trollycat                                                    *
-; *  FUNC    : .CtorLoop                                                    *
+; *  FUNC    : .InCtorLoop                                                  *
 ; *  DATE    : 2026                                                         *
 ; *  PURPOSE : Iterates __init_array_start to __init_array_end, calling     *
 ; *            each 8-byte function pointer in sequence.                    *
 ; ***************************************************************************
-.CtorLoop:
+.InCtorLoop:
     cmp rbx, __init_array_end
-    jge .CtorDone
+    jge .InCtorFinish
     call qword [rbx]
     add rbx, 8
-    jmp .CtorLoop
-.CtorDone:
+    jmp .InCtorLoop
+.InCtorFinish:
     mov edi, r12d
     mov esi, r13d
-    call CbkSystemStartup
+    call KeSystemStartup
 
-    jmp CbkEarlyFaultLockdown
+    ; If it fails to calL KeSystemStartup, halt the kernel ASAP...
+    ; Should probably use KDCOM here to signal an error...
+    ; Otherwise you kind of just sit there wondering what failed...
+    jmp InEmergencyLockdown

@@ -39,10 +39,11 @@ namespace cbk::boot
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : ParseMb2                                                          *
+     *  FUNC    : InParseMultiboot2                                                 *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Walk all MB2 tags from mb2_phys                                   *
      * *****************************************************************************/
-    VOID ParseMb2(ULONG_PTR mb2_phys, BootInfo &info) noexcept;
+    VOID
+    InParseMultiboot2(ULONG_PTR mb2_phys, BootInfo &info) noexcept;
 
 } // namespace cbk::boot

@@ -18,7 +18,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Kernel entry point file, declares KeSystemStartup()                *
+ *  PURPOSE : Kernel entry point file, declares KeInitializeKernel()                *
  ********************************************************************************/
 
 #pragma once
@@ -31,14 +31,14 @@ namespace cbk::kernel
 {
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : KeSystemStartup()                                                  *
+     *  FUNC    : KeInitializeKernel()                                                  *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Main kernel function. Called by CbkLoad()                          *
+     *  PURPOSE : Main kernel function. Called by InLoadKernel()                          *
      ********************************************************************************/
     EXTERN_C
     NO_RETURN
     TEXT_SECTION
     VOID
-    KeSystemStartup(const boot::BootInfo &info) noexcept;
+    KeInitializeKernel(const boot::BootInfo &info) noexcept;
 
 } // namespace cbk::kernel

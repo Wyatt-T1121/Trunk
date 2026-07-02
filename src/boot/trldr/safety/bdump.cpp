@@ -35,11 +35,12 @@ namespace cbk::boot
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : BDump                                                              *
+     *  FUNC    : InDumpBootInformation                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Dump BootInfo contents to serial output.                           *
      ********************************************************************************/
-    VOID BDump(const BootInfo &info) noexcept
+    VOID
+    InDumpBootInformation(const BootInfo &info) noexcept
     {
         serial::SerialPuts("Bootloader: ");
         serial::SerialPuts(info.bootloader_name[0] ? info.bootloader_name : "(unknown)");
@@ -60,7 +61,7 @@ namespace cbk::boot
             tklib::fmt_hex(s_buf, sizeof(s_buf), region.End());
             serial::SerialPuts(s_buf);
             serial::SerialPuts("  ");
-            serial::SerialPuts(MemoryTypeString(region.type));
+            serial::SerialPuts(InMemoryTypeToString(region.type));
             serial::SerialPuts("\n");
         }
 

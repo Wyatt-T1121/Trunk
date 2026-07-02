@@ -30,10 +30,11 @@ namespace cbk::boot
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : BDump                                                              *
+     *  FUNC    : InDumpBootInformation                                              *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Dump BootInfo contents to serial output.                           *
      ********************************************************************************/
-    VOID BDump(const BootInfo &info) noexcept;
+    VOID
+    InDumpBootInformation(const BootInfo &info) noexcept;
 
 } // namespace cbk::boot

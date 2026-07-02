@@ -34,20 +34,21 @@ namespace cbk::boot
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : VerifyMb2Magic                                                    *
+     *  FUNC    : InVerifyMultiboot2Magic                                           *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Confirm the MB2 magic value left in EAX by GRUB is correct.       *
      * *****************************************************************************/
-    NO_DISCARD BOOL VerifyMb2Magic(DWORD magic) noexcept;
+    NO_DISCARD BOOL
+    InVerifyMultiboot2Magic(DWORD magic) noexcept;
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : VerifyMb2Pointer                                                  *
+     *  FUNC    : InVerifyMultiboot2Pointer                                         *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Confirm the MB2 info pointer is non-null, above the first page,   *
      *            and 8-byte aligned                                                *
      * *****************************************************************************/
-    NO_DISCARD BOOL VerifyMb2Pointer(DWORD phys) noexcept;
+    NO_DISCARD BOOL
+    InVerifyMultiboot2Pointer(DWORD phys) noexcept;
 
 } // namespace cbk::boot

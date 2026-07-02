@@ -34,71 +34,79 @@
 
 namespace cbk::boot
 {
-    EXTERN_C NO_RETURN VOID
-    KeSystemStartup(const BootInfo &info) noexcept;
-
     static BootInfo g_boot_info{};
 
+    // Kernel entry point...
+    // We could just include the header...
+    // But I think external linking is probably the better choice here...
+    EXTERN_C NO_RETURN VOID
+    KeInitializeKernel(const BootInfo &info) noexcept;
+
+    namespace
+    {
+        /* ******************************************************************************
+         *  AUTHOR  : Trollycat                                                         *
+         *  FUNC    : IniVerifyMultiboot2                                               *
+         *  DATE    : 2026                                                              *
+         *  PURPOSE : Wrapper for verify_mb2_(NAME)                                     *
+         * *****************************************************************************/
+        NO_DISCARD BOOL
+        IniVerifyMultiboot2(DWORD mb2_m, DWORD mb2_ph) noexcept
+        {
+            if (!InVerifyMultiboot2Magic(mb2_m) || !InVerifyMultiboot2Pointer(mb2_ph))
+                return FALSE;
+            return TRUE;
+        }
+    } // namespace
+
+    /* *******************************************************************************
+     *  AUTHOR  : Trollycat                                                          *
+     *  FUNC    : InMemoryTypeToString                                               *
+     *  DATE    : 2026                                                               *
+     *  PURPOSE : Return a short string describing a MEMORY_TYPE value.              *
+     ********************************************************************************/
     NO_DISCARD PCSTR
-    MemoryTypeString(MemoryType type) noexcept
+    InMemoryTypeToString(MEMORY_TYPE type) noexcept
     {
         switch (type) {
-        case MemoryType::Available:
-            return "Available";
-        case MemoryType::Reserved:
-            return "Reserved";
-        case MemoryType::AcpiReclaimable:
-            return "ACPI Reclaimable";
-        case MemoryType::AcpiNvs:
+        case MEMORY_TYPE::Available:
+            return "AVAILABLE";
+        case MEMORY_TYPE::Reserved:
+            return "RESERVED";
+        case MEMORY_TYPE::AcpiReclaimable:
+            return "ACPI RECLAIMABLE";
+        case MEMORY_TYPE::AcpiNvs:
             return "ACPI NVS";
-        case MemoryType::BadRam:
-            return "Bad RAM";
+        case MEMORY_TYPE::BadRam:
+            return "BAD RAM";
         default:
-            return "Unknown";
+            return "UNKNOWN";
         }
     }
 
     /* ******************************************************************************
-     *                                                                              *
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : VerifyMB2                                                         *
+     *  FUNC    : InLoadKernel                                                      *
      *  DATE    : 2026                                                              *
-     *  PURPOSE : Wrapper for verify_mb2_(NAME)                                     *
-     *                                                                              *
-     * *****************************************************************************/
-    NO_DISCARD BOOL
-    VerifyMB2(DWORD mb2_m, DWORD mb2_ph) noexcept
-    {
-        if (!VerifyMb2Magic(mb2_m) || !VerifyMb2Pointer(mb2_ph))
-            return FALSE;
-        return TRUE;
-    }
-
-    /* ******************************************************************************
-     *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : CbkLoad                                                           *
-     *  DATE    : 2026                                                              *
-     *  PURPOSE : Called from CbkSystemStartup. Builds BootInfo struct              *
+     *  PURPOSE : Called from KeSystemStartup. Builds BootInfo struct              *
      * *****************************************************************************/
     EXTERN_C VOID
-    CbkLoad(DWORD mb2_magic, DWORD mb2_phys) noexcept
+    InLoadKernel(DWORD mb2_magic, DWORD mb2_phys) noexcept
     {
         // TODO: IM PLANNING ON WRITING A BASIC NO BUFFER UART DRIVER FOR BOOT STAGE
         // THIS IS THE ACTUAL DRIVER, THIS CALL WILL BE REMOVED AND REPLACED WITH THE NEW BOOT CODE
         // DRIVER.
         CBKSTATUS status = drivers::serial::SerialInit();
-        ASSERT(status == STATUS_SUCCESS, "CbkLoad: failed to initialize serial (uart) driver");
 
-        if (!VerifyMB2(mb2_magic, mb2_phys))
-            kernel::KePerformBugCheck(
-                "Fatal: Multiboot2 verification failed. Magic number or alignment mismatch.");
+        ASSERT(status == STATUS_SUCCESS, "InLoadKernel: YOU SHOULDN'T BE HERE...");
+        ASSERT(IniVerifyMultiboot2(mb2_magic, mb2_phys), "InLoadKernel: INVALID MULTIBOO2 2....");
 
-        ParseMb2(static_cast<ULONG_PTR>(mb2_phys), g_boot_info);
-        BDump(g_boot_info);
+        InParseMultiboot2(static_cast<ULONG_PTR>(mb2_phys), g_boot_info);
+        InDumpBootInformation(g_boot_info);
 
-        KeSystemStartup(g_boot_info);
+        KeInitializeKernel(g_boot_info);
 
-        ASSERT(FALSE, "KeSystemStartup() suddenly dropped: CbkLoad()");
+        ASSERT(FALSE, "KeInitializeKernel() suddenly dropped: InLoadKernel()");
     }
 
 } // namespace cbk::boot

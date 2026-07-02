@@ -37,14 +37,13 @@ HH_PDPT_INDEX   equ 510
 
 section .boot.text
 
-
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : ZeroPageTables                                                   *
+; *  FUNC    : InZeroPageTables                                                 *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Zeroes the four page-table pages                                 *
 ; *******************************************************************************
-ZeroPageTables:
+InZeroPageTables:
     mov edi, PML4_ADDR
     xor eax, eax
     mov ecx, (0x4000 / 4)
@@ -53,11 +52,11 @@ ZeroPageTables:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : PopulatePageTables                                               *
+; *  FUNC    : InPopulatePageTables                                             *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Populates the page tables with mappings                          *
 ; *******************************************************************************
-PopulatePageTables:
+InPopulatePageTables:
     mov dword [PML4_ADDR + 4], 0
     mov dword [PML4_ADDR],                   PDPT_ID | PTE_FLAGS
     
@@ -74,10 +73,10 @@ PopulatePageTables:
     mov dword [PDPT_HH + HH_PDPT_INDEX * 8], PD_ADDR | PTE_FLAGS
     ret
 
-global SetupPageTables
-SetupPageTables:
-    call ZeroPageTables
-    call PopulatePageTables
+global InSetupPageTables
+InSetupPageTables:
+    call InZeroPageTables
+    call InPopulatePageTables
 
     mov edi, PD_ADDR
     mov eax, PTE_HUGE_FLAGS
@@ -93,12 +92,12 @@ SetupPageTables:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : EnableLongMode                                                   *
+; *  FUNC    : InEnableLongMode                                                 *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Enables long mode                                                *
 ; *******************************************************************************
-global EnableLongMode
-EnableLongMode:
+global InEnableLongMode
+InEnableLongMode:
     mov eax, PML4_ADDR
     mov cr3, eax
 

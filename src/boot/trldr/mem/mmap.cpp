@@ -55,12 +55,12 @@ namespace cbk::boot
     {
         /* ******************************************************************************
          *  AUTHOR  : Trollycat                                                         *
-         *  FUNC    : NextTag                                                           *
+         *  FUNC    : IniAdvanceToNextMultiboot2Tag                                     *
          *  DATE    : 2026                                                              *
-         *  PURPOSE : Advance to the next MB2 tag.                                      *
+         *  PURPOSE : Advance to the next MB2 tag                                       *
          * *****************************************************************************/
-        NO_DISCARD
-        static const MB2Tag *NextTag(const MB2Tag *tag) noexcept
+        NO_DISCARD INLINE const MB2Tag *
+        IniAdvanceToNextMultiboot2Tag(const MB2Tag *tag) noexcept
         {
             ULONG_PTR addr = reinterpret_cast<ULONG_PTR>(tag) + tag->size;
             addr           = (addr + 7) & ~ULONG_PTR{7};
@@ -69,11 +69,13 @@ namespace cbk::boot
 
         /* ******************************************************************************
          *  AUTHOR  : Trollycat                                                         *
-         *  FUNC    : ParseMmap                                                         *
+         *  FUNC    : IniParseMemoryMap                                                 *
          *  DATE    : 2026                                                              *
          *  PURPOSE : Walk MB2 memory map entries and copy them into BootInfo.          *
          * *****************************************************************************/
-        static VOID ParseMmap(const MB2MmapTag *tag, BootInfo &info) noexcept
+        INLINE
+        VOID
+        IniParseMemoryMap(const MB2MmapTag *tag, BootInfo &info) noexcept
         {
             const ULONG_PTR end = reinterpret_cast<ULONG_PTR>(tag) + tag->size;
             const auto *entry   = tag->entries;
@@ -86,19 +88,19 @@ namespace cbk::boot
 
                 switch (entry->type) {
                 case MMAP_AVAILABLE:
-                    out.type = MemoryType::Available;
+                    out.type = MEMORY_TYPE::Available;
                     break;
                 case MMAP_ACPI:
-                    out.type = MemoryType::AcpiReclaimable;
+                    out.type = MEMORY_TYPE::AcpiReclaimable;
                     break;
                 case MMAP_NVS:
-                    out.type = MemoryType::AcpiNvs;
+                    out.type = MEMORY_TYPE::AcpiNvs;
                     break;
                 case MMAP_BADRAM:
-                    out.type = MemoryType::BadRam;
+                    out.type = MEMORY_TYPE::BadRam;
                     break;
                 default:
-                    out.type = MemoryType::Reserved;
+                    out.type = MEMORY_TYPE::Reserved;
                     break;
                 }
 
@@ -110,11 +112,12 @@ namespace cbk::boot
 
     /* ******************************************************************************
      *  AUTHOR  : Trollycat                                                         *
-     *  FUNC    : ParseMb2                                                          *
+     *  FUNC    : InParseMultiboot2                                                 *
      *  DATE    : 2026                                                              *
      *  PURPOSE : Walk all MB2 tags and populate BootInfo with the memory map       *
      * *****************************************************************************/
-    VOID ParseMb2(ULONG_PTR mb2_phys, BootInfo &info) noexcept
+    VOID
+    InParseMultiboot2(ULONG_PTR mb2_phys, BootInfo &info) noexcept
     {
         info.mmap_count     = 0;
         const ULONG_PTR end = mb2_phys + *reinterpret_cast<const DWORD *>(mb2_phys);
@@ -123,7 +126,7 @@ namespace cbk::boot
         while (reinterpret_cast<ULONG_PTR>(tag) < end && tag->type != TAG_END) {
             switch (tag->type) {
             case TAG_MMAP:
-                ParseMmap(reinterpret_cast<const MB2MmapTag *>(tag), info);
+                IniParseMemoryMap(reinterpret_cast<const MB2MmapTag *>(tag), info);
                 break;
 
             case TAG_BOOTLOADER: {
@@ -136,7 +139,7 @@ namespace cbk::boot
                 break;
             }
 
-            tag = NextTag(tag);
+            tag = IniAdvanceToNextMultiboot2Tag(tag);
         }
     }
 

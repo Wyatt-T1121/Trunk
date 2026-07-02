@@ -46,16 +46,16 @@ Even tho It's not a custom bootloader, I still named It.
 
 Finally, the boot process chain:
 
-entry64.asm -> CbkSystemStartup(asm) -> CbkLoad()(C++) -> KeSystemStartup()(C++)
+entry64.asm -> KeSystemStartup(asm) -> InLoadKernel()(C++) -> KeInitializeKernel()(C++)
 
-CbkSystemStartup Is an assembly safety landing pad, Instead of entry64 calling CbkLoad() directly.
+KeSystemStartup Is an assembly safety landing pad, Instead of entry64 calling InLoadKernel() directly.
 It acts as a safety net and make's sure the system Is setup properly.
 
-CbkLoad() Is the C++ code that loads the main kernel function
+InLoadKernel() Is the C++ code that loads the main kernel function
 
-It calls the parsing functions for MB2, verifies the MB2 MAGIC, then calls KeSystemStartup()
+It calls the parsing functions for MB2, verifies the MB2 MAGIC, then calls KeInitializeKernel()
 
-KeSystemStartup() Is the kmain() for Trunk.
+KeInitializeKernel() Is the kmain() for Trunk.
 It's the main kernel function, basically the start of the real operating system.
 
 # Drivers

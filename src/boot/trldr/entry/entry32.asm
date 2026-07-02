@@ -23,20 +23,20 @@
 bits 32
 section .boot.text
 
-extern SetupPageTables
-extern EnableLongMode
+extern InSetupPageTables
+extern InEnableLongMode
 
-global _Start
+global _InStartSystem
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : SaveMb2ToMemory                                                  *
+; *  FUNC    : InSaveMultiboot2ToMemory                                         *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Stores MB2 values to memory in boot section so they can survive  *
 ; *******************************************************************************
-SaveMb2ToMemory:
-    mov dword [Mb2MagicStore], eax
-    mov dword [Mb2InfoStore], ebx
+InSaveMultiboot2ToMemory:
+    mov dword [InMultiboot2MagicStore], eax
+    mov dword [InMultiboot2InfoStore], ebx
     
     mov edi, eax
     mov esi, ebx
@@ -45,66 +45,68 @@ SaveMb2ToMemory:
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : _Start                                                           *
+; *  FUNC    : _InStartSystem                                                   *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : GRUB entry. The 32-64 bit switch.                                *
 ; *******************************************************************************
-_Start:
+_InStartSystem:
     cli
     mov esp, 0x7C00
 
-    call SaveMb2ToMemory
-    call SetupPageTables
-    call EnableLongMode
+    call InSaveMultiboot2ToMemory
+    call InSetupPageTables
+    call InEnableLongMode
 
-    lgdt [Gdt64Ptr]
-    jmp 0x08:Trampoline64
+    lgdt [InGdt64Pointer]
+    jmp 0x08:InTrampoline64
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : Trampoline64                                                     *
+; *  FUNC    : InTrampoline64                                                   *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : Tiny 64-bit stub that lives in the physical boot region.         *
 ; *******************************************************************************
 bits 64
-Trampoline64:
-    mov rax, [Entry64Vaddr]
+InTrampoline64:
+    mov rax, [InEntry64VirtualAddress]
     jmp rax
-    jmp CbkEarlyFaultLockdown
+    jmp InEmergencyLockdown
 
 align 16
-Gdt64:
+InGdt64:
     dq 0
     dq (1 << 43) | (1 << 44) | (1 << 47) | (1 << 53)
     dq (1 << 41) | (1 << 44) | (1 << 47)
-Gdt64Ptr:
-    dw Gdt64Ptr - Gdt64 - 1
-    dd Gdt64
-extern Entry64
+InGdt64Pointer:
+    dw InGdt64Pointer - InGdt64 - 1
+    dd InGdt64
+
+extern In64BitEntry
 align 8
-Entry64Vaddr:
-    dq Entry64
+
+InEntry64VirtualAddress:
+    dq In64BitEntry
 
 align 8
-global Mb2MagicStore
-global Mb2InfoStore
 
-Mb2MagicStore:
+global InMultiboot2MagicStore
+InMultiboot2MagicStore:
     dd 0
 
-Mb2InfoStore:
+global InMultiboot2InfoStore
+InMultiboot2InfoStore:
     dd 0
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : CbkEarlyFaultLockdown                                            *
+; *  FUNC    : InEmergencyLockdown                                              *
 ; *  DATE    : 2026                                                             *
 ; *  PURPOSE : halt loop incase any assembly code fails                         *
 ; *******************************************************************************
-global CbkEarlyFaultLockdown
-CbkEarlyFaultLockdown:
+global InEmergencyLockdown
+InEmergencyLockdown:
     cli
-.lock_loop:
+.IniLockLoop:
     hlt
     pause
-    jmp .lock_loop
+    jmp .IniLockLoop

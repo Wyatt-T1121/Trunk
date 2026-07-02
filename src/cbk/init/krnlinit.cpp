@@ -18,7 +18,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Kernel entry point (KeSystemStartup)                               *
+ *  PURPOSE : Kernel entry point (KeInitializeKernel)                               *
  ********************************************************************************/
 #include <cbk/init/krnlinit.h>
 
@@ -46,12 +46,13 @@ namespace cbk::kernel
         interrupts::KeInitializeIdt();
 
         CBKSTATUS status = drivers::pic::HalInitializePic();
-        ASSERT(status == STATUS_SUCCESS, "CbkSetupSubsystems: Failed to init PIC");
+        ASSERT(status == STATUS_SUCCESS,
+               "CbkSetupSubsystems: LITERALLY NOT POSSIBLY TO GET HERE...");
     }
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : KeSystemStartup                                                    *
+     *  FUNC    : KeInitializeKernel                                                 *
      *  DATE    : 2026                                                               *
      *  PURPOSE : Top-level kernel entry.                                            *
      ********************************************************************************/
@@ -63,7 +64,7 @@ namespace cbk::kernel
     NO_RETURN
     TEXT_SECTION
     VOID
-    KeSystemStartup(const boot::BootInfo &info) noexcept
+    KeInitializeKernel(const boot::BootInfo &info) noexcept
     {
         CbkSetupSubsystems(info);
 

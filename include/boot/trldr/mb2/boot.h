@@ -28,7 +28,7 @@
 
 namespace cbk::boot
 {
-    enum class MemoryType : DWORD
+    enum class MEMORY_TYPE : DWORD
     {
         Available       = 0,
         Reserved        = 1,
@@ -41,15 +41,18 @@ namespace cbk::boot
     {
         QWORD base;
         QWORD length;
-        MemoryType type;
+        MEMORY_TYPE type;
 
-        NO_DISCARD constexpr QWORD End() const noexcept
+        NO_DISCARD constexpr QWORD
+        End() const noexcept
         {
             return base + length;
         }
-        NO_DISCARD constexpr BOOL Available() const noexcept
+
+        NO_DISCARD constexpr BOOL
+        Available() const noexcept
         {
-            return type == MemoryType::Available;
+            return type == MEMORY_TYPE::Available;
         }
     };
 
@@ -68,8 +71,8 @@ namespace cbk::boot
          *  DATE    : 2026                                                           *
          *  PURPOSE : Sum of all Available region lengths. Used by the PMM.          *
          ****************************************************************************/
-        NO_DISCARD
-        QWORD TotalAvailableBytes() const noexcept
+        NO_DISCARD QWORD
+        TotalAvailableBytes() const noexcept
         {
             QWORD total = 0;
             for (SIZE_T i = 0; i < mmap_count; ++i)
@@ -81,10 +84,11 @@ namespace cbk::boot
 
     /* *******************************************************************************
      *  AUTHOR  : Trollycat                                                          *
-     *  FUNC    : MemoryTypeString                                                   *
+     *  FUNC    : InMemoryTypeToString                                               *
      *  DATE    : 2026                                                               *
-     *  PURPOSE : Return a short string describing a MemoryType value.               *
+     *  PURPOSE : Return a short string describing a MEMORY_TYPE value.              *
      ********************************************************************************/
-    NO_DISCARD PCSTR MemoryTypeString(MemoryType type) noexcept;
+    NO_DISCARD PCSTR
+    InMemoryTypeToString(MEMORY_TYPE type) noexcept;
 
 } // namespace cbk::boot

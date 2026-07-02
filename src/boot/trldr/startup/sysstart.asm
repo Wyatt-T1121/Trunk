@@ -22,20 +22,18 @@
 ; *******************************************************************************
 bits 64
 
-extern CbkLoad
-
-extern CbkEarlyFaultLockdown
+extern InLoadKernel
+extern InEmergencyLockdown
 
 section .text
 
 ; *******************************************************************************
 ; *  AUTHOR  : Trollycat                                                        *
-; *  FUNC    : CbkSystemStartup                                                  *
+; *  FUNC    : KeSystemStartup                                                  *
 ; *  DATE    : 2026                                                             *
-; *  PURPOSE : Official System Startup. entry64.asm -> calls CbkSystemStartup -> *
-; *                                     calls CbkLoad() -> calls KeSystemStartup()   *
+; *  PURPOSE : Kernel landing pad, ( assembly )                                 *
 ; *******************************************************************************
-global CbkSystemStartup
-CbkSystemStartup:
-    call CbkLoad
-    jmp CbkEarlyFaultLockdown
+global KeSystemStartup
+KeSystemStartup:
+    call InLoadKernel
+    jmp InEmergencyLockdown
