@@ -18,7 +18,7 @@
  *  AUTHOR  : Trollycat                                                          *
  *  MODULE  : Core kernel                                                        *
  *  DATE    : 2026                                                               *
- *  PURPOSE : Kernel entry point (KeInitializeKernel)                               *
+ *  PURPOSE : Kernel entry point (KeInitializeKernel)                            *
  ********************************************************************************/
 #include <cbk/init/krnlinit.h>
 
